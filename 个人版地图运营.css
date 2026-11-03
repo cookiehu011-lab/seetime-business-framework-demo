@@ -185,6 +185,7 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-evidence-copy{color:var(--text-secondary);font-size:var(--fs-body);line-height:var(--lh-relaxed);font-weight:var(--fw-regular)}
 .mount-evidence-caution{color:var(--text-warn);font-size:var(--fs-small);line-height:var(--lh-relaxed)}
 .mount-inspector .mount-card-foot{margin:0;padding-top:12px;background:#0e1a29}
+.mount-current-target{display:grid;gap:4px;margin:8px 0 12px;padding:10px 12px;border:1px solid #31536a;border-radius:7px;background:#102132}.mount-current-target small{color:var(--text-tertiary);font-size:var(--fs-caption)}.mount-current-target strong{color:var(--text-strong);font-size:var(--fs-body);font-weight:var(--fw-medium)}.mount-current-target span{color:var(--text-secondary);font-size:var(--fs-caption)}
 .mount-selected-place{display:grid;gap:4px;margin-bottom:12px}
 .mount-selected-place>span{color:var(--text-secondary);font-size:var(--fs-caption)}
 .mount-selected-place strong{color:var(--text-strong);font-size:var(--fs-body);font-weight:var(--fw-medium);line-height:var(--lh-base)}
