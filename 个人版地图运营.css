@@ -815,3 +815,22 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 @media(max-width:700px){.mount-inspector .mount-flow-steps{gap:12px;padding:10px 8px!important}.mount-inspector .mount-flow-steps>span:not(:last-child)::after{right:-11px;width:10px}.mount-picker-toolbar{gap:6px}.mount-radius-field{font-size:10px}.mount-compact-copy>span{gap:2px 4px}}
 .mount-inspector .mount-place-tabs{position:static;top:auto;z-index:auto;background:#0e1a29}
 @media(min-width:701px) and (max-width:1180px){.camera-map-layout.mount-map-workspace.has-camera{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;height:calc(100dvh - 124px);min-height:360px}.camera-map-layout.mount-map-workspace.has-camera>.mount-map-stage{grid-row:1;height:100%;min-height:0}.camera-map-layout.mount-map-workspace.has-camera>.mount-inspector{position:absolute;top:8px;right:8px;bottom:72px;height:auto;width:min(400px,calc(100% - 16px));display:flex;flex-direction:column}.camera-map-layout.mount-map-workspace.has-camera>.mount-workflow-rail{grid-row:2;position:relative;min-height:64px}.camera-map-layout.mount-map-workspace.has-camera>.map-tree-rail:not([hidden]){position:absolute;top:8px;bottom:72px;left:8px;height:auto;z-index:30}}
+
+/* POI work status controls and nearby discovery are separate from the workset count. */
+.poi-work-summary>button.pending{--status-color:#e5b834;background:#3b361a}
+.poi-work-summary>button.mounted{--status-color:#3dd578;background:#123c32}
+.poi-work-summary>button.nearby{--status-color:#5ab9ef;background:#173b54}
+.poi-work-summary>button[aria-pressed="true"]{outline:2px solid var(--status-color);outline-offset:2px;filter:brightness(1.14)}
+.poi-nearby-group>summary{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding:12px;background:#12263a;color:#c4d5e2;font-size:13px;font-weight:500;cursor:pointer;list-style:none}
+.poi-nearby-group>summary::-webkit-details-marker{display:none}
+.poi-nearby-group>summary::after{content:"＋";color:#77c8d9;font-size:16px;line-height:1}
+.poi-nearby-group[open]>summary::after{content:"−"}
+.poi-nearby-group>summary small{max-width:58%;color:#91a9bc;font-size:11px;font-weight:400;line-height:1.5;text-align:right}
+.mount-search-results{margin-top:12px;padding-top:10px;border-top:1px solid #30495d}
+.mount-search-results h4{margin:0 0 8px;color:#bacbd8;font-size:12px;font-weight:500}
+.mount-current-target{display:grid;gap:8px;padding:14px;border:1px solid #287d8c;border-radius:7px;background:#102a38}
+.mount-current-target small{color:#85b6c8;font-size:11px}
+.mount-current-target strong{font-size:16px;font-weight:600;color:#e8f4fb}
+.mount-current-target span{color:#a7bdce;font-size:12px}
+.mount-current-target p{margin:0;color:#8da9bc;font-size:11px;line-height:1.5}
+@media(max-width:700px){.poi-nearby-group>summary{font-size:12px}.poi-nearby-group>summary small{max-width:55%;font-size:10px}.mount-current-target{padding:11px}}
