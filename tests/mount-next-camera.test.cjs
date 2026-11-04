@@ -17,6 +17,12 @@ function subject({saved=true,parking=false,next='c2'}={}) {
 test('saved POI selection is not an unsaved change',()=>{
  const {context}=subject();assert.equal(context.hasMountDraftChanges(),false);
 });
+test('opening a camera under a fixed POI does not create unsaved changes',()=>{
+ const {context,ui}=subject({saved:false});ui.camera.entryMode='poi';ui.camera.targetPoiId='p1';assert.equal(context.hasMountDraftChanges(),false);
+});
+test('edits made in the fixed POI camera workspace still require leave confirmation',()=>{
+ const {context,ui}=subject({saved:false});ui.camera.entryMode='poi';ui.camera.targetPoiId='p1';ui.analysis.profileDraft={cameraId:'c1'};context.hasCameraProfileChanges=()=>true;assert.equal(context.hasMountDraftChanges(),true);
+});
 test('completed mounting advances directly to the next camera',()=>{
  const {context,events}=subject();context.requestMountAction('next');assert.deepEqual(events,['next:c2']);
 });
