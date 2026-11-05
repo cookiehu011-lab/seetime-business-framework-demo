@@ -12,10 +12,11 @@ function loadFunction(name, context) {
   vm.runInContext(declaration, context);
 }
 
-function worksetContext(records, manual = {}) {
+function worksetContext(records, manual = {}, outcomes = {}) {
   const context = {
     rec: camera => records[camera.id] || { mounts: [], sources: {}, candidates: [] },
-    confirmed: camera => manual[camera.id] || ''
+    confirmed: camera => manual[camera.id] || '',
+    mountQueueOutcome: camera => outcomes[camera.id] || null
   };
   vm.createContext(context);
   loadFunction('poiWorksetFor', context);
@@ -50,6 +51,24 @@ test('POI workset counts each camera once per POI and excludes closed unable can
   assert.equal(closed.completed.length, 0);
   assert.equal(closed.pendingMount.length, 0);
   assert.equal(closed.total, 0);
+});
+
+test('POI workset excludes no-value outcomes but keeps basic-info feedback pending for review', () => {
+  const cameras = [{ id: 'no-value' }, { id: 'no-value-pre' }, { id: 'feedback' }];
+  const context = worksetContext({
+    'no-value': { mounts: [], sources: {}, candidates: [{ id: 'p1' }] },
+    'no-value-pre': { mounts: ['p1'], sources: { p1: 'ai_pre' }, candidates: [] },
+    feedback: { mounts: [], sources: {}, candidates: [{ id: 'p1' }] }
+  }, {}, {
+    'no-value': { type: 'no_value', status: 'excluded' },
+    'no-value-pre': { type: 'no_value', status: 'excluded' },
+    feedback: { type: 'basic_feedback', status: 'pending_review' }
+  });
+  const result = context.poiWorksetFor({ id: 'p1' }, cameras);
+  assert.deepEqual(Array.from(result.pendingReview, camera => camera.id), ['feedback']);
+  assert.equal(result.pendingMount.some(camera => camera.id === 'no-value' || camera.id === 'no-value-pre'), false);
+  assert.equal(result.pendingMount.length, 0);
+  assert.equal(result.total, 1);
 });
 
 test('empty POI workset reports zero progress without adding nearby cameras', () => {
@@ -94,13 +113,13 @@ test('mount picker removes the project-all tab and POI entry renders a fixed tar
 
 test('POI status cards filter mounted, pending and nearby cameras', () => {
   assert.match(source, /summary=\[\['mounted','已挂载'/);
-  assert.match(source, /已挂载 <b>\$\{progress\.completed\.length\}\/\$\{progress\.total\}/);
+  assert.match(source, /总相机 \$\{progress\.total\} 台/);
+  assert.match(source, /mountProgressText\(progress\)/);
   assert.match(source, /\['pending','待确认'/);
   assert.match(source, /\['nearby','附近相机'/);
   assert.match(source, /\['all','mounted','pending','nearby'\]\.includes\(id\)/);
   assert.match(source, /filter==='nearby'\?'open':''/);
   assert.match(source, /附近未匹配相机不计入进度/);
-  assert.match(source, /已挂载 \$\{progress\.completed\.length\}\/\$\{progress\.total\}/);
   assert.match(source, /<span>关联相机<\/span>/);
   assert.match(source, /groups\.filter\(\(\[, ,rows\]\)=>rows\.length&&/);
 });

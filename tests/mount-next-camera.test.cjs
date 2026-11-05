@@ -17,6 +17,9 @@ function subject({saved=true,parking=false,next='c2'}={}) {
 test('saved POI selection is not an unsaved change',()=>{
  const {context}=subject();assert.equal(context.hasMountDraftChanges(),false);
 });
+test('POI selection without an active camera does not count as a draft',()=>{
+ const {context,ui}=subject();ui.camera.cameraId='';assert.equal(context.hasMountDraftChanges(),false);
+});
 test('opening a camera under a fixed POI does not create unsaved changes',()=>{
  const {context,ui}=subject({saved:false});ui.camera.entryMode='poi';ui.camera.targetPoiId='p1';assert.equal(context.hasMountDraftChanges(),false);
 });

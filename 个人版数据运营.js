@@ -255,6 +255,33 @@
   }catch(error){formError(error.message)}
  });
  document.addEventListener('keydown',event=>{if(event.target.dataset?.opsChange!=='frame-minute'||!detail()||!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const minutes=frameMinutesForDate(detail().frameDate),index=minutes.indexOf(detail().minute??642);if(!minutes.length)return;detail().minute=event.key==='Home'?minutes[0]:event.key==='End'?minutes[minutes.length-1]:minutes[Math.max(0,Math.min(minutes.length-1,index+(event.key==='ArrowLeft'?-1:1)))];redraw('ops-frame-seek')});
+ function applyPreMountReview(record,prePoiId,decision,targetPoiId='',actor='',time=''){
+  if(record.sources?.[prePoiId]!=='ai_pre')throw Error('AI 预挂记录已变化，请重新核对');
+  if(!['accept','reject','switch'].includes(decision))throw Error('请选择有效的 AI 预挂审核结果');
+  const target=decision==='accept'?prePoiId:decision==='switch'?targetPoiId:'';
+  if(decision==='switch'&&(!target||target===prePoiId))throw Error('请选择要切换到的 POI');
+  record.mounts=target?[...new Set([...record.mounts.filter(id=>id!==prePoiId),target])]:record.mounts.filter(id=>id!==prePoiId);
+  record.sources={...(record.sources||{})};delete record.sources[prePoiId];if(target)record.sources[target]='manual';
+  record.candidates=(record.candidates||[]).filter(item=>item.id!==prePoiId&&item.id!==target);
+  record.decisions=record.decisions||{accepted:[],rejected:[]};
+  const accepted=new Set(record.decisions.accepted||[]),rejected=new Set(record.decisions.rejected||[]);
+  accepted.delete(prePoiId);rejected.delete(prePoiId);
+  if(target){accepted.add(target);rejected.delete(target)}
+  if(decision==='accept')accepted.add(prePoiId);else rejected.add(prePoiId);
+  record.decisions.accepted=[...accepted];record.decisions.rejected=[...rejected];
+  record.preReviewHistory=[{poiId:prePoiId,decision,targetPoiId:target||'',actor,time},...(record.preReviewHistory||[])].slice(0,40);
+  record.unmountable=null;
+  const reviewKey=keyOf(record.mounts),reviewVersion=(record.version||0)+1;
+  record.review=target?{key:reviewKey,version:reviewVersion,candidateVersion:record.candidateVersion||0,usageVersion:record.usageVersion||0,actor,time}:record.mounts.length&&record.review?{...record.review,key:reviewKey,version:reviewVersion}:null;
+  if(record.issue==='待补 POI'||record.issue==='无法挂载'){record.issue='';record.note=''}
+  return record;
+ }
+ function saveMapPreReview(id,prePoiId,decision,targetPoiId=''){
+  const cam=camera(id);if(!cam||!can('bindings'))throw Error('当前项目无法维护这台相机');
+  if(targetPoiId&&!city().pois.some(p=>p.id===targetPoiId&&p.enabled!==false))throw Error('请选择有效 POI');
+  const current=raw(id),expected=stamp(current),actor=role().person,time=timestamp(),actions={accept:'采纳 AI 预挂',reject:'不采纳 AI 预挂',switch:'切换 AI 预挂 POI'};
+  commitRecord(id,expected,actions[decision]||'审核 AI 预挂',record=>applyPreMountReview(record,prePoiId,decision,targetPoiId,actor,time));return true;
+ }
  function saveMapDecision(id,poiId='',reason=''){
   const cam=camera(id);if(!cam||!can('bindings'))throw Error('当前项目无法维护这台相机');
   if(poiId&&!city().pois.some(p=>p.id===poiId))throw Error('请选择有效 POI');
@@ -265,6 +292,6 @@
    else{r.mounts=[];r.sources={};r.review=null;r.unmountable={reason,actor:role().person,time:timestamp()};r.issue='无法挂载';r.note=reason;}
   });return true;
  }
- window.SeeTimeOps={records:()=>projectCameras().map(cam=>({...cam,ops:raw(cam.id)})),record,status,limitations,openCamera,selectPoi,decidePre,confirm,saveMount:saveSelectedMount,markUnable,saveMapDecision,exclude:excludeCamera,restore:restoreCamera,savePoi,onBaseValueChange,beforeProjectSwitch,prepareBaseSave,rollbackBaseSave,prepareSessionSave,afterCitySwitch};
+ window.SeeTimeOps={records:()=>projectCameras().map(cam=>({...cam,ops:raw(cam.id)})),record,status,limitations,openCamera,selectPoi,decidePre,confirm,saveMount:saveSelectedMount,markUnable,saveMapDecision,saveMapPreReview,exclude:excludeCamera,restore:restoreCamera,savePoi,onBaseValueChange,beforeProjectSwitch,prepareBaseSave,rollbackBaseSave,prepareSessionSave,afterCitySwitch};
  render();
 })();
