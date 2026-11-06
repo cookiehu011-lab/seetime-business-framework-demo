@@ -282,12 +282,19 @@
   const current=raw(id),expected=stamp(current),actor=role().person,time=timestamp(),actions={accept:'采纳 AI 预挂',reject:'不采纳 AI 预挂',switch:'切换 AI 预挂 POI'};
   commitRecord(id,expected,actions[decision]||'审核 AI 预挂',record=>applyPreMountReview(record,prePoiId,decision,targetPoiId,actor,time));return true;
  }
- function saveMapDecision(id,poiId='',reason=''){
+ function saveMapDecision(id,poiId='',reason='',remountPoiId=''){
   const cam=camera(id);if(!cam||!can('bindings'))throw Error('当前项目无法维护这台相机');
   if(poiId&&!city().pois.some(p=>p.id===poiId))throw Error('请选择有效 POI');
   reason=String(reason||'').trim();if(!poiId&&!reason)throw Error('请填写一句无法挂载原因');
   const current=raw(id),expected=stamp(current),chosen=poiId;
-  commitRecord(id,expected,chosen?'确认挂载':'标记无法挂载',r=>{
+  commitRecord(id,expected,remountPoiId?'重新挂载':chosen?'确认挂载':'标记无法挂载',r=>{
+   if(remountPoiId){
+    if(!chosen||!r.mounts.includes(remountPoiId)||!['manual','ai_pre'].includes(r.sources?.[remountPoiId]))throw Error('原挂载关系已变化，请重新打开相机');
+    if(chosen!==remountPoiId&&r.mounts.includes(chosen))throw Error('此相机已挂载该 POI，请选择其他地点');
+    r.mounts=r.mounts.filter(id=>id!==remountPoiId);
+    delete r.sources[remountPoiId];
+    if(r.decisions)r.decisions.accepted=(r.decisions.accepted||[]).filter(id=>id!==remountPoiId);
+   }
    if(chosen){r.mounts=[...new Set([...r.mounts,chosen])];r.sources={...r.sources,[chosen]:'manual'};r.candidates=(r.candidates||[]).filter(item=>item.id!==chosen);r.unmountable=null;r.issue='';r.note='';r.decisions={accepted:[...new Set([...(r.decisions?.accepted||[]),chosen])],rejected:(r.decisions?.rejected||[]).filter(id=>id!==chosen)};r.review={key:keyOf(r.mounts),version:r.version+1,candidateVersion:r.candidateVersion,usageVersion:r.usageVersion,actor:role().person,time:timestamp()};}
    else{r.mounts=[];r.sources={};r.review=null;r.unmountable={reason,actor:role().person,time:timestamp()};r.issue='无法挂载';r.note=reason;}
   });return true;

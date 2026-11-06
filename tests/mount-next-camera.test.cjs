@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const source = fs.readFileSync(require('node:path').join(__dirname,'../个人版地图运营.js'),'utf8');
 function subject({saved=true,parking=false,next='c2'}={}) {
  const events=[],cam={id:'c1',projectId:'project'},ui={camera:{cameraId:'c1',completedCameraId:saved?'c1':'',selectedPoiId:'p1',poiCreateOpen:false,poiCreateName:'',reason:'',unableOpen:false},analysis:{profileDraft:null,calibration:null}};
- const context={ui,events,mountProjectCams:()=>[cam],confirmed:()=>saved?'p1':'',hasCameraProfileChanges:()=>false,currentProject:()=>({id:'project'}),nextUnprocessedId:()=>next,analysisProfile:()=>({elements:parking?['车位']:['人流']}),openParkingCalibration:()=>events.push('calibration'),render:()=>{},selectCamera:id=>events.push(context.hasMountDraftChanges()?'leave-dialog':'next:'+id)};
+ const context={ui,events,mountProjectCams:()=>[cam],confirmed:()=>saved?'p1':'',mountRelationSource:(_cam,id)=>saved&&id==='p1'?'manual':'',hasCameraProfileChanges:()=>false,currentProject:()=>({id:'project'}),nextUnprocessedId:()=>next,analysisProfile:()=>({elements:parking?['车位']:['人流']}),openParkingCalibration:()=>events.push('calibration'),render:()=>{},selectCamera:id=>events.push(context.hasMountDraftChanges()?'leave-dialog':'next:'+id)};
  vm.createContext(context);
  for(const name of ['hasMountDraftChanges','requestMountAction','executeMountAction']) {
   const declaration=source.split('\n').find(line=>line.startsWith(` function ${name}(`));

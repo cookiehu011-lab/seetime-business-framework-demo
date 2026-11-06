@@ -354,6 +354,7 @@ test('terminal camera actions advance only after save and return to the queue at
   vm.createContext(context);
   load(mapSource, 'nextQueueCameraAfter', context);
   load(mapSource, 'buildMountQueueDecision', context);
+  load(mapSource, 'closeMountPoiCreate', context);
   load(mapSource, 'finishMountQueueOutcome', context);
   context.finishMountQueueOutcome(cameras[0], 'no_value', {});
   assert.deepEqual(events.slice(0, 3), ['saved:c1', 'select:c2', 'notify:c1->c2']);
@@ -415,6 +416,7 @@ test('completed mount auto-advance bypasses the discard guard in the real camera
   };
   vm.createContext(context);
   load(mapSource, 'shouldConfirmMountNext', context);
+  load(mapSource, 'closeMountPoiCreate', context);
   load(mapSource, 'selectCamera', context);
   load(mapSource, 'executeMountAction', context);
   load(mapSource, 'requestMountAction', context);
@@ -443,6 +445,7 @@ test('unsaved terminal camera feedback is protected when leaving the camera', ()
   };
   vm.createContext(context);
   load(mapSource, 'hasMountDraftChanges', context);
+  load(mapSource, 'closeMountPoiCreate', context);
   load(mapSource, 'discardMountDraft', context);
   assert.equal(context.hasMountDraftChanges(), true);
   context.discardMountDraft();
@@ -716,4 +719,60 @@ test('terminal outcomes stop looking like pending AI mount suggestions on the ma
   assert.equal(context.cameraLayer({ id: 'c1' }), 'noCandidate');
   context.confirmed = () => 'p2';
   assert.equal(context.cameraLayer({ id: 'c1' }), 'mounted');
+});
+
+test('mount map exposes exactly three status buckets with consistent precedence', () => {
+  const context = { rec: cam => cam.record, confirmed: cam => cam.record.mounts.find(id => cam.record.sources[id] === 'manual') };
+  vm.createContext(context);
+  load(mapSource, 'mountMapCameraStatus', context);
+  const status = sources => context.mountMapCameraStatus({ record: { mounts: Object.keys(sources), sources } });
+  assert.equal(status({ p1: 'ai_pre' }), 'aiPre');
+  assert.equal(status({ p1: 'manual', p2: 'ai_pre' }), 'mounted');
+  assert.equal(status({}), 'unmounted');
+});
+
+test('high-level POI result ordering is stable and excludes duplicate or unlocated matches', () => {
+  const context = {};
+  vm.createContext(context);
+  load(mapSource, 'normaliseAmapPoiResults', context);
+  const result = context.normaliseAmapPoiResults([
+    { id: 'bad', name: '无坐标', location: null },
+    { id: 'a', name: '西湖广场', type: '风景名胜;景点', address: '湖滨路', adname: '上城区', location: { lng: 120.16, lat: 30.25 } },
+    { id: 'a', name: '重复结果', location: { lng: 120.15, lat: 30.25 } },
+    { id: 'b', name: '西湖公园', location: { lng: 120.17, lat: 30.26 } }
+  ]);
+  assert.deepEqual(Array.from(result, row => row.amapId), ['a', 'b']);
+  assert.equal(result[0].category, '景点');
+  assert.deepEqual(Array.from(result[0].location), [120.16, 30.25]);
+});
+
+test('remounting replaces only the original mount and leaves other relationships intact', () => {
+  const record = { mounts: ['p1', 'p2', 'p4'], sources: { p1: 'manual', p2: 'ai_pre', p4: 'manual' }, candidates: [{ id: 'p3' }], decisions: { accepted: ['p1', 'p4'], rejected: ['p3'] }, version: 1 };
+  const context = {
+    camera: () => ({}), can: () => true, city: () => ({ pois: [{ id: 'p3' }, { id: 'p2' }] }),
+    raw: () => record, stamp: () => 1, commitRecord: (_id, _stamp, _action, edit) => edit(record),
+    role: () => ({ person: 'operator' }), timestamp: () => 'now', keyOf: ids => ids.join('|')
+  };
+  vm.createContext(context);
+  load(opsSource, 'saveMapDecision', context);
+  assert.throws(() => context.saveMapDecision('c1', 'p3', '', 'removed'), /原挂载关系已变化/);
+  assert.throws(() => context.saveMapDecision('c1', 'p2', '', 'p1'), /已挂载该 POI/);
+  context.saveMapDecision('c1', 'p3', '', 'p1');
+  assert.deepEqual(Array.from(record.mounts), ['p2', 'p4', 'p3']);
+  assert.deepEqual({ ...record.sources }, { p2: 'ai_pre', p4: 'manual', p3: 'manual' });
+  assert.deepEqual(Array.from(record.decisions.accepted), ['p4', 'p3']);
+  assert.equal(record.decisions.rejected.length, 0);
+});
+
+test('closing a saved remount does not treat a later POI relation as a draft', () => {
+  const cam = { id: 'c1' };
+  const context = {
+    ui: { camera: { cameraId: 'c1', completedCameraId: 'c1', entryMode: 'camera', selectedPoiId: 'p3', unableOpen: false }, analysis: {} },
+    mountProjectCams: () => [cam], hasCameraProfileChanges: () => false, confirmed: () => 'p2', mountRelationSource: (_cam, id) => id === 'p3' ? 'manual' : ''
+  };
+  vm.createContext(context);
+  load(mapSource, 'hasMountDraftChanges', context);
+  assert.equal(context.hasMountDraftChanges(), false);
+  context.ui.camera.completedCameraId = '';
+  assert.equal(context.hasMountDraftChanges(), true);
 });
