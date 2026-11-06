@@ -929,3 +929,11 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-map-snapshot img:not([hidden]){display:block;width:100%;max-height:min(29vh,220px);object-fit:contain;background:#0b1623}
 .mount-map-snapshot p{margin:0;padding:4px 10px 12px;font-size:var(--fs-caption)}
 .mount-map-snapshot a{color:var(--text-accent)}
+@media(min-width:701px) and (max-width:1400px){
+ .camera-map-layout.has-home .mount-map-controls{top:138px;left:12px;right:auto;max-width:clamp(136px,calc(100% - 416px),320px)}
+ .camera-map-layout.has-home .mount-map-snapshot{width:clamp(170px,calc(100% - 416px),380px)}
+}
+@media(min-width:701px) and (max-width:1180px){
+ .camera-map-layout.has-camera .mount-map-controls{top:138px;left:12px;right:auto;max-width:clamp(136px,calc(100% - 426px),320px)}
+ .camera-map-layout.has-camera .mount-map-snapshot{width:clamp(170px,calc(100% - 426px),380px)}
+}
