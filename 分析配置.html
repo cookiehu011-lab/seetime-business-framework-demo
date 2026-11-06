@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>分析配置 · SeeTime</title>
+<style>
+:root{color-scheme:dark;--bg:#0a1321;--panel:#101d2d;--input:#0c1725;--line:#2a4158;--line-soft:#23364a;--text:#edf4ff;--muted:#a7b9cf;--subtle:#8ba3bc;--accent:#4ce2f7;--accent-bg:#123448;--good:#6ce7ad;--warn:#ffd28b;--danger:#ffa9ab;--radius:9px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+button,input,select,textarea{font:inherit}
+button,input,select,textarea{min-height:38px;border:1px solid var(--line);border-radius:7px;color:var(--text);background:var(--input)}
+input,select,textarea{width:100%;padding:8px 11px}
+textarea{resize:vertical;line-height:1.7}
+button{padding:7px 13px;cursor:pointer;white-space:nowrap}
+button:hover:not(:disabled){background:#192f44;border-color:#537a96}
+button:disabled{opacity:.45;cursor:default}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+::placeholder{color:var(--subtle)}
+h1,h2,h3,p{margin:0}
+a{color:var(--accent)}
+.topbar{min-height:62px;padding:10px 24px;display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--line-soft);background:#0e1928}
+.brand{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:700;line-height:1;letter-spacing:-.8px;white-space:nowrap}
+.brand svg{width:30px;height:30px;color:var(--accent)}
+.scope-nav{display:flex;gap:5px;border-left:1px solid var(--line);padding-left:16px}
+.scope-nav button{background:transparent;border-color:transparent;color:var(--muted)}
+.scope-nav button[aria-current=page]{background:var(--accent-bg);border-color:#35647c;color:var(--accent)}
+.scope-path{margin-bottom:6px;color:var(--subtle);font-size:12px}
+.local{margin-left:auto;white-space:nowrap}
+.page{width:100%;margin:auto;padding:16px 24px 18px}
+.heading{margin-bottom:18px}
+h1{font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.02em}
+.heading p{margin-top:6px;color:var(--muted)}
+.tabs{display:flex;gap:19px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.tabs button{border:0;border-radius:0;background:none;padding:11px 10px 9px;color:var(--muted);border-bottom:3px solid transparent}
+.tabs button[aria-selected=true]{border-bottom-color:var(--accent);color:var(--accent);font-weight:600}
+.tabs button:hover:not(:disabled){background:#122538;border-bottom-color:var(--accent)}
+.box{border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);min-width:0}
+.toolbar{display:flex;align-items:end;gap:12px;padding:13px 15px;margin-bottom:17px;flex-wrap:wrap}
+.control{display:grid;gap:4px;color:var(--muted);font-size:12px;min-width:0}
+.control :is(input,select,textarea){font-size:14px}
+.search{flex:1 1 150px}
+.narrow{flex:0 1 125px}
+.task{flex:0 1 164px}
+.segment{display:flex;align-items:center;gap:0;min-width:max-content}
+.segment button{border-radius:0;border-right-width:0;padding-inline:11px}
+.segment button:first-child{border-radius:7px 0 0 7px}
+.segment button:last-child{border-right-width:1px;border-radius:0 7px 7px 0}
+.segment button[aria-pressed=true]{background:var(--accent-bg);color:var(--accent);box-shadow:inset 0 0 0 1px #36839a}
+.primary{background:var(--accent);border-color:var(--accent);color:#052130;font-weight:700}
+.primary:hover:not(:disabled){background:#84edfc;border-color:#84edfc}
+.secondary{color:var(--accent);border-color:#376781}
+.text-button{min-height:32px;padding:4px 7px;background:none;border-color:transparent;color:var(--accent)}
+.danger{color:var(--danger)}
+.clear{align-self:end}
+.spacer{margin-left:auto}
+.workspace{display:grid;grid-template-columns:clamp(220px,19vw,278px) minmax(0,1fr);gap:16px;align-items:stretch}
+.library{overflow:hidden}
+.lib-head{padding:15px 16px 12px;border-bottom:1px solid var(--line-soft)}
+.lib-head h2,.editor h3{font-size:15px;font-weight:650}
+.lib-head p{font-size:12px;color:var(--subtle);margin-top:2px}
+.lib-list{max-height:570px;overflow:auto}
+.lib-row{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;text-align:left;border:0;border-left:3px solid transparent;border-bottom:1px solid var(--line-soft);border-radius:0;background:none;padding:13px 12px 13px 13px;white-space:normal}
+.lib-row:last-child{border-bottom:0}
+.lib-row[aria-current=true]{border-left-color:var(--accent);background:var(--accent-bg)}
+.lib-row strong,.lib-row small{display:block;overflow-wrap:anywhere}
+.lib-row small{color:var(--subtle);margin-top:3px;font-size:12px}
+.badge{display:inline-flex;gap:5px;align-items:center;vertical-align:middle;border:1px solid #3a536d;border-radius:5px;padding:2px 7px;font-size:12px;line-height:1.4;color:var(--muted);background:#132338;white-space:nowrap}
+.badge.good{background:#102c27;border-color:#2b6854;color:var(--good)}
+.badge.warn{background:#2b2418;border-color:#6c5432;color:var(--warn)}
+.badge.cyan{background:#112c3c;border-color:#35647c;color:var(--accent)}
+.editor{padding:17px 21px 20px;min-height:470px}
+.edit-head{display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:12px;margin-bottom:11px}
+.edit-head h2{font-size:23px;line-height:1.3;overflow-wrap:anywhere}
+.meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:6px;font-size:13px;color:var(--muted)}
+.editor .tabs{margin-bottom:15px}
+.doc,.trial pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.doc{margin:0;background:#0b1624;border:1px solid var(--line-soft);border-radius:7px;padding:16px 18px;font-size:14px;line-height:1.85;min-height:220px}
+.doc-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px;color:var(--subtle);font-size:12px}
+.doc-head h3{color:var(--text)}
+.form-stack{display:grid;gap:13px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.actionbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}
+.hint{font-size:12px;color:var(--subtle)}
+.actionbar .hint{flex:1 1 210px}
+.trial{margin-top:13px;border:1px solid #2c566d;border-radius:7px;padding:12px 14px;background:#0d2030}
+.trial pre{font-size:13px;margin:9px 0 0;color:#c9e7f7}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;text-align:left}
+th,td{padding:11px 13px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
+th{font-weight:600;font-size:12px;color:var(--muted);background:#0d1928;white-space:nowrap}
+tbody tr:last-child td{border-bottom:0}
+td{overflow-wrap:anywhere}
+td:last-child.actions{text-align:right;white-space:nowrap}
+.row-current{background:#102738}
+.history-scroll{max-height:375px;overflow:auto;border:1px solid var(--line-soft);border-radius:7px}
+.history-scroll thead{position:sticky;top:0}
+.history-head{display:flex;align-items:end;gap:12px;margin-bottom:11px}
+.history-head .control{max-width:220px}
+.history-head .hint{padding-bottom:9px}
+.empty{padding:36px 14px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--text);margin-bottom:4px}
+.tags{overflow:hidden}
+.tags table{min-width:470px}
+.tags-summary{padding:12px 14px;color:var(--muted);border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.tags .actions svg{width:16px;height:16px;vertical-align:middle}
+.tags .actions .text-button{min-width:34px}
+footer{font-size:12px;color:var(--subtle);margin-top:16px}
+dialog{border:1px solid #41617a;border-radius:11px;width:min(520px,calc(100% - 28px));max-height:calc(100dvh - 36px);padding:0;background:var(--panel);color:var(--text);box-shadow:0 14px 60px #0008}
+dialog::backdrop{background:#050b14b8}
+.dialog-head,.dialog-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 18px}
+.dialog-head{border-bottom:1px solid var(--line-soft)}
+.dialog-head h2{font-size:17px}
+.dialog-body{padding:15px 18px;display:grid;gap:12px}
+.dialog-foot{justify-content:flex-end;border-top:1px solid var(--line-soft)}
+.icon-close{min-height:32px;padding:2px 9px;font-size:18px}
+.error{color:var(--danger);font-size:13px}
+.error:empty{display:none}
+.impact{border:1px solid var(--line-soft);border-radius:7px;background:var(--input);padding:10px 12px;color:var(--muted)}
+.impact strong{color:var(--text)}
+#toast{position:fixed;bottom:22px;right:22px;max-width:calc(100% - 44px);background:#123147;border:1px solid #35677d;border-radius:8px;padding:9px 14px;box-shadow:0 8px 30px #0006;z-index:2}
+@media(max-width:1000px){.page{padding-inline:21px}.toolbar{gap:9px}.workspace{grid-template-columns:220px minmax(0,1fr)}}
+@media(max-width:730px){.page{padding:18px 13px 24px}.topbar{padding-inline:13px;gap:9px}.brand{font-size:18px}.brand svg{width:22px}.scope-nav{padding-left:6px;gap:2px}.scope-nav button{padding-inline:7px;font-size:12px}.workspace{grid-template-columns:1fr;gap:11px}.lib-list{max-height:220px}.editor{padding:13px;min-height:0}.doc{padding:12px}.toolbar{padding:10px}.toolbar .task,.toolbar .narrow{flex:1 1 105px}.toolbar .search{flex-basis:125px}.lib-head{padding:10px 13px}.edit-head h2{font-size:21px}.history-head{align-items:start;flex-direction:column}.history-head .hint{padding-bottom:0}}
+@media(max-width:405px){.heading p{font-size:13px}.heading h1{font-size:26px}.scope-nav button{font-size:11px}.local{font-size:11px}.form-grid{grid-template-columns:1fr}.tabs{gap:8px}.tabs button{padding-inline:7px}.actionbar .spacer{margin-left:0}}
+
+.prompt-page .heading{margin-bottom:8px}
+.application-tabs{margin-bottom:12px;gap:28px}
+.application-tabs button{font-size:16px;padding:8px 5px 10px}
+.prompt-page .workspace{grid-template-columns:240px minmax(0,1fr);min-height:calc(100dvh - 310px)}
+.prompt-page .toolbar{margin-bottom:14px;padding:10px 14px}
+.prompt-page .editor{padding:16px 20px}
+.prompt-page .edit-head h2{font-size:20px}
+.prompt-page .lib-row{padding-block:16px}
+.prompt-page .lib-list{max-height:calc(100dvh - 335px)}
+.prompt-input{border:1px solid #365269;border-radius:8px;overflow:hidden;background:#0b1624}
+.input-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line-soft);font-weight:600}
+.input-toolbar small{font-size:12px;color:var(--subtle);font-weight:400;margin-left:10px}
+.prompt-input textarea{display:block;border:0;border-radius:0;padding:16px 18px;min-height:180px;height:clamp(260px,calc(100dvh - 600px),750px);background:transparent;line-height:1.85;resize:vertical;font-size:14px}
+.prompt-input textarea:focus-visible{outline-offset:-2px}
+.input-foot{display:flex;justify-content:space-between;padding:5px 13px;font-size:12px;color:var(--subtle);border-top:1px solid var(--line-soft)}
+.prompt-input.expanded{position:fixed;inset:18px;z-index:10;display:flex;flex-direction:column;box-shadow:0 0 0 30px #050c17ed}
+.prompt-input.expanded textarea{flex:1;height:auto;resize:none;min-height:0}
+body.editor-expanded{overflow:hidden}
+@media(max-width:730px){.prompt-page .workspace{grid-template-columns:1fr;min-height:0}.prompt-page .lib-list{max-height:200px}.prompt-page .editor{padding:13px}.prompt-input textarea{height:300px;padding:12px}.input-toolbar{flex-wrap:wrap}.input-toolbar small{display:block;margin-left:0}.prompt-input.expanded{inset:8px}}
+body.embedded .topbar,body.embedded .heading,body.embedded main>footer{display:none}
+body.embedded .page{max-width:none;padding:0 2px 16px}
+body.embedded .workspace{min-height:0}
+body.embedded .actionbar{justify-content:flex-end}
+body.embedded .actionbar .hint{order:-1;margin-right:auto}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="brand"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3.5 26 9.3v12L16 28.5 6 22.7V10.5Z M6 22.7l10-7 10 5.6M16 15.7V3.5" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg>SeeTime</div>
+  <nav class="scope-nav" aria-label="工作空间">
+    <button type="button" data-action="page" data-value="prompts">平台空间</button>
+    <button type="button" data-action="page" data-value="tags">个人版</button>
+  </nav>
+  <span class="badge local">本地演示</span>
+</header>
+<main class="page">
+  <div class="heading"><div><div id="scope-path" class="scope-path"></div><h1 id="page-title">分析配置</h1><p id="page-description"></p></div></div>
+  <div id="screen"></div>
+  <footer>本地演示 · 数据保存在当前浏览器，试跑使用模拟输出。</footer>
+</main>
+<dialog id="dialog" aria-labelledby="dialog-title"></dialog>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+<script src="分析配置迁移.js?v=20261106"></script>
+<script>
+'use strict';
+const key = 'seetime-analysis-config-standalone-v1';
+const apps = ['个人版', '治理版'];
+const tasks = ['相机单次观测', '相机周期分析', '事件识别', '设施巡查'];
+const categories = ['空间与场地', '自然景观', '步行与休憩设施', '文化与建筑', '交通与公共设施', '场景体验'];
+const byId = id => document.getElementById(id);
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const e = escapeHtml;
+const cleanVersion = value => value.trim().replace(/^v/i, '').toLowerCase();
+const versionLabel = version => 'v' + version;
+const timestamp = () => new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Shanghai', dateStyle:'short', timeStyle:'short'}).format(new Date());
+const newId = () => globalThis.crypto?.randomUUID?.() || Date.now().toString(36) + Math.random().toString(36).slice(2);
+const observation = '你是 SeeTime 的公共空间观测助手。根据输入的单帧图片，输出画面中可见、对用户有用的信息。\n\n1. 画面描述：简要说明可见的空间、设施及活动。\n2. 静态标签：输出最多六个可用于检索的中文标签。\n3. 人员与车辆：仅描述画面中可见的情况，使用「较少 / 中等 / 较多」。\n4. 无法判断时写明「不确定」，不推断画面外信息。\n\n以 JSON 返回 description、tags、people、vehicles。';
+const seedTagNames = [
+  ['公共广场','商业街区','停车场','步行入口'],
+  ['绿地','湖面','林荫道'],
+  ['步道','座椅','休憩区'],
+  ['历史建筑','公共建筑','展馆'],
+  ['人行横道','公交站','照明设施'],
+  ['适合散步','开阔视野','沿街商业']
+];
+function seededPrompt(id, app, task, name, body, numbers, active) {
+  const versions = numbers.map((number, index) => ({
+    number, body: index ? body + '\n\n' + (index % 2 ? '补充约束：画面模糊或遮挡时，将对应结果标记为未知。' : '补充约束：优先保留可用于下游检索的稳定字段。') : body,
+    note: index ? '调整观察范围和输出说明' : '初始样例版本',
+    time: '2026-11-' + String(Math.max(1, 6 - index)).padStart(2, '0') + ' 10:30',
+    published: true
+  }));
+  return {
+    id, app, task, name, active, versions,
+    logs: versions.slice(0, 5).map(v => ({type:'发布版本', version:v.number, note:v.note, time:v.time, actor:'示例管理员'}))
+  };
+}
+function seed() {
+  return {
+    prompts:[
+      seededPrompt('public','个人版','相机单次观测','公共空间观测',observation,['1.2','1.1','1.0','0.9','0.8','0.7','0.6','0.5','0.4','0.3','0.2','0.1'],'1.2'),
+      seededPrompt('parking','个人版','相机单次观测','停车场观测','基于图片描述停车场可见区域。若能识别车位标线，给出占用情况；无法判断时返回未知。',['1.1','1.0'],'1.1'),
+      seededPrompt('period','个人版','相机周期分析','周期变化总结','按观测时间汇总一路相机的有效样本。概括观察到的变化与样本缺口，保留可追溯的观测时间。',['1.0'],'1.0'),
+      seededPrompt('order','治理版','事件识别','公共空间秩序识别','提取画面中可核对的事件线索，返回事件类别、可见事实和证据时间。把不确定项交给人工核验。',['2.0','1.0'],'2.0'),
+      seededPrompt('facility','治理版','设施巡查','设施状态巡查','检查画面可见的公共设施状态。输出设施类别、可见状态和复核建议。',['1.3','1.2'],'1.3')
+    ],
+    tags:seedTagNames.flatMap((names, i) => names.map((name, j) => ({id:'t-'+i+'-'+j, name, category:categories[i], app:'个人版', enabled:true})))
+  };
+}
+function load() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(key));
+    if (Array.isArray(stored?.prompts) && Array.isArray(stored?.tags)) return stored;
+  } catch {}
+  return seed();
+}
+let data = load();
+try {
+ const migrated=migrateSeeTimePrompts(data,JSON.parse(localStorage.getItem('seetime-personal-analysis-config-v1')));
+ if(migrated!==data){localStorage.setItem(key,JSON.stringify(migrated));data=migrated;}
+} catch { /* Keep original records if browser storage is unavailable. */ }
+const embedded=new URLSearchParams(location.search).has('embed');
+document.body.classList.toggle('embedded',embedded);
+let storageFailed=false;
+window.SeeTimeConfig={dirty:()=>draftDirty(),requestLeave:apply=>navigate(apply)};
+const state = {
+  page:'prompts', app:'个人版', task:'', name:'', version:'',
+  promptId:data.prompts[0]?.id, detail:'body', viewed:'', historyQuery:'',
+  tagName:'', tagCategory:'', tagStatus:'',
+  trial:null
+};
+let toastTimer;
+function save(message) {
+  try { localStorage.setItem(key, JSON.stringify(data)); storageFailed=false; }
+  catch { storageFailed=true;toast('保存失败：浏览器限制了本地存储，当前修改尚未保存。'); return; }
+  toast(message);
+}
+function toast(message) {
+  byId('toast').textContent = message;
+  byId('toast').hidden = false;
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { byId('toast').hidden = true; }, 3000);
+}
+const btn = (label, action, css = '', value = '') => `<button type="button" class="${css}" data-action="${action}" data-value="${e(value)}">${label}</button>`;
+const badge = (label, css = '') => `<span class="badge ${css}">${e(label)}</span>`;
+const option = (value,label,selected) => `<option value="${e(value)}"${value===selected?' selected':''}>${e(label)}</option>`;
+const tab = (label, action, value, active) => `<button type="button" role="tab" aria-selected="${active}" data-action="${action}" data-value="${e(value)}">${label}</button>`;
+const control = (label, html, css = '') => {
+  const field=html.replace(/^<(input|select|textarea)\b/, `<$1 aria-label="${e(label)}"`);
+  return `<label class="control ${css}"><span>${label}</span>${field}</label>`;
+};
+const search = (label, name, value, placeholder, css = 'search') => control(label,`<input type="search" data-filter="${name}" value="${e(value)}" placeholder="${e(placeholder)}" autocomplete="off">`,css);
+const select = (label, name, list, current, all, css='task') => control(label,`<select data-filter="${name}">${option('',all,current)}${list.map(v=>option(v,v,current)).join('')}</select>`,css);
+const includes = (value, query) => value.toLowerCase().includes(query.trim().toLowerCase());
+const versionMatches = (number,query) => number.toLowerCase().includes(cleanVersion(query));
+function filteredPrompts() {
+  return data.prompts.filter(p => (!state.app || p.app===state.app) &&
+    (!state.task || p.task===state.task) && includes(p.name,state.name) &&
+    (!state.version.trim() || p.versions.some(v=>versionMatches(v.number,state.version))));
+}
+const currentPrompt = () => filteredPrompts().find(p=>p.id===state.promptId);
+const getVersion = (p,n) => p?.versions.find(v=>v.number===n);
+const defaultVersion = p => getVersion(p,p.active) || p.versions[0];
+function selectedVersion(p) {
+  if (state.viewed) return getVersion(p,state.viewed) || defaultVersion(p);
+  if (!state.version.trim()) return defaultVersion(p);
+  const exact = getVersion(p,cleanVersion(state.version));
+  return exact || p.versions.find(v=>versionMatches(v.number,state.version)) || defaultVersion(p);
+}
+function versionStatus(p,v) {
+  return v.number===p.active ? badge('生效中','good') : v.published ? badge('历史版本') : badge('草稿','warn');
+}
+function showPrompt(p) {
+  state.promptId = p?.id;
+  state.detail = 'body';
+  state.viewed = '';
+  state.historyQuery = '';
+  state.trial = null;
+}
+function reconcilePrompt() {
+  const rows=filteredPrompts();
+  if (!rows.some(p=>p.id===state.promptId)) showPrompt(rows[0]);
+}
+function promptToolbar() {
+  return `<nav class="tabs application-tabs" role="tablist" aria-label="应用提示词">
+    ${apps.map(app=>tab(app,'app',app,state.app===app)).join('')}
+  </nav><div class="box toolbar">
+    ${select('分析任务','task',[...new Set(data.prompts.filter(p=>p.app===state.app).map(p=>p.task))],state.task,'全部任务')}
+    ${search('提示词名称','name',state.name,'搜索提示词名称')}
+    ${search('版本号','version',state.version,'如 1.1','narrow')}
+    ${state.task||state.name||state.version?btn('重置','clear-prompts','text-button clear'):''}
+    ${btn('＋ 新建提示词','new-prompt','primary spacer')}
+  </div>`;
+}
+function renderPrompts() {
+  const rows=filteredPrompts();
+  return `${promptToolbar()}<div class="workspace">
+    <aside class="box library" aria-label="提示词库">
+      <div class="lib-head"><h2>提示词库</h2><p>${rows.length} 条提示词${state.version.trim()?' · 按版本匹配':''}</p></div>
+      <div class="lib-list">${rows.map(p=>{
+        const display=state.version.trim()
+          ? getVersion(p,cleanVersion(state.version))||p.versions.find(v=>versionMatches(v.number,state.version))
+          : defaultVersion(p);
+        return `<button type="button" class="lib-row" data-action="prompt" data-value="${e(p.id)}" aria-current="${state.promptId===p.id}"><span><strong>${e(p.name)}</strong><small>${e(p.app)} · ${e(p.task)}</small></span>${badge(display?versionLabel(display.number):'草稿',p.id===state.promptId?'cyan':'')}</button>`;
+      }).join('')||`<div class="empty"><b>暂无匹配提示词</b>可调整应用、任务或检索词。</div>`}</div>
+    </aside>
+    <section class="box editor">${renderEditor(currentPrompt())}</section>
+  </div>`;
+}
+function renderEditor(p) {
+  if (!p) return '<div class="empty"><b>没有可查看的提示词</b>调整筛选条件，或新建一条提示词。</div>';
+  const v=selectedVersion(p), live=getVersion(p,p.active);
+  const drafts=p.versions.filter(item=>!item.published).length;
+  return `<div class="edit-head">
+    <div><h2>${e(p.name)}</h2><div class="meta">${e(p.app)} · ${e(p.task)}
+    ${live?badge(versionLabel(live.number)+' 生效中','good'):badge('尚未发布','warn')}
+    ${live?`<span>最后生效 ${e(p.logs.find(l=>l.type==='发布版本'||l.type==='回滚版本')?.time||live.time)}</span>`:''}
+    ${live&&drafts?badge(drafts+' 份草稿','warn'):''}</div></div>
+    ${btn('创建新版本','new-version','primary')}
+  </div>
+  <nav class="tabs" role="tablist" aria-label="提示词详情">
+    ${tab('提示词正文','detail','body',state.detail==='body')}
+    ${tab('历史版本（'+p.versions.length+'）','detail','history',state.detail==='history')}
+    ${tab('操作日志','detail','logs',state.detail==='logs')}
+  </nav>
+  ${state.detail==='history'?renderHistory(p):state.detail==='logs'?renderLogs(p):renderBody(p,v)}`;
+}
+function renderBody(p,v) {
+  const published=v.published;
+  const showTrial=state.trial?.promptId===p.id&&state.trial?.number===v.number;
+  const versionAction=p.active&&v.number!==p.active ? btn('查看生效版本','active-version','text-button') : '';
+  return `<div class="doc-head"><div><span>正在查看 ${e(versionLabel(v.number))} · ${e(v.time)}</span></div><div>${versionAction} ${versionStatus(p,v)}</div></div>
+  ${published?`${promptInput(v,true)}<div class="actionbar">
+    ${btn('样例试跑','trial-read','secondary')}<span class="hint">${e(v.note)}</span>
+    ${v.number!==p.active?btn('回滚到此版本','rollback','secondary'):''}
+  </div>`:`<form id="draft" class="form-stack">
+    ${promptInput(v,false)}
+    ${control('更新说明',`<input name="note" value="${e(v.note)}" maxlength="160" placeholder="发布时必填，方便定位此次调整">`)}
+    <div id="draft-error" class="error" role="alert"></div>
+    <div class="actionbar" style="margin-top:0">
+      ${btn('样例试跑','trial-draft','secondary')}
+      <span class="hint">发布前请先试跑当前内容。</span>
+      <button type="submit">保存草稿</button>
+      ${btn('发布版本','publish','primary')}
+    </div>
+  </form>`}
+  ${showTrial?trialContent(state.trial):'<div id="trial-output"></div>'}`;
+}
+function promptInput(v,readonly) {
+  return `<div class="prompt-input">
+    <div class="input-toolbar"><span>提示词正文 <small>${readonly?'只读 · 创建新版本后编辑':'草稿 · 可编辑'}</small></span>
+      <button type="button" class="text-button" data-action="expand-editor" aria-expanded="false">展开编辑区 ↗</button>
+    </div>
+    <textarea aria-label="提示词正文" name="body" ${readonly?'readonly':'required maxlength="18000"'} placeholder="输入角色、任务要求和输出格式">${e(v.body)}</textarea>
+    <div class="input-foot"><span>拖动右下角调整高度</span><span>${v.body.length} 字</span></div>
+  </div>`;
+}
+function toggleEditor(forceClose=false) {
+  const area=document.querySelector('.prompt-input');
+  if(!area) return;
+  const expanded=!forceClose&&!area.classList.contains('expanded');
+  area.classList.toggle('expanded',expanded);
+  document.body.classList.toggle('editor-expanded',expanded);
+  const button=area.querySelector('[data-action="expand-editor"]');
+  button.setAttribute('aria-expanded',String(expanded));
+  button.textContent=expanded?'收起编辑区 ↙':'展开编辑区 ↗';
+  button.focus();
+}
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&document.querySelector('.prompt-input.expanded')) { event.preventDefault();toggleEditor(true); }
+});
+function renderHistory(p) {
+  const q=state.historyQuery||state.version;
+  const versions=p.versions.filter(v=>versionMatches(v.number,q));
+  return `<div class="history-head">${search('定位历史版本','historyQuery',q,'输入完整或部分版本号')}<span class="hint">匹配 ${versions.length} / ${p.versions.length} 个版本</span>
+  ${q?btn('清除版本条件','clear-history','text-button'):''}</div>
+  ${versions.length?`<div class="table-wrap history-scroll"><table>
+    <thead><tr><th>版本</th><th>状态</th><th>更新时间</th><th>更新说明</th><th>操作</th></tr></thead><tbody>
+    ${versions.map(v=>`<tr class="${v.number===p.active?'row-current':''}"><td><b>${e(versionLabel(v.number))}</b></td><td>${versionStatus(p,v)}</td><td>${e(v.time)}</td><td>${e(v.note||'—')}</td><td class="actions">${btn(v.published?'查看':'编辑草稿','view-version','text-button',v.number)}</td></tr>`).join('')}
+  </tbody></table></div>`:'<div class="empty"><b>未找到该版本</b>可按完整版本号或前缀检索。</div>'}`;
+}
+function renderLogs(p) {
+  return p.logs.length?`<div class="table-wrap history-scroll"><table><thead><tr><th>时间</th><th>动作</th><th>版本</th><th>操作人</th><th>记录</th></tr></thead><tbody>
+    ${p.logs.map(log=>`<tr><td>${e(log.time)}</td><td>${e(log.type)}</td><td>${e(versionLabel(log.version))}</td><td>${e(log.actor)}</td><td>${e(log.note||'—')}</td></tr>`).join('')}
+  </tbody></table></div>`:'<div class="empty">暂无操作日志</div>';
+}
+function personalTags() {
+  return data.tags.filter(t=>t.app!=='治理版');
+}
+function tagRows() {
+  return personalTags().filter(t=>includes(t.name,state.tagName)&&
+    (!state.tagCategory||t.category===state.tagCategory)&&
+    (!state.tagStatus||t.enabled===(state.tagStatus==='启用')));
+}
+const pencil='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m14 5 5 5M4 20l5-.9L20 8l-4-4L5 15z"/></svg>';
+function renderTags() {
+  const rows=tagRows();
+  return `<div class="box toolbar">
+    ${search('标签名称','tagName',state.tagName,'搜索标签名称')}
+    ${select('标签分类','tagCategory',categories,state.tagCategory,'全部分类')}
+    ${select('状态','tagStatus',['启用','停用'],state.tagStatus,'全部状态','narrow')}
+    ${state.tagName||state.tagCategory||state.tagStatus?btn('重置','clear-tags','text-button'):''}
+    ${btn('＋ 新增标签','new-tag','primary spacer')}
+  </div>
+  <section class="box tags"><div class="tags-summary"><b>静态标签词库 · ${rows.length} 条</b><span class="hint">停用后从可选词库移除，历史相机记录保留原标签。</span></div>
+  ${rows.length?`<div class="table-wrap"><table><thead><tr><th>标签名称</th><th>标签分类</th><th>状态</th><th style="text-align:right">操作</th></tr></thead><tbody>
+    ${rows.map(t=>`<tr><td><b>${e(t.name)}</b></td><td>${e(t.category)}</td><td>${t.enabled?badge('启用','good'):badge('停用')}</td>
+      <td class="actions"><button type="button" class="text-button" title="编辑标签" aria-label="编辑标签 ${e(t.name)}" data-action="edit-tag" data-value="${e(t.id)}">${pencil}</button>
+      ${btn(t.enabled?'停用':'启用','toggle-tag',t.enabled?'text-button danger':'text-button',t.id)}</td></tr>`).join('')}
+    </tbody></table></div>`:'<div class="empty"><b>暂无匹配标签</b>调整检索条件，或新增标签。</div>'}</section>`;
+}
+function render({keepFocus=false}={}) {
+  const active=document.activeElement;
+  const filter=keepFocus?active?.dataset.filter:null;
+  const start=filter&&active.type==='search'?active.selectionStart:null;
+  const personal=state.page==='tags';
+  const title=personal?'静态标签':'分析配置';
+  document.title=title+' · SeeTime';
+  byId('scope-path').textContent=personal?'个人版 / 静态标签':'平台空间 / 分析配置';
+  byId('page-title').textContent=title;
+  byId('page-title').hidden=!personal;
+  byId('page-description').hidden=!personal;
+  document.body.classList.toggle('prompt-page',!personal);
+  byId('page-description').textContent=personal
+    ? '管理个人版相机使用的静态标签。'
+    : '统一管理个人版和治理版的分析提示词与版本。';
+  document.querySelectorAll('.scope-nav button').forEach(button=>{
+    if(button.dataset.value===state.page) button.setAttribute('aria-current','page');
+    else button.removeAttribute('aria-current');
+  });
+  byId('screen').innerHTML=personal?renderTags():renderPrompts();
+  if(filter) {
+    const field=document.querySelector(`[data-filter="${filter}"]`);
+    field?.focus();
+    if(start!==null) field?.setSelectionRange(start,start);
+  }
+}
+function openDialog(title, fields, button, submit) {
+  const dialog=byId('dialog');
+  dialog.innerHTML=`<form><div class="dialog-head"><h2 id="dialog-title">${e(title)}</h2>
+  <button type="button" class="icon-close" data-close aria-label="关闭">×</button></div>
+  <div class="dialog-body">${fields}<div class="error" role="alert"></div></div>
+  <div class="dialog-foot"><button type="button" data-close>取消</button><button class="primary" type="submit">${e(button)}</button></div></form>`;
+  dialog.querySelectorAll('[data-close]').forEach(x=>x.onclick=()=>dialog.close());
+  dialog.querySelector('form').onsubmit=ev=>{
+    ev.preventDefault();
+    const form=ev.currentTarget;
+    const result=submit(Object.fromEntries(new FormData(form)));
+    if (typeof result==='string') form.querySelector('.error').textContent=result;
+    else { dialog.close(); render(); }
+  };
+  dialog.showModal();
+  (dialog.querySelector('input,select,textarea')||dialog.querySelector('.dialog-foot button')).focus();
+}
+function log(p,type,v,note) {
+  p.logs.unshift({type,version:v.number,time:timestamp(),actor:'演示管理员',note});
+}
+function clearPromptFilters() {
+  Object.assign(state,{task:'',name:'',version:'',historyQuery:''});
+}
+function createPrompt() {
+  openDialog('新建提示词',`
+    ${control('提示词名称','<input name="name" required maxlength="60" placeholder="例如：公共空间观测">')}
+    <div class="form-grid">${control('所属应用',`<select name="app">${apps.map(x=>option(x,x,state.app||apps[0])).join('')}</select>`)}
+    ${control('分析任务',`<select name="task">${tasks.map(x=>option(x,x,state.task||tasks[0])).join('')}</select>`)}</div>
+    ${control('初始版本','<input name="number" value="1.0" required maxlength="20" placeholder="例如：1.0">')}
+    <p class="hint">新建后进入草稿编辑。发布后该版本在所属应用和任务下生效。</p>`,
+    '创建草稿',({name,app,task,number})=>{
+      name=name.trim(); number=cleanVersion(number);
+      if(!name) return '请输入提示词名称。';
+      if(!validVersion(number)) return '请输入数字版本号，例如 1.0 或 1.2.1。';
+      if(data.prompts.some(p=>p.app===app&&p.task===task&&p.name===name)) return '这个应用和任务下已有同名提示词。';
+      const v={number,body:'',note:'',time:timestamp(),published:false};
+      const p={id:newId(),app,task,name,active:'',versions:[v],logs:[]};
+      data.prompts.unshift(p);
+      log(p,'创建草稿',v,'创建提示词');
+      state.app=app; clearPromptFilters(); showPrompt(p);
+      save('提示词草稿已创建');
+    });
+}
+function validVersion(number) { return /^\d{1,6}(\.\d{1,6}){1,2}$/.test(number); }
+function createVersion(p,v) {
+  const source=v?.published?v:defaultVersion(p);
+  const parts=source.number.split('.');
+  parts[parts.length-1]=String(Number(parts.at(-1))+1);
+  openDialog('创建新版本',`
+    ${control('版本号',`<input name="number" required maxlength="20" value="${e(parts.join('.'))}">`)}
+    <p class="hint">复制 ${e(versionLabel(source.number))} 的已保存正文作为新草稿。</p>`,
+    '创建草稿',({number})=>{
+      number=cleanVersion(number);
+      if(!validVersion(number)) return '请输入数字版本号，例如 1.0 或 1.2.1。';
+      if(getVersion(p,number)) return '版本号已存在，请换一个版本号。';
+      const draft={number,body:source.body,note:'',published:false,time:timestamp()};
+      p.versions.unshift(draft);
+      log(p,'创建草稿',draft,'复制自 '+versionLabel(source.number));
+      state.detail='body'; state.viewed=number; state.trial=null;
+      save('版本草稿已创建');
+    });
+}
+function draftFields() {
+  const form=byId('draft');
+  return {body:form.elements.body.value.trim(),note:form.elements.note.value.trim()};
+}
+function draftError(message) { byId('draft-error').textContent=message; }
+function saveDraft(p,v,fields) {
+  Object.assign(v,fields,{time:timestamp()});
+  log(p,'保存草稿',v,fields.note);
+  save('草稿已保存');
+}
+function trialContent(result) {
+  return `<section id="trial-output" class="trial" aria-label="样例试跑结果">
+    <div class="doc-head"><h3>样例试跑结果</h3>${badge('模拟输出','cyan')}</div>
+    <div class="hint">${e(versionLabel(result.number))} · ${e(result.sample)} · ${result.length} 字提示词</div>
+    <pre>${e(JSON.stringify(result.output,null,2))}</pre>
+  </section>`;
+}
+function runTrial(p,v,body) {
+  if(!body) { draftError('请输入提示词正文后再试跑。'); return; }
+  const samples={
+    parking:['停车场样例',{description:'画面可见入口与部分车位。',parking_status:'不确定'}],
+    period:['单路相机观测样例',{summary:'部分时段可见人群活动变化。',coverage:'样本覆盖不完整'}],
+    order:['秩序核验样例',{event_candidate:'通道堆放线索',evidence:'画面可见通道边有物品',review:'待人工核验'}],
+    facility:['设施巡查样例',{facility:'照明设施',visible_state:'无法判断是否亮灯',review:'待人工核验'}],
+    public:['公共空间样例',{description:'步行空间可见行人与休憩座椅。',tags:['步道','座椅'],people:'中等',vehicles:'不确定'}]
+  };
+  const taskSample={'相机单次观测':'public','相机周期分析':'period','事件识别':'order','设施巡查':'facility'};
+  const [sample,output]=samples[p.id]||samples[taskSample[p.task]];
+  state.trial={promptId:p.id,number:v.number,body,length:body.length,sample,output};
+  byId('trial-output').outerHTML=trialContent(state.trial);
+}
+function publish(p,v) {
+  const fields=draftFields();
+  if(!fields.body||!fields.note) { draftError('请填写提示词正文和更新说明。'); return; }
+  const trial=state.trial;
+  if(trial?.promptId!==p.id||trial?.number!==v.number||trial?.body!==fields.body) {
+    draftError('请先试跑当前正文。修改正文后需要重新试跑。'); return;
+  }
+  const previous=p.active?versionLabel(p.active):'无生效版本';
+  openDialog('发布版本',`<p>确认将 <b>${e(p.name)} ${e(versionLabel(v.number))}</b> 设为生效版本？</p>
+    <div class="impact"><strong>${e(p.app)} · ${e(p.task)}</strong><br>版本变更：${e(previous)} → ${e(versionLabel(v.number))}<br>适用范围：使用此提示词的平台项目。</div>
+    <p class="hint">本次操作仅更新本地演示状态。历史分析仍对应原版本。</p>`,
+    '确认发布',()=>{
+      Object.assign(v,fields,{published:true,time:timestamp()});
+      p.active=v.number;
+      log(p,'发布版本',v,previous+' → '+versionLabel(v.number)+' · '+fields.note);
+      save('版本已发布并生效');
+    });
+}
+function rollback(p,v) {
+  openDialog('回滚版本',`<p>将 <b>${e(p.name)}</b> 的生效版本从 ${e(versionLabel(p.active))} 切换到 <b>${e(versionLabel(v.number))}</b>。</p>
+    <div class="impact">${e(p.app)} · ${e(p.task)}<br>后续分析使用回滚后的版本。版本记录和历史结果均保留。</div>
+    ${control('回滚原因','<input name="reason" required maxlength="160" placeholder="例如：恢复上一版输出格式">')}`,
+    '确认回滚',({reason})=>{
+      if(!reason.trim()) return '请填写回滚原因。';
+      const previous=p.active;
+      p.active=v.number;
+      log(p,'回滚版本',v,versionLabel(previous)+' → '+versionLabel(v.number)+' · '+reason.trim());
+      save('已回滚到 '+versionLabel(v.number));
+    });
+}
+function editTag(t) {
+  openDialog(t?'编辑标签':'新增标签',`
+    ${control('标签名称',`<input name="name" required maxlength="30" value="${e(t?.name||'')}" placeholder="例如：步行入口">`)}
+    ${control('标签分类',`<select name="category">${categories.map(x=>option(x,x,t?.category||state.tagCategory||categories[0])).join('')}</select>`)}`,
+    '保存标签',({name,category})=>{
+      name=name.trim();
+      if(!name) return '请输入标签名称。';
+      if(name!==t?.name&&personalTags().some(item=>item.name===name)) return '个人版已有同名标签。';
+      if(t) Object.assign(t,{name,category,app:'个人版'});
+      else {
+        data.tags.unshift({id:newId(),name,category,app:'个人版',enabled:true});
+        clearTagFilters();
+      }
+      save(t?'标签已更新':'标签已新增');
+    });
+}
+function toggleTag(t) {
+  if(t.enabled) {
+    openDialog('停用标签',`<p>停用「${e(t.name)}」后，此标签将从可选词库中移除。历史相机记录保留原标签。</p>`,'确认停用',()=>{
+      t.enabled=false; save('标签已停用');
+    });
+  } else { t.enabled=true; save('标签已启用'); render(); }
+}
+function clearTagFilters() {
+  Object.assign(state,{tagName:'',tagCategory:'',tagStatus:''});
+}
+function draftDirty() {
+  if(storageFailed)return true;
+  const p=currentPrompt(),v=selectedVersion(p||{versions:[]});
+  if(!byId('draft')||!v||v.published) return false;
+  const fields=draftFields();
+  return fields.body!==v.body||fields.note!==v.note;
+}
+function navigate(apply) {
+  if(!draftDirty()) { apply(); render(); return; }
+  openDialog('草稿尚未保存','<p>切换后将放弃本次未保存的修改。</p>','放弃修改',()=>{ apply(); });
+}
+function changeFilter(event) {
+  const field=event.target,name=field.dataset.filter;
+  if(!name||!field.isConnected||event.isComposing) return;
+  if(field.tagName==='INPUT' ? event.type==='change' : event.type!=='change') return;
+  if(draftDirty()&&state.page==='prompts') {
+    field.value=state[name];
+    toast('请先保存草稿，再调整筛选条件。');
+    return;
+  }
+  state[name]=field.value;
+  if(name==='version') { state.viewed=''; state.historyQuery=''; state.trial=null; }
+  if(state.page==='prompts') reconcilePrompt();
+  render({keepFocus:true});
+}
+document.addEventListener('compositionend',changeFilter);
+document.addEventListener('input',changeFilter);
+document.addEventListener('change',changeFilter);
+document.addEventListener('input',event=>{
+  if(!event.target.closest('#draft')) return;
+  if(event.target.name==='body') event.target.closest('.prompt-input').querySelector('.input-foot span:last-child').textContent=event.target.value.length+' 字';
+  draftError('');
+  if(event.target.name==='body'&&state.trial) {
+    state.trial=null;
+    byId('trial-output').outerHTML='<div id="trial-output"></div>';
+  }
+});
+document.addEventListener('submit',event=>{
+  if(event.target.id!=='draft') return;
+  event.preventDefault();
+  const p=currentPrompt(),v=selectedVersion(p);
+  saveDraft(p,v,draftFields());
+  render();
+});
+document.addEventListener('click',event=>{
+  const b=event.target.closest('[data-action]');
+  if(!b) return;
+  const {action,value}=b.dataset,p=currentPrompt(),v=p?selectedVersion(p):null;
+  switch(action) {
+    case 'expand-editor': toggleEditor();break;
+    case 'page': if(state.page!==value) navigate(()=>{state.page=value;}); break;
+    case 'app': if(state.app!==value) navigate(()=>{state.app=value;clearPromptFilters();reconcilePrompt();}); break;
+    case 'prompt': if(state.promptId!==value) navigate(()=>showPrompt(data.prompts.find(x=>x.id===value))); break;
+    case 'clear-prompts': navigate(()=>{clearPromptFilters();state.viewed='';reconcilePrompt();}); break;
+    case 'new-prompt': if(draftDirty()) toast('请先保存当前草稿。'); else createPrompt(); break;
+    case 'new-version': if(draftDirty()) toast('请先保存当前草稿。'); else createVersion(p,v); break;
+    case 'detail': if(state.detail!==value) navigate(()=>{state.detail=value;}); break;
+    case 'view-version': navigate(()=>{state.viewed=value;state.detail='body';state.trial=null;}); break;
+    case 'active-version': navigate(()=>{state.viewed=p.active;state.trial=null;}); break;
+    case 'clear-history': state.historyQuery='';state.version='';render();break;
+    case 'trial-read': runTrial(p,v,v.body); break;
+    case 'trial-draft': draftError('');runTrial(p,v,draftFields().body);break;
+    case 'publish': publish(p,v); break;
+    case 'rollback': rollback(p,v); break;
+    case 'clear-tags': clearTagFilters();render();break;
+    case 'new-tag': editTag();break;
+    case 'edit-tag': editTag(data.tags.find(t=>t.id===value));break;
+    case 'toggle-tag': toggleTag(data.tags.find(t=>t.id===value));break;
+  }
+});
+window.addEventListener('beforeunload',event=>{
+  if(!draftDirty()) return;
+  event.preventDefault();
+  event.returnValue='';
+});
+render();
+</script>
+</body>
+</html>
