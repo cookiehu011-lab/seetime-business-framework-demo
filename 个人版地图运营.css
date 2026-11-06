@@ -1008,3 +1008,22 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-map-workspace .mount-governance-filters{left:auto;right:12px;width:auto;max-width:none;padding:7px 10px;gap:14px;box-shadow:none}
 .mount-map-workspace .mount-governance-filters label{flex:none;gap:6px;white-space:nowrap;cursor:pointer}
 .mount-governance-filters input{width:14px;height:14px;margin:0;accent-color:#25cbe0}
+
+/* POI 详情按信息分区与相机列表展示。 */
+.poi-detail-profile .poi-detail-section{padding:12px 0;border-bottom:1px solid #293e53}
+.poi-detail-profile .poi-detail-section h3{margin:0 0 10px;color:var(--text-primary);font-size:var(--fs-body);font-weight:var(--fw-medium)}
+.poi-detail-profile .poi-profile-cover{padding:0}
+.poi-detail-profile .poi-profile-cover img{height:auto;aspect-ratio:16/9}
+.poi-detail-profile .poi-profile-facts{border:0;padding:0}
+.poi-detail-profile .poi-profile-more summary{justify-content:space-between;color:var(--text-primary);font-weight:var(--fw-medium)}
+.poi-detail-profile .poi-profile-more summary::after{content:'展开';color:var(--text-accent);font-size:var(--fs-caption)}
+.poi-detail-profile .poi-profile-more[open] summary::after{content:'收起'}
+.poi-detail-profile .poi-mounted-list{padding-top:16px}
+.poi-detail-profile .poi-mounted-card{grid-template-columns:88px minmax(0,1fr);gap:10px;padding:12px 0}
+.poi-detail-profile .poi-mounted-thumb{height:66px}
+.poi-detail-profile .poi-mounted-thumb .map-camera-picture{height:100%;margin:0;aspect-ratio:auto}
+.poi-detail-profile .poi-mounted-card>div:last-child{gap:6px}
+.poi-detail-profile .poi-mounted-card strong{overflow-wrap:anywhere;font-size:var(--fs-small)}
+.poi-detail-profile .poi-mounted-card small{color:var(--text-secondary)}
+.poi-detail-profile .poi-mounted-card button{align-self:flex-end;padding:4px 0}
+.poi-detail-profile .poi-camera-value-status{font-size:var(--fs-caption);color:var(--text-secondary);line-height:var(--lh-relaxed)}

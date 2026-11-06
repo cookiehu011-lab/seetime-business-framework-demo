@@ -1,0 +1,6 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm');
+const source=fs.readFileSync(require('node:path').join(__dirname,'../个人版地图运营.js'),'utf8');
+const context=vm.createContext({poiOpsRecord:cam=>cam.record,poiCityPois:()=>[{id:'p1',name:'广场'},{id:'p2',name:'公园'}],poiOpsStatus:()=> 'noValue',escape:String,image:()=>'<img>'});
+for(const name of ['poiDetailMountIds','poiCameraCards'])vm.runInContext(source.split('\n').find(line=>line.startsWith(` function ${name}(`)),context);
+test('POI detail lists all manual and AI mount names, suppressing value for mounted cameras',()=>{const html=context.poiCameraCards([{id:'c',name:'相机',projectName:'项目',record:{mounts:['p1','p2'],sources:{p1:'manual',p2:'ai_pre'}}}],{},true);assert.match(html,/已挂载：广场、公园/);assert.doesNotMatch(html,/无价值|有价值/)});
+test('unmounted range cameras retain value status; mounted section only shows camera and project',()=>{const cam={id:'c',name:'相机',projectName:'项目',record:{mounts:[]}};assert.match(context.poiCameraCards([cam],{},true),/无价值 · 未挂载/);assert.doesNotMatch(context.poiCameraCards([cam],{}),/无价值|未挂载/);assert.match(context.poiCameraCards([cam],{}),/查看相机详情/)});
