@@ -1080,3 +1080,25 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .dynamic-camera-list .dynamic-poi-groups{max-height:calc(100dvh - 300px);overflow:auto;scrollbar-gutter:stable}
 .dynamic-detail .dynamic-observation{box-shadow:none}
 @media(max-width:700px){.dynamic-detail .dynamic-coverage{grid-template-columns:1fr}.dynamic-camera-list .dynamic-poi-groups{max-height:300px}.personal-camera-thumb{width:48px;height:36px}}
+
+/* 递归 POI 目录：直属子级计数与独立展开操作。 */
+.mount-recursive-directory .mount-poi-project-toggle{background:#132335;border-color:#2c4359;padding:12px}
+.mount-recursive-directory .mount-poi-project-toggle small{margin-top:6px;color:var(--text-secondary);font-size:var(--fs-caption)}
+.mount-poi-tree,.mount-poi-tree-children{list-style:none;margin:0;padding:0}
+.mount-poi-tree-node{min-width:0;position:relative}
+.mount-poi-tree-row{display:flex;align-items:flex-start;gap:0;margin:6px 0 6px calc(var(--poi-level)*12px);border:1px solid #273d51;border-radius:7px;background:#101d2c;overflow:hidden}
+.mount-poi-tree-row.selected{background:#143044;border-color:#55cde8;box-shadow:inset 3px 0 #55cde8}
+.mount-poi-tree-row .mount-poi-progress-card{flex:1;min-width:0;border:0;border-radius:0;box-shadow:none;background:transparent;padding:11px 10px 11px 0}
+.mount-poi-tree-row:hover{border-color:#43839b;background:#142a3c}
+.mount-poi-branch-toggle,.mount-poi-leaf-mark{flex:none;width:26px;display:grid;place-items:center;margin-top:9px;height:26px;color:var(--text-secondary)}
+.mount-poi-branch-toggle{border:0;background:transparent;cursor:pointer;font-size:20px}
+.mount-poi-branch-toggle:hover{color:var(--text-accent);background:#244055;border-radius:4px}
+.mount-poi-branch-toggle:focus-visible{outline:2px solid var(--text-accent);outline-offset:-2px}
+.mount-poi-leaf-mark{font-size:22px;color:#53758e}
+.mount-poi-tree-title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 8px}
+.mount-poi-tree-title strong{color:var(--text-primary);font-size:var(--fs-small);font-weight:var(--fw-medium);overflow-wrap:anywhere}
+.mount-poi-tree-title small{flex:none;color:var(--text-tertiary);font-size:10px;font-weight:400;white-space:nowrap}
+.mount-poi-tree-children{position:relative}
+.mount-poi-tree-children::before{content:'';position:absolute;top:0;bottom:10px;left:calc(var(--poi-level)*12px + 5px);width:1px;background:#294458}
+.mount-poi-tree-row .mount-poi-progress-track{height:3px;background:#2b4052}
+.mount-poi-tree-row .mount-poi-card-copy{gap:7px}
