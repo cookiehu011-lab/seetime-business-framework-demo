@@ -10,7 +10,7 @@ const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const framework = fs.readFileSync(path.join(root, 'SeeTime业务框架.html'), 'utf8');
 const mountingSpec = fs.readFileSync(path.join(root, 'docs/superpowers/specs/2026-11-03-camera-mounting-workbench.md'), 'utf8');
 
-function loadMapFunction(name) {
+function loadMapFunction(name, environment = {}, invoke = true) {
   const lines = mapSource.split('\n');
   const start = lines.findIndex(line => line.startsWith(` function ${name}(`));
   assert.notEqual(start, -1, `Missing function ${name}`);
@@ -21,10 +21,10 @@ function loadMapFunction(name) {
     depth += (line.match(/{/g) || []).length - (line.match(/}/g) || []).length;
     if (depth === 0) break;
   }
-  const context = {};
+  const context = { ...environment };
   vm.createContext(context);
   vm.runInContext(declaration.join('\n'), context);
-  return context[name]();
+  return invoke ? context[name]() : context[name];
 }
 
 test('camera static tag references match the six supplied categories', () => {
@@ -54,12 +54,37 @@ test('camera profile labels use 静态标签 while detection 要素 remains sepa
 test('published HTML entry points load the refreshed static-tag map script', () => {
   const assets = [
     '<link rel="stylesheet" href="个人版地图运营.css?v=static-tags-20261106">',
-    '<script src="个人版地图运营.js?v=static-tags-20261106"></script>'
+    '<script src="个人版地图运营.js?v=static-tags-migration-20261106"></script>'
   ];
   for (const asset of assets) {
     assert.ok(index.includes(asset));
     assert.ok(framework.includes(asset));
   }
+});
+
+test('legacy saved camera tags migrate to static defaults and keep custom static tags', () => {
+  const migrate = loadMapFunction('migrateLegacyProfileTags', {
+    normaliseProfileTags: loadMapFunction('normaliseProfileTags', {}, false)
+  }, false);
+  assert.deepEqual(JSON.parse(JSON.stringify(migrate(['游客', '行人'], ['广场', '适合散步']))), ['广场', '适合散步']);
+  assert.deepEqual(JSON.parse(JSON.stringify(migrate(['行人', '自定义树木'], ['广场']))), ['自定义树木']);
+  assert.deepEqual(JSON.parse(JSON.stringify(migrate(['步道', '出入口'], ['广场']))), ['步道', '出入口']);
+
+  const key = 'hz:hz-public:HZ-C02';
+  const profiles = { [key]: { scene: '公共休闲空间、步行区域', tags: ['游客', '行人'], elements: ['人流', '排队'] } };
+  let persisted;
+  const analysisProfile = loadMapFunction('analysisProfile', {
+    analysisProfileKey: 'seetime-personal-analysis-profiles-v1',
+    analysisProfileStore: () => profiles,
+    analysisProfileStorageKey: () => key,
+    analysisProfileDefaults: camera => camera.demoProfile,
+    migrateLegacyProfileTags: migrate,
+    localStorage: { setItem: (storageKey, value) => { persisted = { storageKey, value }; } }
+  }, false);
+  const camera = { id: 'HZ-C02', demoProfile: { tags: ['广场', '适合散步'] } };
+  assert.deepEqual(JSON.parse(JSON.stringify(analysisProfile(camera).tags)), ['广场', '适合散步']);
+  assert.equal(persisted.storageKey, 'seetime-personal-analysis-profiles-v1');
+  assert.deepEqual(JSON.parse(persisted.value)[key].tags, ['广场', '适合散步']);
 });
 
 test('analysis config starts with 36 static tags and migrates only the old built-in defaults', () => {
