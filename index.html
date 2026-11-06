@@ -78,8 +78,6 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.record-heading h2,.dr
 .sidebar-collapsed .sidebar-bottom{padding-left:0;padding-right:0}
 .sidebar-collapsed .user-box{justify-content:center;min-height:56px;padding:9px}
 .sidebar-collapsed .avatar{width:34px;height:34px}
-.pac-tag-category{flex:none;padding:3px 7px;border:1px solid #28465f;border-radius:999px;background:#14273b;color:var(--text-secondary);font-size:10px;white-space:nowrap}
-.pac-tag>strong{white-space:nowrap}
 @media(max-width:700px){.sidebar>.sidebar-toggle,.sidebar-collapsed .sidebar-toggle{top:14px;right:14px;position:absolute;transform:none}.sidebar{overflow:visible}}
 </style>
 </head>
@@ -683,27 +681,134 @@ function dynamicAnalysisPage(){const d=state.dynamicAnalysis,query=(d.search||''
 </script>
 
 <style>
-.pac-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);margin:0 0 16px}.pac-tab{padding:10px 16px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--text-secondary);cursor:pointer}.pac-tab[aria-selected="true"]{color:var(--text-accent);border-color:var(--text-accent);font-weight:var(--fw-semibold)}.pac-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}.pac-toolbar .field{max-width:320px;flex:1}.pac-tag-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}.pac-tag{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:8px;background:var(--panel)}.pac-tag form{display:flex;flex:1;gap:8px}.pac-tag-actions{display:flex;gap:6px}.pac-prompt-layout{display:grid;grid-template-columns:minmax(250px, .8fr) minmax(0,1.5fr);gap:14px}.pac-prompt-list{display:grid;align-content:start;gap:8px}.pac-prompt-item{width:100%;text-align:left;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--text-primary);cursor:pointer}.pac-prompt-item.active{border-color:var(--text-accent);background:var(--panel2)}.pac-prompt-item small{display:block;margin-top:5px;color:var(--text-secondary)}.pac-prompt-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pac-prompt-form .wide{grid-column:1/-1}.pac-prompt-form textarea{min-height:220px;resize:vertical}.pac-log{display:grid;gap:8px;margin-top:14px}.pac-log-entry{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--border);color:var(--text-secondary);font-size:var(--fs-caption)}@media(max-width:800px){.pac-prompt-layout{grid-template-columns:1fr}.pac-toolbar{align-items:stretch;flex-direction:column}.pac-toolbar .field{max-width:none}.pac-prompt-form{grid-template-columns:1fr}.pac-prompt-form .wide{grid-column:auto}}
+.pac-tabs{display:flex;gap:8px;border-bottom:1px solid var(--border);margin:0 0 16px}.pac-tab{padding:10px 16px;border:0;border-bottom:2px solid transparent;background:transparent;color:var(--text-secondary);cursor:pointer}.pac-tab[aria-selected="true"]{color:var(--text-accent);border-color:var(--text-accent);font-weight:var(--fw-semibold)}.pac-toolbar{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:14px}.pac-toolbar .field{max-width:320px;flex:1}.pac-prompt-layout{display:grid;grid-template-columns:minmax(250px, .8fr) minmax(0,1.5fr);gap:14px}.pac-prompt-list{display:grid;align-content:start;gap:8px}.pac-prompt-item{width:100%;text-align:left;padding:12px;border:1px solid var(--border);border-radius:8px;background:var(--panel);color:var(--text-primary);cursor:pointer}.pac-prompt-item.active{border-color:var(--text-accent);background:var(--panel2)}.pac-prompt-item small{display:block;margin-top:5px;color:var(--text-secondary)}.pac-prompt-form{display:grid;grid-template-columns:1fr 1fr;gap:12px}.pac-prompt-form .wide{grid-column:1/-1}.pac-prompt-form textarea{min-height:220px;resize:vertical}.pac-log{display:grid;gap:8px;margin-top:14px}.pac-log-entry{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--border);color:var(--text-secondary);font-size:var(--fs-caption)}@media(max-width:800px){.pac-prompt-layout{grid-template-columns:1fr}.pac-toolbar{align-items:stretch;flex-direction:column}.pac-toolbar .field{max-width:none}.pac-prompt-form{grid-template-columns:1fr}.pac-prompt-form .wide{grid-column:auto}}
 </style>
 <style>
-.pac-tag-toolbar{align-items:center;justify-content:flex-end;min-height:38px}.pac-tag-count{margin-right:auto;color:var(--text-secondary);font-size:var(--fs-small)}.pac-tag-search{display:flex;align-items:center;gap:8px;width:min(100%,290px);height:36px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:#0a1725;color:var(--text-tertiary)}.pac-tag-search .ico{width:15px;height:15px}.pac-tag-search input{width:100%;min-width:0;height:32px;padding:0;border:0!important;outline:0!important;box-shadow:none!important;background:transparent!important;color:var(--text-primary);font-size:var(--fs-small)}.pac-tag-search:focus-within{border-color:var(--text-accent);box-shadow:0 0 0 2px #60dbff18}.pac-tag-toolbar>.button{height:36px}.pac-tag-toolbar>.button .ico{width:15px;height:15px}.pac-tag-list{display:flex;flex-wrap:wrap;align-items:flex-start;gap:9px}.pac-tag{flex:0 0 auto;min-height:40px;padding:5px 6px 5px 12px;gap:10px;border-radius:999px;background:#0d1928}.pac-tag>strong{font-size:var(--fs-small);font-weight:var(--fw-medium);color:var(--text-primary)}.pac-tag-actions,.pac-tag-confirm{display:flex;align-items:center;gap:3px}.pac-tag-confirm{font-size:var(--fs-caption);color:var(--text-secondary)}.pac-icon-button{display:grid;place-items:center;width:28px;height:28px;padding:5px;border:0;border-radius:50%;background:transparent;color:var(--text-tertiary);cursor:pointer}.pac-icon-button .ico{width:15px;height:15px}.pac-icon-button:hover{background:#20334a;color:var(--text-accent)}.pac-icon-button.danger:hover{background:#3a2630;color:var(--text-danger)}.pac-icon-button.save{background:#164e63;color:var(--text-accent)}.pac-icon-button.save:hover{background:#1d6077;color:#e7faff}.pac-tag-edit-form{display:flex;align-items:center;gap:4px}.pac-tag-edit-form input{width:156px;max-width:38vw;height:30px;padding:0 9px;border:1px solid #31506a;border-radius:6px;background:#091624;color:var(--text-primary);font-size:var(--fs-small)}.pac-tag.editing,.pac-tag.deleting{border-color:#355b70;background:#112337}.pac-tag-create-form{padding:4px 6px 4px 9px;border:1px solid #355b70;border-radius:999px;background:#112337}@media(max-width:800px){.pac-tag-toolbar{align-items:center;flex-direction:row;flex-wrap:wrap}.pac-tag-count{flex:1 1 100%}.pac-tag-search{flex:1 1 180px;width:auto}.pac-tag-list{gap:8px}.pac-tag-edit-form input{width:140px}}
+.pac-tag-toolbar{align-items:center;flex-direction:row;flex-wrap:wrap;margin-bottom:8px}
+.pac-tag-search{display:flex;align-items:center;gap:8px;width:min(100%,290px);height:36px;padding:0 10px;border:1px solid var(--border);border-radius:7px;background:#0a1725;color:var(--text-tertiary)}
+.pac-tag-search .ico,.pac-tag-toolbar .ico{width:15px;height:15px;flex:none}
+.pac-tag-search input{width:100%;min-width:0;padding:0;border:0;background:transparent;color:var(--text-primary);font:inherit}
+.pac-tag-search input:focus{outline:0;box-shadow:none}
+.pac-tag-search:focus-within{border-color:var(--text-accent)}
+.pac-tag-count{margin:0 0 12px;color:var(--text-secondary);font-size:var(--fs-small)}
+.pac-tag-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.pac-tag-group{min-width:0;padding:14px;border:1px solid var(--border);border-radius:8px;background:#0d1928}
+.pac-tag-group header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.pac-tag-group h2{margin:0;color:var(--text-title);font-size:var(--fs-body);font-weight:var(--fw-semibold)}
+.pac-tag-group small{color:var(--text-tertiary);font-size:var(--fs-caption);white-space:nowrap}
+.pac-tag-values{display:flex;flex-wrap:wrap;gap:7px}
+.pac-tag{max-width:100%;min-height:32px;padding:5px 10px;border:1px solid #2b4158;border-radius:6px;background:#142438;color:var(--text-primary);font:inherit;font-size:var(--fs-small);overflow-wrap:anywhere;text-align:left;cursor:pointer}
+.pac-tag:hover,.pac-tag:focus-visible{border-color:var(--text-accent);color:var(--text-accent)}
+.pac-tag-dialog{position:fixed;inset:0;width:min(440px,calc(100% - 32px));max-height:calc(100dvh - 32px);margin:auto;padding:20px;overflow:auto;border:1px solid #3a5a73;border-radius:10px;background:#102033;color:var(--text-primary);box-shadow:0 18px 56px #030a138c}
+.pac-tag-dialog::backdrop{background:#030a13be}
+.pac-tag-dialog h2{margin:0 0 16px;font-size:var(--fs-h2)}
+.pac-tag-dialog form,.pac-tag-dialog label{display:grid;gap:8px}
+.pac-tag-dialog form{gap:14px}
+.pac-tag-dialog label,.pac-tag-dialog p{color:var(--text-secondary);font-size:var(--fs-small)}
+.pac-tag-dialog input,.pac-tag-dialog select{width:100%;min-height:38px;padding:8px 10px;border:1px solid #35546a;border-radius:6px;background:#0b1927;color:var(--text-primary);font:inherit}
+.pac-tag-dialog footer{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap}
+.pac-tag-dialog [data-tag-action="remove"]{margin-right:auto}
+.pac-tag-dialog [data-tag-error]{margin:0;color:var(--text-danger)}
+@media(max-width:1200px){.pac-tag-groups{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.pac-tag-groups{grid-template-columns:minmax(0,1fr)}.pac-tag-search{flex:1 1 175px;width:auto}}
 </style>
 <script>
 const PAC_KEY='seetime-personal-analysis-config-v1';
-let pacState={tab:'tags',tagQuery:'',tagEditing:'',tagAdding:false,tagDeleting:'',promptName:'',promptVersion:'',promptId:'',promptExpandedName:'',promptCreating:false,promptBaseId:''};
+let pacState={tab:'tags',tagQuery:'',promptName:'',promptVersion:'',promptId:'',promptExpandedName:'',promptCreating:false,promptBaseId:''};
 function pacStaticTags(){return (window.SeeTimeMapOps?.staticTagCategories||[]).flatMap((group,index)=>group.values.map((name,valueIndex)=>({id:`t${index+1}-${valueIndex+1}`,name,category:group.category})))}
 function pacTagCategory(name){return window.SeeTimeMapOps?.staticTagCategories?.find(group=>group.values.includes(name))?.category||'自定义'}
 function pacLoad(){try{const v=JSON.parse(localStorage.getItem(PAC_KEY)||'null');if(v?.tags&&v?.prompts){const legacy=['车辆','行人','排队','车位','道路','步行区域'],names=v.tags.map(tag=>tag.name);return names.length===legacy.length&&names.every((name,index)=>name===legacy[index])?{...v,tags:pacStaticTags()}:v}}catch{}return {tags:pacStaticTags(),prompts:[{id:'p1',name:'公共空间单次观测',version:'1.0',status:'已发布',content:'请基于当前图片描述可见场景、人员与车辆活动。只陈述画面可支持的事实；遮挡或证据不足时明确说明不确定，不推断画面之外的信息。',logs:[{time:'2026-11-01 10:30',text:'初始版本发布'}]},{id:'p2',name:'停车场单次观测',version:'1.1',status:'草稿',content:'识别当前画面可见的车辆、车位与排队情况。区分已观测到、未观测到和无法判断；不得根据单张图片推断连续变化。',logs:[{time:'2026-11-02 09:20',text:'保存草稿 · 补充车位与排队结果边界'}]}]}}
 function pacSave(data){localStorage.setItem(PAC_KEY,JSON.stringify(data))}
-function pacActionIcon(name){return name==='delete'?'<svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M5 7l1 14h12l1-14M9 7V4h6v3"/></svg>':icon(name)}
+function pacTagGroups(tags){
+ const query=pacState.tagQuery.trim().toLowerCase();
+ const matches=tags.filter(tag=>tag.name.toLowerCase().includes(query));
+ const groups=new Map((window.SeeTimeMapOps?.staticTagCategories||[]).map(group=>[group.category,[]]));
+ for(const tag of matches){
+  const category=tag.category||pacTagCategory(tag.name);
+  if(!groups.has(category))groups.set(category,[]);
+  groups.get(category).push(tag);
+ }
+ const cards=[...groups].filter(([,items])=>items.length).map(([category,items])=>`
+  <section class="pac-tag-group"><header><h2>${esc(category)}</h2><small>${items.length} 个标签</small></header>
+  <div class="pac-tag-values">${items.map(tag=>`<button type="button" class="pac-tag" data-pac="tag-edit" data-id="${esc(tag.id)}" aria-label="编辑标签 ${esc(tag.name)}">${esc(tag.name)}</button>`).join('')}</div></section>`).join('');
+ return `<p class="pac-tag-count">${query?`找到 ${matches.length} / ${tags.length} 个标签`:`共 ${tags.length} 个标签`} · 点击标签编辑</p>
+  ${cards?`<div class="pac-tag-groups">${cards}</div>`:`<p class="empty">${query?'没有匹配的标签。':'暂无标签，可点击「新增标签」开始添加。'}</p>`}`;
+}
+function pacOpenTagDialog(id=''){
+ const tag=pacLoad().tags.find(item=>item.id===id);
+ if(id&&!tag)return;
+ const category=tag?.category||pacTagCategory(tag?.name);
+ const categories=[...new Set([...(window.SeeTimeMapOps?.staticTagCategories||[]).map(group=>group.category),'自定义',category])];
+ const dialog=document.createElement('dialog');
+ dialog.className='pac-tag-dialog';
+ dialog.setAttribute('aria-labelledby','pac-tag-dialog-title');
+ dialog.innerHTML=`
+  <section data-tag-editor><h2 id="pac-tag-dialog-title">${tag?'编辑标签':'新增标签'}</h2>
+  <form data-tag-save>
+   <label>标签名称<input name="name" value="${esc(tag?.name||'')}" required autofocus></label>
+   <label>标签类别<select name="category">${categories.map(value=>`<option value="${esc(value)}" ${value===category?'selected':''}>${esc(value)}</option>`).join('')}</select></label>
+   <p data-tag-error role="alert" hidden></p>
+   <footer>${tag?'<button type="button" class="button danger" data-tag-action="remove">删除标签</button>':''}<button type="button" class="button ghost" data-tag-action="close">取消</button><button class="button primary" type="submit">${tag?'保存修改':'新增标签'}</button></footer>
+  </form></section>
+  ${tag?`<section data-tag-remove hidden><h2 id="pac-tag-remove-title">删除标签</h2><p>确定从静态标签配置删除「${esc(tag.name)}」？</p>
+   <p data-tag-error role="alert" hidden></p>
+   <footer><button type="button" class="button ghost" data-tag-action="back">返回编辑</button><button type="button" class="button danger" data-tag-action="confirm-remove">确认删除</button></footer></section>`:''}`;
+ const editor=dialog.querySelector('[data-tag-editor]'),remove=dialog.querySelector('[data-tag-remove]');
+ const showError=(section,message)=>{const error=section.querySelector('[data-tag-error]');error.textContent=message;error.hidden=false};
+ const finish=message=>{
+  dialog.close();
+  render();
+  const edited=id&&document.querySelector(`[data-pac="tag-edit"][data-id="${CSS.escape(id)}"]`);
+  (edited||document.querySelector('[data-pac="tag-add"]'))?.focus({preventScroll:true});
+  notify(message);
+ };
+ dialog.addEventListener('close',()=>dialog.remove(),{once:true});
+ dialog.addEventListener('click',event=>{
+  switch(event.target.closest('button')?.dataset.tagAction){
+   case 'close':dialog.close();break;
+   case 'remove':
+    editor.hidden=true;
+    remove.hidden=false;
+    dialog.setAttribute('aria-labelledby','pac-tag-remove-title');
+    remove.querySelector('[data-tag-action="back"]').focus();
+    break;
+   case 'back':
+    remove.hidden=true;
+    editor.hidden=false;
+    dialog.setAttribute('aria-labelledby','pac-tag-dialog-title');
+    editor.querySelector('[data-tag-action="remove"]').focus();
+    break;
+   case 'confirm-remove':{
+    const data=pacLoad();
+    data.tags=data.tags.filter(item=>item.id!==id);
+    try{pacSave(data)}catch{showError(remove,'无法删除标签，请检查浏览器存储后重试。');return}
+    finish('标签已删除');
+    break;
+   }
+  }
+ });
+ dialog.addEventListener('submit',event=>{
+  event.preventDefault();
+  const form=event.target,values=new FormData(form),name=String(values.get('name')||'').trim(),category=String(values.get('category')||'自定义');
+  const data=pacLoad(),item=data.tags.find(entry=>entry.id===id);
+  if(id&&!item){showError(editor,'此标签已删除，请关闭后重新查看。');return}
+  if(!name){showError(editor,'请输入标签名称。');form.elements.name.focus();return}
+  if(data.tags.some(entry=>entry.id!==id&&entry.name.toLowerCase()===name.toLowerCase())){showError(editor,'标签名称已存在。');form.elements.name.focus();return}
+  if(item)Object.assign(item,{name,category});
+  else data.tags.push({id:`t${Date.now()}`,name,category});
+  try{pacSave(data)}catch{showError(editor,'无法保存标签，请检查浏览器存储后重试。');return}
+  if(!item)pacState.tagQuery='';
+  finish(item?'标签已保存':'标签已新增');
+ });
+ document.getElementById('app').append(dialog);
+ dialog.showModal();
+}
 function pacPromptTime(prompt){const value=Date.parse(prompt.logs?.[0]?.time||'');return Number.isFinite(value)?value:0}
 function pacPage(){
- const data=pacLoad(),tags=data.tags.filter(x=>!pacState.tagQuery||x.name.toLowerCase().includes(pacState.tagQuery.toLowerCase())),prompts=data.prompts.filter(x=>(!pacState.promptName||x.name.toLowerCase().includes(pacState.promptName.toLowerCase()))&&(!pacState.promptVersion||x.version.toLowerCase().includes(pacState.promptVersion.toLowerCase()))).sort((a,b)=>pacPromptTime(b)-pacPromptTime(a));
+ const data=pacLoad(),prompts=data.prompts.filter(x=>(!pacState.promptName||x.name.toLowerCase().includes(pacState.promptName.toLowerCase()))&&(!pacState.promptVersion||x.version.toLowerCase().includes(pacState.promptVersion.toLowerCase()))).sort((a,b)=>pacPromptTime(b)-pacPromptTime(a));
  if(!pacState.promptCreating&&!prompts.some(x=>x.id===pacState.promptId))pacState.promptId=prompts[0]?.id||'';
  const selected=data.prompts.find(x=>x.id===pacState.promptId),basePrompt=data.prompts.find(x=>x.id===pacState.promptBaseId),groups=[...new Set(prompts.map(x=>x.name))].map(name=>({name,items:data.prompts.filter(x=>x.name===name).sort((a,b)=>pacPromptTime(b)-pacPromptTime(a))})),
- editingForm=(id,name)=>`<form class="pac-tag-edit-form" data-pac-tag-save="${esc(id)}"><input name="name" data-pac-tag-edit-input value="${esc(name)}" aria-label="编辑标签名称" required><button class="pac-icon-button save" type="submit" title="保存" aria-label="保存">${icon('check')}</button><button class="pac-icon-button" type="button" data-pac="tag-cancel" title="取消" aria-label="取消">${icon('close')}</button></form>`,
- createForm=pacState.tagAdding?`<form class="pac-tag-edit-form pac-tag-create-form" data-pac-tag-create><input name="name" data-pac-tag-new placeholder="输入标签名称" aria-label="输入标签名称" required><button class="pac-icon-button save" type="submit" title="保存" aria-label="保存">${icon('check')}</button><button class="pac-icon-button" type="button" data-pac="tag-cancel" title="取消" aria-label="取消">${icon('close')}</button></form>`:'',
- tagsView=`<div class="pac-toolbar pac-tag-toolbar"><span class="pac-tag-count">共 ${data.tags.length} 个标签</span><label class="pac-tag-search"><span class="visually-hidden">搜索标签名称</span>${icon('search')}<input data-pac-tag-query value="${esc(pacState.tagQuery)}" placeholder="搜索标签名称"></label><button class="button primary" type="button" data-pac="tag-add" ${pacState.tagAdding?'disabled':''}>${icon('plus')}新增标签</button></div><div class="pac-tag-list">${createForm}${tags.map(x=>`<div class="pac-tag ${pacState.tagEditing===x.id?'editing':''} ${pacState.tagDeleting===x.id?'deleting':''}"><small class="pac-tag-category">${esc(pacTagCategory(x.name))}</small>${pacState.tagEditing===x.id?editingForm(x.id,x.name):pacState.tagDeleting===x.id?`<strong>${esc(x.name)}</strong><span class="pac-tag-confirm"><span>确认删除？</span><button class="pac-icon-button danger" type="button" data-pac="tag-delete-confirm" data-id="${esc(x.id)}" title="确认删除" aria-label="确认删除">${icon('check')}</button><button class="pac-icon-button" type="button" data-pac="tag-cancel" title="取消" aria-label="取消">${icon('close')}</button></span>`:`<strong>${esc(x.name)}</strong><span class="pac-tag-actions"><button class="pac-icon-button" type="button" data-pac="tag-edit" data-id="${esc(x.id)}" title="编辑 ${esc(x.name)}" aria-label="编辑 ${esc(x.name)}">${icon('edit')}</button><button class="pac-icon-button danger" type="button" data-pac="tag-delete" data-id="${esc(x.id)}" title="删除 ${esc(x.name)}" aria-label="删除 ${esc(x.name)}">${pacActionIcon('delete')}</button></span>`}</div>`).join('')||(!createForm?'<div class="empty">没有匹配的标签。</div>':'')}</div>`,
+ tagsView=`<div class="pac-toolbar pac-tag-toolbar"><label class="pac-tag-search"><span class="visually-hidden">搜索标签名称</span>${icon('search')}<input data-pac-tag-query value="${esc(pacState.tagQuery)}" placeholder="搜索标签名称"></label><button class="button primary" type="button" data-pac="tag-add">${icon('plus')}新增标签</button></div><div data-pac-tag-results>${pacTagGroups(data.tags)}</div>`,
  promptToolbar=`<form class="pac-prompt-toolbar" data-pac-prompt-search><div class="pac-prompt-filters"><label class="pac-prompt-filter"><span>提示词名称</span><input name="name" value="${esc(pacState.promptName)}" placeholder="按名称搜索"></label><label class="pac-prompt-filter version"><span>版本</span><input name="version" value="${esc(pacState.promptVersion)}" placeholder="如 1.0"></label><button class="button ghost" type="submit">查询</button></div><button class="button primary" type="button" data-pac="prompt-new">${icon('plus')}新建提示词</button></form>`,
  promptList=`<section class="box pac-prompt-list"><header class="pac-prompt-list-head"><div><h2>提示词库</h2><p>${groups.length} 个提示词 · ${prompts.length} 个版本</p></div></header>${groups.map(group=>{const isOpen=group.name===pacState.promptExpandedName||Boolean(pacState.promptVersion),latest=group.items[0],history=group.items.slice(1).filter(x=>!pacState.promptVersion||x.version.toLowerCase().includes(pacState.promptVersion.toLowerCase()));return `<section class="pac-version-group"><button type="button" class="pac-prompt-group ${latest.id===pacState.promptId?'active':''}" data-pac="prompt-select" data-id="${esc(latest.id)}" aria-current="${latest.id===pacState.promptId?'true':'false'}"><span class="pac-prompt-group-copy"><strong>${esc(group.name)}</strong><small>最新 · ${esc(latest.version)} · ${esc(latest.status)}</small></span><span class="status ${latest.status==='草稿'?'warn':'neutral'}">${esc(latest.status)}</span></button>${history.length?`<button type="button" class="pac-history-toggle" data-pac="prompt-group" data-name="${esc(group.name)}" aria-expanded="${isOpen}">${icon('chevron')}<span>${isOpen?'收起':'查看'} ${history.length} 个历史版本</span></button>${isOpen?`<div class="pac-version-history">${history.map(item=>`<button type="button" class="pac-version-item ${item.id===pacState.promptId?'active':''}" data-pac="prompt-select" data-id="${esc(item.id)}"><span>v${esc(item.version)}</span><span class="pac-version-status ${item.status==='草稿'?'draft':''}">${esc(item.status)}</span><small>${esc(item.logs?.[0]?.time||'暂无更新时间')}</small></button>`).join('')}</div>`:''}`:''}</section>`}).join('')||'<div class="empty">没有匹配的提示词版本。</div>'}</section>`,
  formPrompt=pacState.promptCreating?{name:basePrompt?.name||'',version:'',content:basePrompt?.content||''}:selected,
@@ -718,9 +823,13 @@ const pacBaseCameraPoi=cameraPoi;
 cameraPoi=function(cam,...args){return cam?._dynamicPoi||pacBaseCameraPoi(cam,...args)};
 const pacBaseDynamicCameras=dynamicCameras;
 dynamicCameras=function(){const base=pacBaseDynamicCameras(),prototype=base[0]||projectCameras()[0];if(!prototype)return base;const districts=info().districts,seed=[['poi-demo-1','湖滨步行街','商业街区',districts[0]],['poi-demo-2','钱江新城公园','公园·绿地',districts[1]||districts[0]],['poi-demo-3','延安路步行街','公共空间',districts[0]],['poi-demo-4','钱江新城停车场','停车场',districts[1]||districts[0]]],extras=[];seed.forEach((p,i)=>{const poi={id:p[0],name:p[1],category:p[2],district:p[3]};for(let j=0;j<(i===3?3:2);j++){extras.push({...prototype,id:`DEMO-D${String(i*3+j+1).padStart(2,'0')}`,name:`${p[1]} · ${['东向','入口','广场'][j]}`,district:p[3],mountedPoiId:'',personalSubscribed:true,quality:j===1?'需复核':'清晰',_dynamicPoi:poi})}});return [...base,...extras]};
-document.addEventListener('click',e=>{const b=e.target.closest?.('[data-pac]');if(!b)return;e.preventDefault();const d=pacLoad(),id=b.dataset.id;switch(b.dataset.pac){case'tab':pacState.tab=b.dataset.tab;break;case'tag-add':pacState.tagAdding=true;pacState.tagEditing='';pacState.tagDeleting='';break;case'tag-edit':pacState.tagEditing=id;pacState.tagAdding=false;pacState.tagDeleting='';break;case'tag-cancel':pacState.tagEditing='';pacState.tagAdding=false;pacState.tagDeleting='';break;case'tag-delete':pacState.tagDeleting=id;pacState.tagEditing='';pacState.tagAdding=false;break;case'tag-delete-confirm':d.tags=d.tags.filter(x=>x.id!==id);pacSave(d);pacState.tagDeleting='';notify('标签已删除');break;case'prompt-select':{const selected=d.prompts.find(x=>x.id===id);pacState.promptId=id;pacState.promptExpandedName=selected?.name||'';pacState.promptCreating=false;pacState.promptBaseId='';break}case'prompt-group':pacState.promptExpandedName=pacState.promptExpandedName===b.dataset.name?'':b.dataset.name;break;case'prompt-new':pacState.promptCreating=true;pacState.promptBaseId='';pacState.promptId='';pacState.promptName='';pacState.promptVersion='';break;case'prompt-clone':pacState.promptCreating=true;pacState.promptBaseId=id;pacState.promptId='';break;case'prompt-cancel':pacState.promptCreating=false;pacState.promptId=pacState.promptBaseId||pacState.promptId;pacState.promptBaseId='';break}render();if(b.dataset.pac==='tag-add')document.querySelector('[data-pac-tag-new]')?.focus();if(b.dataset.pac==='tag-edit')document.querySelector('[data-pac-tag-edit-input]')?.focus();if(b.dataset.pac==='prompt-new'||b.dataset.pac==='prompt-clone')document.querySelector('[data-pac-prompt-name]')?.focus()},true);
-document.addEventListener('input',e=>{if(e.target.matches('[data-pac-tag-query]')){pacState.tagQuery=e.target.value;const y=window.scrollY,position=e.target.selectionStart;render();const next=document.querySelector('[data-pac-tag-query]');next?.focus();if(position!==null)next?.setSelectionRange(position,position);window.scrollTo(0,y)}},true);
-document.addEventListener('submit',e=>{const f=e.target;if(f.matches('[data-pac-tag-create]')){e.preventDefault();e.stopImmediatePropagation();const d=pacLoad(),name=String(new FormData(f).get('name')||'').trim();if(name&&d.tags.some(x=>x.name.toLowerCase()===name.toLowerCase())){notify('标签名称已存在');return}if(name){d.tags.unshift({id:`t${Date.now()}`,name});pacSave(d);pacState.tagQuery='';notify('标签已新增')}pacState.tagAdding=false;render();return}if(f.matches('[data-pac-tag-save]')){e.preventDefault();e.stopImmediatePropagation();const d=pacLoad(),item=d.tags.find(x=>x.id===f.dataset.pacTagSave),name=String(new FormData(f).get('name')||'').trim();if(item&&name&&d.tags.some(x=>x.id!==item.id&&x.name.toLowerCase()===name.toLowerCase())){notify('标签名称已存在');return}if(item&&name){item.name=name;pacSave(d);pacState.tagEditing='';notify('标签已保存')}render();return}if(f.matches('[data-pac-prompt-search]')){e.preventDefault();e.stopImmediatePropagation();const v=new FormData(f);pacState.promptName=String(v.get('name')||'').trim();pacState.promptVersion=String(v.get('version')||'').trim();pacState.promptId='';pacState.promptCreating=false;pacState.promptBaseId='';render();return}if(f.matches('[data-pac-prompt-save]')){e.preventDefault();e.stopImmediatePropagation();const d=pacLoad(),v=new FormData(f),intent=e.submitter?.value||'draft',name=String(v.get('name')||'').trim(),version=String(v.get('version')||'').trim(),content=String(v.get('content')||''),change=String(v.get('change')||'').trim(),isNew=pacState.promptCreating,item=isNew?null:d.prompts.find(x=>x.id===f.dataset.pacPromptSave);if(intent==='publish'&&!content.trim()){notify('请先填写提示词正文，再发布');return}if(d.prompts.some(x=>x.id!==item?.id&&x.name.toLowerCase()===name.toLowerCase()&&x.version.toLowerCase()===version.toLowerCase())){notify('同一提示词下版本号不能重复');return}const time=new Date().toLocaleString('zh-CN',{hour12:false}),logText=`${isNew?(intent==='publish'?'创建并发布':'创建草稿'):(intent==='publish'?'发布版本':'保存草稿')}${change?` · ${change}`:''}`;if(isNew){const created={id:`p${Date.now()}`,name,version,status:intent==='publish'?'已发布':'草稿',content,logs:[{time,text:logText}]};d.prompts.unshift(created);pacState.promptId=created.id;pacState.promptExpandedName=name;pacState.promptCreating=false;pacState.promptBaseId=''}else if(item){item.name=name;item.version=version;item.content=content;item.status=intent==='publish'?'已发布':'草稿';item.logs=item.logs||[];item.logs.unshift({time,text:logText});pacState.promptExpandedName=name}pacState.promptName='';pacState.promptVersion='';pacSave(d);notify(intent==='publish'?'提示词版本已发布（本地演示）':'草稿已保存');render()}},true);</script>
+document.addEventListener('click',e=>{const b=e.target.closest?.('[data-pac]');if(!b)return;e.preventDefault();const d=pacLoad(),id=b.dataset.id;switch(b.dataset.pac){case'tab':pacState.tab=b.dataset.tab;break;case'tag-add':pacOpenTagDialog();return;case'tag-edit':pacOpenTagDialog(id);return;case'prompt-select':{const selected=d.prompts.find(x=>x.id===id);pacState.promptId=id;pacState.promptExpandedName=selected?.name||'';pacState.promptCreating=false;pacState.promptBaseId='';break}case'prompt-group':pacState.promptExpandedName=pacState.promptExpandedName===b.dataset.name?'':b.dataset.name;break;case'prompt-new':pacState.promptCreating=true;pacState.promptBaseId='';pacState.promptId='';pacState.promptName='';pacState.promptVersion='';break;case'prompt-clone':pacState.promptCreating=true;pacState.promptBaseId=id;pacState.promptId='';break;case'prompt-cancel':pacState.promptCreating=false;pacState.promptId=pacState.promptBaseId||pacState.promptId;pacState.promptBaseId='';break}render();if(b.dataset.pac==='prompt-new'||b.dataset.pac==='prompt-clone')document.querySelector('[data-pac-prompt-name]')?.focus()},true);
+document.addEventListener('input',e=>{
+ if(!e.target.matches('[data-pac-tag-query]'))return;
+ pacState.tagQuery=e.target.value;
+ document.querySelector('[data-pac-tag-results]').innerHTML=pacTagGroups(pacLoad().tags);
+},true);
+document.addEventListener('submit',e=>{const f=e.target;if(f.matches('[data-pac-prompt-search]')){e.preventDefault();e.stopImmediatePropagation();const v=new FormData(f);pacState.promptName=String(v.get('name')||'').trim();pacState.promptVersion=String(v.get('version')||'').trim();pacState.promptId='';pacState.promptCreating=false;pacState.promptBaseId='';render();return}if(f.matches('[data-pac-prompt-save]')){e.preventDefault();e.stopImmediatePropagation();const d=pacLoad(),v=new FormData(f),intent=e.submitter?.value||'draft',name=String(v.get('name')||'').trim(),version=String(v.get('version')||'').trim(),content=String(v.get('content')||''),change=String(v.get('change')||'').trim(),isNew=pacState.promptCreating,item=isNew?null:d.prompts.find(x=>x.id===f.dataset.pacPromptSave);if(intent==='publish'&&!content.trim()){notify('请先填写提示词正文，再发布');return}if(d.prompts.some(x=>x.id!==item?.id&&x.name.toLowerCase()===name.toLowerCase()&&x.version.toLowerCase()===version.toLowerCase())){notify('同一提示词下版本号不能重复');return}const time=new Date().toLocaleString('zh-CN',{hour12:false}),logText=`${isNew?(intent==='publish'?'创建并发布':'创建草稿'):(intent==='publish'?'发布版本':'保存草稿')}${change?` · ${change}`:''}`;if(isNew){const created={id:`p${Date.now()}`,name,version,status:intent==='publish'?'已发布':'草稿',content,logs:[{time,text:logText}]};d.prompts.unshift(created);pacState.promptId=created.id;pacState.promptExpandedName=name;pacState.promptCreating=false;pacState.promptBaseId=''}else if(item){item.name=name;item.version=version;item.content=content;item.status=intent==='publish'?'已发布':'草稿';item.logs=item.logs||[];item.logs.unshift({time,text:logText});pacState.promptExpandedName=name}pacState.promptName='';pacState.promptVersion='';pacSave(d);notify(intent==='publish'?'提示词版本已发布（本地演示）':'草稿已保存');render()}},true);</script>
 <style>
 .dynamic-search{gap:7px;padding:12px 12px 10px}.dynamic-search input{height:38px;padding:0 11px;border:1px solid var(--border);border-radius:7px;background:#0a1725;color:var(--text-primary);font-size:var(--fs-small);box-shadow:none}.dynamic-search input:focus{outline:2px solid #60dbff55;border-color:var(--text-accent)}.dynamic-search button{height:38px;min-width:56px;padding:0 12px}.dynamic-camera-list>.context-select{margin:0 12px 10px}.dynamic-list-meta{padding:0 14px 10px}.dynamic-camera-list .dynamic-scope-note{margin:0 12px 8px!important;padding:8px 10px!important;font-size:var(--fs-caption);line-height:1.5}.dynamic-detail-head{margin:0 0 12px}.dynamic-detail-head>div:first-child{min-width:0}.dynamic-detail-head p{display:flex;gap:8px;flex-wrap:wrap;font-size:var(--fs-caption);line-height:1.5}.dynamic-detail-head p:empty{display:none}.dynamic-frame>.scene-photo,.dynamic-frame>.scene-photo img{width:100%;height:100%;min-height:240px;object-fit:cover}.dynamic-frame>.scene-photo img{display:block}.dynamic-detail .box-title>div p{font-size:var(--fs-caption);line-height:1.5}.dynamic-layout .dynamic-stats .dynamic-stat:last-child{grid-column:1/-1}
 @media(max-width:700px){.dynamic-search{padding:10px}.dynamic-detail-head{margin-bottom:8px}.dynamic-detail-head p{font-size:var(--fs-caption)}}
