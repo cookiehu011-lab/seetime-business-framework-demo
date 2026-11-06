@@ -776,3 +776,49 @@ test('closing a saved remount does not treat a later POI relation as a draft', (
   context.ui.camera.completedCameraId = '';
   assert.equal(context.hasMountDraftChanges(), true);
 });
+
+test('expanded candidate POI shows evidence tags without explanation or caution paragraphs', () => {
+  const context = {
+    ui: { camera: { selectedPoiId: 'p1', expandedPoiId: 'p1' } },
+    escape: value => String(value), position: () => [120, 30], poiPoint: () => [120, 30],
+    rec: () => ({ candidates: [{ id: 'p1' }] }), distanceText: () => '122 米',
+    poiLabel: poi => poi.category, poiPanoramaActions: () => '',
+    poiEvidence: () => ({ signals: [['画面描述待核对', 'neutral']], reason: '匹配说明段落', caution: '人工核验说明段落' }),
+    tag: label => `<span>${label}</span>`
+  };
+  vm.createContext(context);
+  load(mapSource, 'mountPlaceCard', context);
+  const card = context.mountPlaceCard({}, { id: 'p1', name: '钱江新城公园', category: '景点' }, 'candidate', 0);
+  assert.match(card, /候选依据/);
+  assert.match(card, /画面描述待核对/);
+  assert.doesNotMatch(card, /匹配说明段落|人工核验说明段落/);
+});
+
+test('new POI shows optional text fields before a search result is selected', () => {
+  const context = {
+    ui: { camera: { poiCreateName: '', poiCreateCategory: '', poiCreateAddress: '' } },
+    escape: value => String(value), selectedAmapPoi: () => undefined, mountPoiSearchResults: () => ''
+  };
+  vm.createContext(context);
+  load(mapSource, 'cameraPoiCreateForm', context);
+  const html = context.cameraPoiCreateForm();
+  assert.match(html, /name="name".*类型（选填）<input[^>]*name="category".*位置（选填）<input[^>]*name="address"/);
+  assert.doesNotMatch(html, /name="(?:category|address)"[^>]*required/);
+  assert.match(html, /<button type="submit"[^>]*disabled>添加 POI/);
+});
+
+test('switching POI results clears missing metadata without using district as an address', () => {
+  const first = { amapId: 'one', name: '公园', category: '景点', address: '湖滨路1号' };
+  const second = { amapId: 'two', name: '入口', category: '', address: '', district: '上城区' };
+  const field = { value: '', focus() {} }, camera = { poiCreateOpen: true, poiCreateSearch: { results: [first, second] } };
+  const context = {
+    ui: { camera }, map: null, CSS: { escape: value => value },
+    document: { querySelector: () => field }, refreshMountPoiResults: () => {}
+  };
+  vm.createContext(context);
+  load(mapSource, 'selectAmapPoi', context);
+  context.selectAmapPoi('one');
+  assert.deepEqual([camera.poiCreateCategory, camera.poiCreateAddress], ['景点', '湖滨路1号']);
+  context.selectAmapPoi('two');
+  assert.deepEqual([camera.poiCreateCategory, camera.poiCreateAddress], ['', '']);
+});
