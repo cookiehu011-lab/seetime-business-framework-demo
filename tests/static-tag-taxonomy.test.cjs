@@ -51,10 +51,27 @@ test('camera profile labels use 静态标签 while detection 要素 remains sepa
   assert.match(mountingSpec, /相机静态标签按六类参考值/);
 });
 
+test('mount profile sections show the tag values without explanatory copy', () => {
+  const cameraProfileSection = loadMapFunction('cameraProfileSection', {
+    ui: { analysis: { profileDraft: null }, camera: { completedCameraId: '' } },
+    analysisProfile: () => ({ tags: ['停车场', '出入口'], elements: ['车位'] }),
+    analysisProfileOptions: { elements: ['人流', '车流', '车位', '排队'] },
+    escape: value => String(value),
+    staticTagDatalist: () => ''
+  }, false);
+  const section = cameraProfileSection({ id: 'HZ-C03' });
+  assert.match(section, /静态标签/);
+  assert.match(section, /停车场/);
+  assert.match(section, /检测要素/);
+  assert.match(section, /车位/);
+  assert.doesNotMatch(section, /记录画面中可见的场地、景观、设施或场景体验/);
+  assert.doesNotMatch(section, /选择此相机需要检测的业务指标/);
+});
+
 test('published HTML entry points load the refreshed static-tag map script', () => {
   const assets = [
     '<link rel="stylesheet" href="个人版地图运营.css?v=static-tags-20261106">',
-    '<script src="个人版地图运营.js?v=static-tags-migration-20261106"></script>'
+    '<script src="个人版地图运营.js?v=static-tags-copy-20261106"></script>'
   ];
   for (const asset of assets) {
     assert.ok(index.includes(asset));
