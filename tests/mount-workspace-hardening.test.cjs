@@ -213,7 +213,7 @@ test('mount queue completion distinguishes mounted, no-value and feedback outcom
   assert.match(lastMessage, /本项目已无待处理相机/);
 });
 
-test('camera review offers terminal actions with clear auto-next guidance and preserves processed status', () => {
+test('camera outcome panel renders forms or processed status without duplicate launch buttons', () => {
   const context = {
     ui: { camera: { mountOutcomeDraft: null } },
     mountQueueOutcome: () => null,
@@ -230,10 +230,7 @@ test('camera review offers terminal actions with clear auto-next guidance and pr
   load(mapSource, 'mountQueueOutcomeConfirmation', context);
   load(mapSource, 'mountQueueOutcomeActions', context);
   const actions = context.mountQueueOutcomeActions({ id: 'c1' });
-  assert.match(actions, /标记相机无价值/);
-  assert.match(actions, /反馈相机基础信息/);
-  assert.match(actions, /提交成功后自动进入下一台/);
-  assert.match(actions, /全部处理完成后返回待处理队列/);
+  assert.equal(actions, '');
   context.mountQueueOutcome = () => ({ type: 'basic_feedback', field: '安装位置', note: '安装位置与画面不符', status: 'pending_review' });
   const processed = context.mountQueueOutcomeActions({ id: 'c1' });
   assert.match(processed, /基础信息反馈已提交/);
@@ -257,12 +254,35 @@ test('camera review offers terminal actions with clear auto-next guidance and pr
   assert.match(context.mountQueueOutcomeActions({ id: 'c1' }), /提交反馈并返回待处理列表/);
 });
 
-test('terminal outcome controls appear only during camera information review', () => {
-  const start = mapSource.indexOf('function cameraCard('), end = mapSource.indexOf('\n function mountWorkflowRail(', start);
-  const card = mapSource.slice(start, end);
-  assert.equal([...card.matchAll(/mountQueueOutcomeActions\(cam\)/g)].length, 2);
-  assert.ok(card.indexOf('mountQueueOutcomeActions(cam)') < card.indexOf('step===2?'));
-  assert.ok(card.includes("s.entryMode==='poi'?`${cameraProfileSection(cam)}${mountScene(cam)}${mountCurrentTarget(cam,fixedTarget)}${mountQueueOutcomeActions(cam)}`"));
+test('workflow footer offers feedback at step one and unable to mount at step two', () => {
+  const camera = { id: 'c1' };
+  const context = {
+    ui: { camera: { workflowStep: 1, entryMode: 'poi', targetPoiId: 'p1' } },
+    cityPois: () => [{ id: 'p1' }], mountProjectCams: () => [camera],
+    hasCameraProfileChanges: () => false, processed: () => false,
+    escape: value => String(value ?? '')
+  };
+  vm.createContext(context);
+  for (const name of ['mountTargetId', 'mountCanAdvance', 'mountWorkflowRail']) load(mapSource, name, context);
+  const first = context.mountWorkflowRail(camera);
+  assert.match(first, /标记相机无价值.*反馈相机基础信息.*下一步：核对相机/);
+  assert.doesNotMatch(first, /标记无法挂载/);
+  context.ui.camera.workflowStep = 2;
+  const second = context.mountWorkflowRail(camera);
+  assert.match(second, /标记无法挂载/);
+  assert.doesNotMatch(second, /data-map="mount-outcome-open"/);
+  context.ui.camera.unableOpen = true;
+  assert.match(context.mountWorkflowRail(camera), /无法挂载原因.*保存标记/);
+  context.ui.camera.workflowStep = 3;
+  assert.doesNotMatch(context.mountWorkflowRail(camera), /标记无法挂载|无法挂载原因|data-map="mount-outcome-open"/);
+});
+
+test('camera scene shows the escaped watermark directly below the picture', () => {
+  const context = { image: () => '<img src="scene.jpg">', escape: value => value.replaceAll('&', '&amp;'), analysisProfile: () => ({ scene: '停车场、车辆通行空间' }) };
+  vm.createContext(context);
+  load(mapSource, 'mountScene', context);
+  assert.match(context.mountScene({ cameraWatermark: '东站 & 广角' }), /<\/div><p>水印：东站 &amp; 广角<\/p>/);
+  assert.match(context.mountScene({}), /水印：未登记/);
 });
 
 test('terminal action form retains entered details and offers cancel', () => {
