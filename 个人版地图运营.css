@@ -1004,3 +1004,7 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
  .camera-map-layout.mount-map-workspace.has-camera>.map-tree-rail:not([hidden]){grid-column:1;grid-row:1;top:8px;bottom:auto;height:calc(100% - 16px);max-height:520px;width:min(300px,calc(100% - 16px))}
  .mount-map-workspace.has-camera .mount-rail-progress,.mount-map-workspace.has-camera .mount-rail-actions{flex-wrap:wrap;min-width:0}
 }
+
+.mount-map-workspace .mount-governance-filters{left:auto;right:12px;width:auto;max-width:none;padding:7px 10px;gap:14px;box-shadow:none}
+.mount-map-workspace .mount-governance-filters label{flex:none;gap:6px;white-space:nowrap;cursor:pointer}
+.mount-governance-filters input{width:14px;height:14px;margin:0;accent-color:#25cbe0}
