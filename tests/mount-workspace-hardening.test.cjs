@@ -195,7 +195,8 @@ test('basic camera information feedback stays pending review and does not overwr
   assert.equal(decision.status, 'pending_review');
   assert.equal(decision.field, '安装位置');
   assert.equal(decision.note, '安装位置与画面不符');
-  assert.throws(() => context.buildMountQueueDecision('no_value', { reason: '  ' }, '运营员', 'now'), /填写/);
+  assert.equal(context.buildMountQueueDecision('no_value', { reason: '  ' }, '运营员', 'now').reason, '');
+  assert.equal(context.buildMountQueueDecision('basic_feedback', { field: '安装位置' }, '运营员', 'now').note, '');
   assert.throws(() => context.buildMountQueueDecision('basic_feedback', { field: '未知字段', note: '待核对' }, '运营员', 'now'), /选择/);
 });
 
@@ -213,7 +214,7 @@ test('mount queue completion distinguishes mounted, no-value and feedback outcom
   assert.match(lastMessage, /本项目已无待处理相机/);
 });
 
-test('camera outcome panel renders forms or processed status without duplicate launch buttons', () => {
+test('camera outcome panel displays processed status while forms open in a dialog', () => {
   const context = {
     ui: { camera: { mountOutcomeDraft: null } },
     mountQueueOutcome: () => null,
@@ -242,16 +243,18 @@ test('camera outcome panel renders forms or processed status without duplicate l
   assert.match(unable, /已标记无法挂载/);
   assert.doesNotMatch(unable, /标记相机无价值|反馈相机基础信息/);
   context.rec = () => ({});
+  load(mapSource, 'mountQueueOutcomeDialog', context);
   context.ui.camera.mountOutcomeDraft = { cameraId: 'c1', type: 'no_value' };
-  const noValueForm = context.mountQueueOutcomeActions({ id: 'c1' });
-  assert.match(noValueForm, /textarea name="reason" maxlength="80" required/);
-  assert.match(noValueForm, /标记并进入下一台/);
+  assert.equal(context.mountQueueOutcomeActions({ id: 'c1' }), '');
+  const noValueForm = context.mountQueueOutcomeDialog({ id: 'c1' });
+  assert.match(noValueForm, /<dialog[^>]*aria-labelledby/);
+  assert.match(noValueForm, /简要说明（选填）/);
+  assert.doesNotMatch(noValueForm, /<textarea[^>]* required/);
   context.ui.camera.mountOutcomeDraft = { cameraId: 'c1', type: 'basic_feedback' };
-  const feedbackForm = context.mountQueueOutcomeActions({ id: 'c1' });
+  const feedbackForm = context.mountQueueOutcomeDialog({ id: 'c1' });
   assert.match(feedbackForm, /select name="field" required/);
-  assert.match(feedbackForm, /textarea name="note" maxlength="160" required/);
-  context.mountProjectCams = () => [{ id: 'c1' }];
-  assert.match(context.mountQueueOutcomeActions({ id: 'c1' }), /提交反馈并返回待处理列表/);
+  assert.match(feedbackForm, /反馈说明（选填）/);
+  assert.doesNotMatch(feedbackForm, /<textarea[^>]* required/);
 });
 
 test('workflow footer offers feedback at step one and unable to mount at step two', () => {
@@ -296,18 +299,19 @@ test('terminal action form retains entered details and offers cancel', () => {
   };
   vm.createContext(context);
   load(mapSource, 'mountQueueOutcomeConfirmation', context);
-  load(mapSource, 'mountQueueOutcomeActions', context);
+  load(mapSource, 'mountQueueOutcomeDialog', context);
   load(mapSource, 'nextQueueCameraAfter', context);
-  const markup = context.mountQueueOutcomeActions({ id: 'c1', name: '相机 A' });
+  const markup = context.mountQueueOutcomeDialog({ id: 'c1', name: '相机 A' });
   assert.match(markup, /画面长期遮挡/);
-  assert.match(markup, /不会创建 POI 挂载/);
-  assert.match(markup, /标记并进入下一台/);
+  assert.match(markup, /下一步：确认提交/);
   assert.match(markup, /data-map="mount-outcome-cancel"/);
 });
 
 test('terminal outcome confirmation shows the submitted details and keeps them on cancel', () => {
   const context = {
     ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置与现场不符' } } },
+    mountProjectCams: () => [{ id: 'c1' }, { id: 'c2', name: '相机 B' }],
+    processed: () => false,
     buildMountQueueDecision: (type, values) => ({ type, ...values }),
     escape: value => String(value ?? '')
   };
@@ -315,6 +319,7 @@ test('terminal outcome confirmation shows the submitted details and keeps them o
   load(mapSource, 'prepareMountQueueOutcomeConfirmation', context);
   load(mapSource, 'cancelMountQueueOutcomeConfirmation', context);
   load(mapSource, 'mountQueueOutcomeConfirmation', context);
+  load(mapSource, 'nextQueueCameraAfter', context);
   context.prepareMountQueueOutcomeConfirmation({ id: 'c1' }, 'basic_feedback', { field: '安装位置', note: '位置与现场不符' });
   const draft = context.ui.camera.mountOutcomeDraft;
   assert.equal(draft.confirmOpen, true);
@@ -322,7 +327,10 @@ test('terminal outcome confirmation shows the submitted details and keeps them o
   assert.match(markup, /确认提交基础信息反馈/);
   assert.match(markup, /安装位置/);
   assert.match(markup, /位置与现场不符/);
-  assert.match(markup, /data-map="mount-outcome-confirm-save"/);
+  assert.match(markup, /确认提交并进入下一台/);
+  assert.match(markup, /下一台：相机 B/);
+  context.processed = () => true;
+  assert.match(context.mountQueueOutcomeConfirmation({ id: 'c1' }, { ...draft, note: ' ' }), /未填写[\s\S]*确认提交并返回待处理列表/);
   context.cancelMountQueueOutcomeConfirmation();
   assert.equal(context.ui.camera.mountOutcomeDraft.confirmOpen, false);
   assert.equal(context.ui.camera.mountOutcomeDraft.note, '位置与现场不符');
@@ -334,7 +342,7 @@ test('terminal camera actions advance only after save and return to the queue at
     ui: { camera: {}, analysis: {} },
     hasCameraProfileChanges: () => false,
     mountQueueOutcome: cam => decisions.get(cam.id) || null,
-    saveMountQueueOutcome: (cam, type) => { decisions.set(cam.id, { type, status: type === 'no_value' ? 'excluded' : 'pending_review' }); events.push(`saved:${cam.id}`); },
+    saveMountQueueOutcome: (cam, type, values) => { decisions.set(cam.id, context.buildMountQueueDecision(type, values)); events.push(`saved:${cam.id}`); },
     mountProjectCams: () => cameras,
     processed: cam => decisions.has(cam.id),
     mountOutcomeSuccessMessage: (_type, cam, next) => next ? `${cam.id}->${next.id}` : `${cam.id}->queue`,
@@ -346,10 +354,10 @@ test('terminal camera actions advance only after save and return to the queue at
   load(mapSource, 'nextQueueCameraAfter', context);
   load(mapSource, 'buildMountQueueDecision', context);
   load(mapSource, 'finishMountQueueOutcome', context);
-  context.finishMountQueueOutcome(cameras[0], 'no_value', { reason: '遮挡' });
+  context.finishMountQueueOutcome(cameras[0], 'no_value', {});
   assert.deepEqual(events.slice(0, 3), ['saved:c1', 'select:c2', 'notify:c1->c2']);
   events.length = 0;
-  context.finishMountQueueOutcome(cameras[1], 'basic_feedback', { field: '安装位置', note: '需核对' });
+  context.finishMountQueueOutcome(cameras[1], 'basic_feedback', { field: '安装位置' });
   assert.equal(context.ui.camera.queueOpen, true);
   assert.equal(context.ui.camera.cameraId, '');
   assert.deepEqual(events, ['saved:c2', 'render', 'notify:c2->queue']);
@@ -361,7 +369,7 @@ test('terminal camera actions advance only after save and return to the queue at
   events.length = 0;
   decisions.delete('c2');
   context.saveMountQueueOutcome = (cam, type, values) => context.buildMountQueueDecision(type, values);
-  assert.throws(() => context.finishMountQueueOutcome(cameras[1], 'no_value', { reason: '  ' }), /填写/);
+  assert.throws(() => context.finishMountQueueOutcome(cameras[1], 'basic_feedback', {}), /选择/);
   assert.deepEqual(events, []);
   cameras.push({ id: 'c3' });
   decisions.clear();
