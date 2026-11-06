@@ -244,12 +244,13 @@ test('camera outcome panel displays processed status while forms open in a dialo
   assert.doesNotMatch(unable, /标记相机无价值|反馈相机基础信息/);
   context.rec = () => ({});
   load(mapSource, 'mountQueueOutcomeDialog', context);
-  context.ui.camera.mountOutcomeDraft = { cameraId: 'c1', type: 'no_value' };
+  context.ui.camera.mountOutcomeDraft = { cameraId: 'c1', type: 'no_value', confirmOpen: true };
   assert.equal(context.mountQueueOutcomeActions({ id: 'c1' }), '');
-  const noValueForm = context.mountQueueOutcomeDialog({ id: 'c1' });
-  assert.match(noValueForm, /<dialog[^>]*aria-labelledby/);
-  assert.match(noValueForm, /简要说明（选填）/);
-  assert.doesNotMatch(noValueForm, /<textarea[^>]* required/);
+  const noValueDialog = context.mountQueueOutcomeDialog({ id: 'c1' });
+  assert.match(noValueDialog, /<dialog[^>]*aria-labelledby/);
+  assert.match(noValueDialog, /确认提交并进入下一台/);
+  assert.match(noValueDialog, /data-map="mount-outcome-cancel" autofocus>取消/);
+  assert.doesNotMatch(noValueDialog, /textarea|简要说明|返回修改/);
   context.ui.camera.mountOutcomeDraft = { cameraId: 'c1', type: 'basic_feedback' };
   const feedbackForm = context.mountQueueOutcomeDialog({ id: 'c1' });
   assert.match(feedbackForm, /select name="field" required/);
@@ -288,9 +289,9 @@ test('camera scene shows the escaped watermark directly below the picture', () =
   assert.match(context.mountScene({}), /水印：未登记/);
 });
 
-test('terminal action form retains entered details and offers cancel', () => {
+test('feedback form retains entered details and offers cancel', () => {
   const context = {
-    ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'no_value', reason: '画面长期遮挡' } } },
+    ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置与画面不符' } } },
     mountProjectCams: () => [{ id: 'c1' }, { id: 'c2' }],
     processed: () => false,
     mountQueueOutcome: () => null,
@@ -302,7 +303,7 @@ test('terminal action form retains entered details and offers cancel', () => {
   load(mapSource, 'mountQueueOutcomeDialog', context);
   load(mapSource, 'nextQueueCameraAfter', context);
   const markup = context.mountQueueOutcomeDialog({ id: 'c1', name: '相机 A' });
-  assert.match(markup, /画面长期遮挡/);
+  assert.match(markup, /位置与画面不符/);
   assert.match(markup, /下一步：确认提交/);
   assert.match(markup, /data-map="mount-outcome-cancel"/);
 });
