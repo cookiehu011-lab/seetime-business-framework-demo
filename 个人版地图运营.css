@@ -446,9 +446,11 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 /* Mount analysis: read-only description, free-text elements, multi-select detection. */
 .profile-scene-readonly{padding:0 0 12px;border-bottom:1px solid #263b50}
 .profile-tag-inputs{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.profile-tag-token{display:flex;align-items:center;min-width:0;max-width:100%;padding-left:10px;border:1px solid #30465e;border-radius:16px;background:#0b1725}
+.profile-tag-token{display:flex;align-items:center;min-width:0;max-width:100%;box-sizing:border-box;padding-left:10px;border:1px solid #30465e;border-radius:16px;background:#0b1725}
 .profile-tag-token:focus-within{border-color:#63cce3;box-shadow:0 0 0 1px #63cce3}
-.profile-tag-token input{min-width:48px;max-width:calc(100% - 32px);height:32px;padding:4px 0;border:0;border-radius:0;background:transparent;color:var(--text-primary);font:inherit;font-size:var(--fs-small);outline:none;box-sizing:border-box}
+.profile-tag-field{position:relative;display:block;min-width:0;font:inherit;font-size:var(--fs-small)}
+.profile-tag-field::after{display:block;content:attr(data-tag-measure);padding-inline-end:24px;overflow:hidden;visibility:hidden;white-space:pre}
+.profile-tag-token input{position:absolute;top:50%;left:0;transform:translateY(-50%);width:100%;min-width:0;height:32px;margin:0;padding:4px 0;border:0;border-radius:0;background:transparent;color:var(--text-primary);font:inherit;outline:none;box-sizing:border-box}
 .profile-tag-token button{display:grid;place-items:center;flex:none;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--text-secondary);font:inherit;font-size:var(--fs-h2);cursor:pointer}
 .profile-tag-token button:hover{background:#1a3043;color:var(--text-title)}
 .profile-tag-token button:active{background:#224158}
@@ -746,7 +748,7 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-editor-section>header,.mount-scene>header{display:flex;align-items:center;justify-content:space-between;padding:9px 11px;border-bottom:1px solid #344c60}
 .mount-inspector h3{margin:0;font-size:14px;font-weight:600;color:#e1ebf5}
 .mount-editor-section header small{color:#9db2c5;font-size:11px}.mount-reference-editor .profile-tag-inputs{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px}
-.mount-reference-editor .profile-tag-token{display:flex;align-items:center;border:1px solid #28cce2;border-radius:5px;background:#113446;height:30px;padding:0 7px;box-sizing:border-box}.mount-reference-editor .profile-tag-token input{background:transparent;border:0;color:#93f1fc;font-size:13px;padding:0;max-width:140px}.mount-reference-editor .profile-tag-token button{background:none;border:0;color:#77d9eb;font-size:17px}
+.mount-reference-editor .profile-tag-token{display:flex;align-items:center;border:1px solid #28cce2;border-radius:5px;background:#113446;height:30px;padding:0 7px;box-sizing:border-box}.mount-reference-editor .profile-tag-token input{background:transparent;border:0;color:#93f1fc;padding:0}.mount-reference-editor .profile-tag-token button{background:none;border:0;color:#77d9eb;font-size:17px}
 .mount-reference-editor .profile-tag-add{border:1px solid #587188;border-radius:5px;color:#d2e0eb;background:#20384c;padding:6px 10px;height:30px;white-space:nowrap}
 .mount-element-checks{display:flex;flex-wrap:wrap;gap:14px;padding:12px}.mount-element-checks label{display:flex;align-items:center;gap:7px;font-size:13px;color:#e2edf7}.mount-element-checks input{appearance:auto!important;accent-color:#04d4e6;width:18px;height:18px;margin:0}
 .mount-scene{margin:0 0 12px}.mount-scene>div{aspect-ratio:16/9;overflow:hidden}.mount-scene img{width:100%;height:100%;object-fit:cover;display:block}.mount-scene p{margin:0;padding:8px 10px;font-size:12px;color:#b7cbdb;line-height:1.5}
@@ -774,7 +776,8 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-inspector .mount-flow-steps .current i{background:#13c9de;color:#062630;border-color:#13c9de;box-shadow:0 0 0 3px #12cbe515}
 .mount-inspector .mount-flow-steps .complete i{background:#10372f;color:#68deb3;border-color:#3ea883}
 .mount-reference-editor .profile-tag-token{height:27px;padding:0 9px;border-radius:999px;border-color:#37748a;background:#123241;gap:5px}
-.mount-reference-editor .profile-tag-token input{font-size:12px;color:#b3edf4;padding:0;min-width:2ch;max-width:96px}
+.mount-reference-editor .profile-tag-field{font-size:12px}
+.mount-reference-editor .profile-tag-token input{height:24px;color:#b3edf4;padding:0}
 .mount-reference-editor .profile-tag-token button{font-size:15px;line-height:1;padding:0;width:14px;height:20px;color:#73c9d7}
 .mount-reference-editor .profile-tag-add{height:27px;padding:3px 10px;border-style:dashed;border-radius:999px;font-size:12px;background:transparent;color:#6edbea}
 .mount-inspector .mount-picker-title{font-size:14px;margin:4px 0 10px}
