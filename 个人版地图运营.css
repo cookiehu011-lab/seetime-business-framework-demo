@@ -935,3 +935,8 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 }
 
 .analysis-detail-image{margin:12px 0}.analysis-detail-image img{display:block;width:100%;height:auto}.analysis-detail-footer{padding:16px 0;border-top:1px solid #30465e}.analysis-archive>.parking-saved-frame{margin:12px 0}.analysis-readout .analysis-summary-label{margin:0;font-size:13px}
+
+.analysis-archive-head .analysis-camera-heading{grid-column:1;grid-row:1;min-width:0}
+.analysis-archive-head>.analysis-close{grid-column:2;grid-row:1;justify-self:end}
+.analysis-detail-footer{display:flex;justify-content:flex-end;gap:8px}
+.analysis-archive .analysis-frame-tabs{margin-left:auto;justify-content:flex-end}

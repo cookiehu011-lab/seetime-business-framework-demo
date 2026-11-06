@@ -70,8 +70,8 @@ test('mount profile sections show the tag values without explanatory copy', () =
 
 test('published HTML entry points load the refreshed static-tag map script', () => {
   const assets = [
-    '<link rel="stylesheet" href="个人版地图运营.css?v=camera-detail-frames-20261106">',
-    '<script src="个人版地图运营.js?v=camera-detail-frames-20261106"></script>'
+    '<link rel="stylesheet" href="个人版地图运营.css?v=camera-detail-tabs-20261106">',
+    '<script src="个人版地图运营.js?v=camera-detail-tabs-20261106"></script>'
   ];
   for (const asset of assets) {
     assert.ok(index.includes(asset));
