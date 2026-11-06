@@ -812,7 +812,7 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-poi-card-copy>strong{overflow:hidden;color:var(--text-strong);font-size:var(--fs-small);font-weight:var(--fw-semibold);line-height:var(--lh-snug);text-overflow:ellipsis;white-space:nowrap}
 .mount-poi-card-total{display:flex;align-items:center;gap:7px;color:var(--text-secondary);font-size:var(--fs-caption);line-height:var(--lh-snug);white-space:nowrap}
 .mount-poi-card-total i{width:1px;height:12px;background:#385169}
-.mount-poi-progress-track{height:7px;overflow:hidden;border-radius:5px;background:#34485b}
+.mount-poi-progress-track{height:4px;overflow:hidden;border-radius:5px;background:#34485b}
 .mount-poi-progress-track i{display:block;height:100%;border-radius:inherit;background:#25d6aa;transition:width .2s ease}
 .mount-poi-statuses{display:flex;flex-wrap:wrap;gap:5px}
 .mount-poi-statuses>span{padding:3px 6px;border:1px solid currentColor;border-radius:5px;font-size:var(--fs-caption);line-height:1.2;white-space:nowrap}
@@ -1050,3 +1050,7 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .poi-camera-more[open] summary{margin-bottom:12px}
 .poi-camera-more summary:focus-visible{outline:2px solid var(--text-accent);outline-offset:3px}
 .poi-camera-footer{display:flex;justify-content:flex-end;padding-top:14px}
+
+.mount-tree-count{margin-left:6px;color:var(--text-secondary);font-size:var(--fs-caption);font-weight:var(--fw-regular)}
+.mount-poi-statuses>span{padding:0;border:0;background:transparent!important;border-radius:0;line-height:var(--lh-snug)}
+.mount-poi-statuses{gap:12px}

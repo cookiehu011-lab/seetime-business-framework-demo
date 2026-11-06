@@ -97,7 +97,7 @@ test('POI workset reads every saved relation rather than the first manual POI', 
 
 test('POI status cards filter mounted, pending and nearby cameras', () => {
   assert.match(source, /summary=\[\['mounted','已挂载'/);
-  assert.match(source, /总相机 \$\{progress\.total\} 台/);
+  assert.match(source, /已挂载 \$\{progress\.completed\.length\} \/ \$\{progress\.total\}/);
   assert.match(source, /mountProgressText\(progress\)/);
   assert.match(source, /\['pending','待确认'/);
   assert.match(source, /\['nearby','附近相机'/);
