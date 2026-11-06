@@ -6,6 +6,7 @@ const vm = require('node:vm');
 
 const root = path.join(__dirname, '..');
 const mapSource = fs.readFileSync(path.join(root, '个人版地图运营.js'), 'utf8');
+const index = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const framework = fs.readFileSync(path.join(root, 'SeeTime业务框架.html'), 'utf8');
 const mountingSpec = fs.readFileSync(path.join(root, 'docs/superpowers/specs/2026-11-03-camera-mounting-workbench.md'), 'utf8');
 
@@ -48,6 +49,17 @@ test('camera profile labels use 静态标签 while detection 要素 remains sepa
   assert.match(framework, /静态标签/);
   assert.match(framework, /检测要素/);
   assert.match(mountingSpec, /相机静态标签按六类参考值/);
+});
+
+test('published HTML entry points load the refreshed static-tag map script', () => {
+  const assets = [
+    '<link rel="stylesheet" href="个人版地图运营.css?v=static-tags-20261106">',
+    '<script src="个人版地图运营.js?v=static-tags-20261106"></script>'
+  ];
+  for (const asset of assets) {
+    assert.ok(index.includes(asset));
+    assert.ok(framework.includes(asset));
+  }
 });
 
 test('analysis config starts with 36 static tags and migrates only the old built-in defaults', () => {
