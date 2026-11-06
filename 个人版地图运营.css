@@ -1054,3 +1054,29 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-tree-count{margin-left:6px;color:var(--text-secondary);font-size:var(--fs-caption);font-weight:var(--fw-regular)}
 .mount-poi-statuses>span{padding:0;border:0;background:transparent!important;border-radius:0;line-height:var(--lh-snug)}
 .mount-poi-statuses{gap:12px}
+
+/* 个人版相机与动态分析：紧凑列表、清晰内容分区。 */
+.personal-list-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid #293e53}
+.personal-list-heading h2{margin:0;font-size:var(--fs-body)}
+.personal-list-heading small,.personal-list-heading>span{color:var(--text-secondary);font-size:var(--fs-caption);font-weight:400}
+.personal-list-heading small{margin-left:8px}
+.personal-camera-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.personal-camera-thumb{display:block;flex:none;width:64px;height:44px;overflow:hidden;border-radius:5px;background:#132337}
+.personal-camera-thumb .scene-photo,.personal-camera-thumb img,.personal-camera-thumb .map-camera-picture{width:100%;height:100%;object-fit:cover;margin:0;aspect-ratio:auto}
+.analysis-table th:last-child,.analysis-table td:last-child{text-align:right}
+.personal-camera-id{display:block;margin-top:6px;color:var(--text-secondary);font-size:var(--fs-caption)}
+.analysis-archive .analysis-camera-installation{margin:6px 0 0;font-size:var(--fs-small);color:var(--text-secondary)}
+.analysis-archive .analysis-readout{border-top:1px solid #293e53;padding-top:16px}
+.analysis-archive .analysis-summary-row{padding:10px 0}
+.analysis-archive .analysis-mounted-place{padding:10px 0;border:0;border-top:1px solid #293e53;background:transparent}
+.analysis-archive .analysis-detail-footer{display:flex;justify-content:flex-end;padding:16px 0}
+.dynamic-detail .dynamic-coverage{grid-template-columns:repeat(2,minmax(0,1fr))}
+.dynamic-extra{border-top:1px solid var(--border);margin-top:16px;padding-top:12px}
+.dynamic-extra summary{cursor:pointer;color:var(--text-secondary);font-size:var(--fs-small)}
+.dynamic-extra p{font-size:var(--fs-small);color:var(--text-secondary);line-height:1.6}
+.dynamic-detail-head{padding:0 0 14px;border-bottom:1px solid var(--border)}
+.dynamic-tabs{margin-bottom:16px}
+.dynamic-detail .dynamic-period-controls{justify-content:flex-end}
+.dynamic-camera-list .dynamic-poi-groups{max-height:calc(100dvh - 300px);overflow:auto;scrollbar-gutter:stable}
+.dynamic-detail .dynamic-observation{box-shadow:none}
+@media(max-width:700px){.dynamic-detail .dynamic-coverage{grid-template-columns:1fr}.dynamic-camera-list .dynamic-poi-groups{max-height:300px}.personal-camera-thumb{width:48px;height:36px}}
