@@ -10,7 +10,7 @@ const opsSource = fs.readFileSync(path.join(root, '个人版数据运营.js'), '
 
 function load(source, name, context) {
   const lines = source.split('\n');
-  const start = lines.findIndex(line => line.startsWith(` function ${name}(`));
+  const start = lines.findIndex(line => line.startsWith(` function ${name}(`) || line.startsWith(` async function ${name}(`));
   assert.notEqual(start, -1, `Missing function ${name}`);
   let depth = 0;
   const declaration = [];
@@ -731,19 +731,22 @@ test('mount map exposes exactly three status buckets with consistent precedence'
   assert.equal(status({}), 'unmounted');
 });
 
-test('high-level POI result ordering is stable and excludes duplicate or unlocated matches', () => {
+test('REST POI results keep their order, handle empty metadata, and discard invalid coordinates', () => {
   const context = {};
   vm.createContext(context);
   load(mapSource, 'normaliseAmapPoiResults', context);
   const result = context.normaliseAmapPoiResults([
     { id: 'bad', name: '无坐标', location: null },
-    { id: 'a', name: '西湖广场', type: '风景名胜;景点', address: '湖滨路', adname: '上城区', location: { lng: 120.16, lat: 30.25 } },
-    { id: 'a', name: '重复结果', location: { lng: 120.15, lat: 30.25 } },
-    { id: 'b', name: '西湖公园', location: { lng: 120.17, lat: 30.26 } }
+    { id: 'a', name: '西湖广场', type: '风景名胜;景点', address: '湖滨路', adname: '上城区', location: '120.16,30.25' },
+    { id: 'a', name: '重复结果', location: '120.15,30.25' },
+    { id: 'b', name: '西湖公园', type: [], address: [], adname: [], location: '120.17,30.26' },
+    { id: 'bad-lat', name: '坐标超范围', location: '120.17,98' },
+    { id: 'bad-blank', name: '坐标缺失', location: ',30.25' }
   ]);
   assert.deepEqual(Array.from(result, row => row.amapId), ['a', 'b']);
   assert.equal(result[0].category, '景点');
   assert.deepEqual(Array.from(result[0].location), [120.16, 30.25]);
+  assert.deepEqual([result[1].category, result[1].address, result[1].district], ['', '', '']);
 });
 
 test('remounting replaces only the original mount and leaves other relationships intact', () => {
@@ -821,4 +824,32 @@ test('switching POI results clears missing metadata without using district as an
   assert.deepEqual([camera.poiCreateCategory, camera.poiCreateAddress], ['景点', '湖滨路1号']);
   context.selectAmapPoi('two');
   assert.deepEqual([camera.poiCreateCategory, camera.poiCreateAddress], ['', '']);
+});
+
+
+test('name search sends the current city and the requested parameters to the proxy', async () => {
+  const camera = { poiCreateOpen: true, poiCreateName: ' 西湖 & 公园 ' };
+  const requests = [];
+  const context = {
+    ui: { camera }, state: { route: 'bindings' }, selectedAmapPoi: () => undefined, info: () => ({ name: '杭州市' }),
+    refreshMountPoiResults: () => {}, map: null, window: {}, document: { baseURI: 'https://demo.example/site/' },
+    URL, AbortSignal,
+    fetch: async (url, options) => {
+      requests.push({ url, options });
+      return { ok: true, json: async () => ({ status: '1', info: 'OK', pois: [{ id: 'p1', name: '西湖公园', location: '120.16,30.25' }] }) };
+    }
+  };
+  vm.createContext(context);
+  load(mapSource, 'normaliseAmapPoiResults', context);
+  load(mapSource, 'searchMountPoi', context);
+  await context.searchMountPoi();
+  assert.equal(requests[0].url.pathname, '/api/amap/poi-search');
+  assert.deepEqual(Object.fromEntries(requests[0].url.searchParams), {
+    keywords: '西湖 & 公园', city: '杭州市', citylimit: 'true', offset: '20', page: '1', extensions: 'all'
+  });
+  assert.equal(camera.poiCreateSearch.status, 'ready');
+  assert.equal(camera.poiCreateSearch.results[0].name, '西湖公园');
+  context.fetch = async () => ({ status: 404 });
+  await context.searchMountPoi(true);
+  assert.equal(camera.poiCreateSearch.status, 'not-configured');
 });

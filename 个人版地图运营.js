@@ -238,10 +238,12 @@
  }
  function normaliseAmapPoiResults(rows){
   const pois=new Map();
+  const value=text=>typeof text==='string'?text.trim():'';
   for(const row of rows){
-   const lng=row.location?.getLng?.()??row.location?.lng,lat=row.location?.getLat?.()??row.location?.lat;
-   if(!row.id||!row.name||!Number.isFinite(lng)||!Number.isFinite(lat)||pois.has(row.id))continue;
-   pois.set(row.id,{amapId:row.id,name:row.name,category:String(row.type||'').split(';').filter(Boolean).at(-1)||'',address:typeof row.address==='string'?row.address:'',district:typeof row.adname==='string'?row.adname:'',location:[lng,lat]});
+   const [longitude,latitude,...extra]=value(row?.location).split(',').map(value),lng=Number(longitude),lat=Number(latitude);
+   const id=value(row?.id),name=value(row?.name);
+   if(!id||!name||!longitude||!latitude||extra.length||!Number.isFinite(lng)||!Number.isFinite(lat)||Math.abs(lng)>180||Math.abs(lat)>90||pois.has(id))continue;
+   pois.set(id,{amapId:id,name,category:value(row.type).split(';').map(value).filter(Boolean).at(-1)||'',address:value(row.address),district:value(row.adname),location:[lng,lat]});
   }
   return [...pois.values()];
  }
@@ -252,25 +254,19 @@
   s.poiCreateSearch=search;
   refreshMountPoiResults();
   try{
-   const AMap=await loadAmapSdk();
-   const rows=await new Promise((resolve,reject)=>{
-    const timeout=setTimeout(()=>reject(Error('高德搜索超时')),12000);
-    const finish=(error,rows)=>{clearTimeout(timeout);error?reject(error):resolve(rows)};
-    try{
-     AMap.plugin(['AMap.PlaceSearch'],()=>{
-      try{
-       new AMap.PlaceSearch({city,citylimit:true,pageIndex:1,pageSize:20,extensions:'base'}).search(query,(status,data)=>{
-        if(status==='complete')finish(null,data?.poiList?.pois||[]);
-        else if(status==='no_data')finish(null,[]);
-        else finish(Error(typeof data==='string'?data:data?.info||'高德搜索失败'));
-       });
-      }catch(error){finish(error)}
-     });
-    }catch(error){finish(error)}
-   });
-   search.results=normaliseAmapPoiResults(rows);
+   const url=new URL(window.SEETIME_AMAP_POI_SEARCH_URL||'/api/amap/poi-search',document.baseURI);
+   const params={keywords:query,city,citylimit:'true',offset:'20',page:'1',extensions:'all'};
+   for(const [key,value] of Object.entries(params))url.searchParams.set(key,value);
+   const response=await fetch(url,{signal:AbortSignal.timeout(12000),headers:{Accept:'application/json'}});
+   if(response.status===404||response.status===503)throw Error('POI_SEARCH_NOT_CONFIGURED');
+   if(!response.ok)throw Error('高德搜索失败');
+   const data=await response.json();
+   if(String(data.status)!=='1'||data.info!=='OK'&&String(data.infocode)!=='10000')throw Error(data.info||'高德搜索失败');
+   search.results=normaliseAmapPoiResults(Array.isArray(data.pois)?data.pois:[]);
    search.status='ready';
-  }catch(error){search.status=['INVALID_USER_SCODE','INVALID_USER_KEY','INVALID_USER_DOMAIN','USERKEY_PLAT_NOMATCH','INSUFFICIENT_PRIVILEGES'].includes(error.message)?'auth-error':'error'}
+  }catch(error){
+   search.status=error.message==='POI_SEARCH_NOT_CONFIGURED'?'not-configured':['INVALID_USER_KEY','INVALID_USER_IP','INVALID_USER_DOMAIN','INVALID_USER_SIGNATURE','INVALID_USER_SCODE','USERKEY_PLAT_NOMATCH','INSUFFICIENT_PRIVILEGES'].includes(error.message)?'auth-error':'error';
+  }
   if(ui.camera!==s||s.poiCreateSearch!==search||state.route!=='bindings')return;
   refreshMountPoiResults();
   if(map&&mapSdk&&search.results.length)fitMountView(search.results.map(poi=>poi.location),mapSdk);
@@ -279,6 +275,7 @@
   const search=ui.camera.poiCreateSearch;
   if(!search)return '<p>输入地点名称后，离开输入框即可搜索高德地图。</p>';
   if(search.status==='loading')return '<p role="status">正在搜索高德地图…</p>';
+  if(search.status==='not-configured')return '<p role="status">此站点尚未配置高德地点搜索服务。</p>';
   if(search.status==='auth-error')return '<p role="status">高德地点搜索授权不可用，请联系管理员检查地图配置。<button type="button" class="map-text-button" data-map="retry-amap-poi">重试</button></p>';
   if(search.status==='error')return '<p role="status">高德搜索暂不可用。<button type="button" class="map-text-button" data-map="retry-amap-poi">重试</button></p>';
   if(!search.results.length)return '<p role="status">未找到带坐标的 POI，请换个名称再试。</p>';
