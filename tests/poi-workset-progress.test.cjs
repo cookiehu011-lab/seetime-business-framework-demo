@@ -14,11 +14,11 @@ function loadFunction(name, context) {
 
 function worksetContext(records, manual = {}, outcomes = {}) {
   const context = {
-    rec: camera => records[camera.id] || { mounts: [], sources: {}, candidates: [] },
-    confirmed: camera => manual[camera.id] || '',
+    rec: camera => records[camera.id] || { mounts: manual[camera.id] ? [manual[camera.id]] : [], sources: manual[camera.id] ? { [manual[camera.id]]: 'manual' } : {}, candidates: [] },
     mountQueueOutcome: camera => outcomes[camera.id] || null
   };
   vm.createContext(context);
+  loadFunction('mountRelationSource', context);
   loadFunction('poiWorksetFor', context);
   return context;
 }
@@ -88,27 +88,11 @@ test('project POI fallback search is empty until a query and matches name or ID'
   assert.deepEqual(Array.from(context.mountProjectPoiSearch('p1', pois), poi => poi.id), ['p1']);
 });
 
-test('POI entry target cannot be replaced by a picker selection', () => {
-  const context = { ui: { camera: { entryMode: 'poi', targetPoiId: 'p1' } } };
-  vm.createContext(context);
-  loadFunction('mountTargetId', context);
-  assert.equal(context.mountTargetId('p2'), 'p1');
-  context.ui.camera.entryMode = 'camera';
-  assert.equal(context.mountTargetId('p2'), 'p2');
-});
-
-test('selecting a camera from the POI workset advances past camera selection', () => {
-  const selection = source.match(/function selectCameraFromPoi\([^\n]+/);
-  assert.ok(selection);
-  assert.match(selection[0], /ui\.camera\.workflowStep=2/);
-});
-
-test('mount picker removes the project-all tab and POI entry renders a fixed target', () => {
-  assert.doesNotMatch(source, /role="tab" id="mount-tab-all"/);
-  assert.match(source, /mountProjectPoiSearch/);
-  assert.match(source, /s\.entryMode==='poi'\?`\$\{cameraProfileSection\(cam\)\}\$\{mountScene\(cam\)\}\$\{mountCurrentTarget/);
-  assert.match(source, /if\(ui\.camera\.entryMode==='poi'\)poiId=ui\.camera\.targetPoiId/);
-  assert.match(source, /if\(ui\.camera\.entryMode==='poi'\)return/);
+test('POI workset reads every saved relation rather than the first manual POI', () => {
+  const camera = { id: 'multi' };
+  const context = worksetContext({ multi: { mounts: ['p1', 'p2'], sources: { p1: 'manual', p2: 'manual' }, candidates: [{ id: 'p3' }] } });
+  assert.equal(context.poiWorksetFor({ id: 'p2' }, [camera]).completed.length, 1);
+  assert.equal(context.poiWorksetFor({ id: 'p3' }, [camera]).pendingMount.length, 1);
 });
 
 test('POI status cards filter mounted, pending and nearby cameras', () => {

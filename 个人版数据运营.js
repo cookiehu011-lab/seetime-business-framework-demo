@@ -288,7 +288,7 @@
   reason=String(reason||'').trim();if(!poiId&&!reason)throw Error('请填写一句无法挂载原因');
   const current=raw(id),expected=stamp(current),chosen=poiId;
   commitRecord(id,expected,chosen?'确认挂载':'标记无法挂载',r=>{
-   if(chosen){r.mounts=[chosen];r.sources={[chosen]:'manual'};r.unmountable=null;r.issue='';r.note='';r.decisions={accepted:[chosen],rejected:(r.candidates||[]).filter(c=>c.id!==chosen).map(c=>c.id)};r.review={key:keyOf([chosen]),version:r.version+1,candidateVersion:r.candidateVersion,usageVersion:r.usageVersion,actor:role().person,time:timestamp()};}
+   if(chosen){r.mounts=[...new Set([...r.mounts,chosen])];r.sources={...r.sources,[chosen]:'manual'};r.candidates=(r.candidates||[]).filter(item=>item.id!==chosen);r.unmountable=null;r.issue='';r.note='';r.decisions={accepted:[...new Set([...(r.decisions?.accepted||[]),chosen])],rejected:(r.decisions?.rejected||[]).filter(id=>id!==chosen)};r.review={key:keyOf(r.mounts),version:r.version+1,candidateVersion:r.candidateVersion,usageVersion:r.usageVersion,actor:role().person,time:timestamp()};}
    else{r.mounts=[];r.sources={};r.review=null;r.unmountable={reason,actor:role().person,time:timestamp()};r.issue='无法挂载';r.note=reason;}
   });return true;
  }

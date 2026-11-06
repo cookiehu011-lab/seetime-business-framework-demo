@@ -258,14 +258,14 @@ test('workflow footer offers feedback at step one and unable to mount at step tw
   const camera = { id: 'c1' };
   const context = {
     ui: { camera: { workflowStep: 1, entryMode: 'poi', targetPoiId: 'p1' } },
-    cityPois: () => [{ id: 'p1' }], mountProjectCams: () => [camera],
+    cityPois: () => [{ id: 'p1' }], mountProjectCams: () => [camera], rec: () => ({ mounts: [] }),
     hasCameraProfileChanges: () => false, processed: () => false,
     escape: value => String(value ?? '')
   };
   vm.createContext(context);
-  for (const name of ['mountTargetId', 'mountCanAdvance', 'mountWorkflowRail']) load(mapSource, name, context);
+  for (const name of ['mountCanAdvance', 'mountWorkflowRail']) load(mapSource, name, context);
   const first = context.mountWorkflowRail(camera);
-  assert.match(first, /标记相机无价值.*反馈相机基础信息.*下一步：核对相机/);
+  assert.match(first, /标记相机无价值.*反馈相机基础信息.*下一步：选择 POI/);
   assert.doesNotMatch(first, /标记无法挂载/);
   context.ui.camera.workflowStep = 2;
   const second = context.mountWorkflowRail(camera);
@@ -452,6 +452,7 @@ test('terminal feedback field edits are retained in the pending draft', () => {
 test('POI camera list labels basic-info feedback as pending review', () => {
   const context = {
     mountQueueOutcome: () => ({ type: 'basic_feedback', status: 'pending_review' }),
+    mountRelationSource: () => '',
     escape: value => String(value ?? ''),
     icon: () => 'camera',
     image: () => 'image',
@@ -506,45 +507,69 @@ test('AI pre-mount review keys cover all surviving confirmed POI relations', () 
   assert.equal(context.reviewed(rejected), true);
 });
 
-test('POI entry enables the next step from its fixed target', () => {
-  const context = { ui: { camera: { entryMode: 'poi', targetPoiId: 'p1' } } };
-  vm.createContext(context);
-  load(mapSource, 'mountTargetId', context);
-  load(mapSource, 'mountCanAdvance', context);
-  assert.equal(context.mountCanAdvance(2, context.mountTargetId(''), null, 'c1'), true);
-  const rail = mapSource.match(/function mountWorkflowRail\([\s\S]*?(?=\n function )/)[0];
-  assert.match(rail, /mountCanAdvance\(step,mountTargetId\(s\.selectedPoiId\),s\.preReviewDraft,cam\.id\)/);
-  assert.match(mapSource, /mountCanAdvance\(step,mountTargetId\(ui\.camera\.selectedPoiId\),ui\.camera\.preReviewDraft,ui\.camera\.cameraId\)/);
-});
-
-test('the fixed POI target panel stays compact and keeps AI review actions when applicable', () => {
-  let record = { mounts: [], sources: {} };
+test('POI entry opens only its own mounted relationship and resumes locally completed review', () => {
+  const camera = { id: 'c1', projectId: 'hz-public' };
+  const record = { mounts: ['p1', 'p2'], sources: { p1: 'manual', p2: 'ai_pre' }, candidates: [{ id: 'p3' }] };
   const context = {
-    poiEvidence: () => ({ signals: [['画面描述关联', 'positive']], reason: '画面内容与 POI 类型相符。', caution: '仍需人工核验。' }),
-    mountPoiOptions: () => ({ choices: [{ id: 'p2', name: '钱江新城公园', category: '公园', district: '上城区' }, { id: 'p3', name: '武林广场停车场', category: '停车场', district: '拱墅区' }] }),
-    rec: () => record,
-    poiName: () => '武林广场停车场',
-    escape: value => value,
-    tag: label => `<i>${label}</i>`,
-    poiLabel: poi => poi.category
+    ui: { camera: { entryMode: 'poi', selectedPoiId: 'p3', targetPoiId: 'p3' }, analysis: {} },
+    rec: () => record, confirmed: () => 'p1',
+    analysisProfileStore: () => ({}), analysisProfileStorageKey: () => 'camera-key',
+    analysisProfileEdit: () => { context.ui.analysis.profileDraft = { cameraId: 'c1', tags: ['广场'], elements: ['人流'] }; },
+    analysisProfile: () => ({ scene: '公共空间' }), analysisProfileKey: 'profiles',
+    localStorage: { setItem: (_key, value) => { context.analysisProfileStore = () => JSON.parse(value); } },
+    render() {}, notify: assert.fail
   };
   vm.createContext(context);
-  load(mapSource, 'mountCurrentTarget', context);
-  const target = { id: 'p2', name: '钱江新城公园', category: '公园', district: '上城区' };
-  const markup = context.mountCurrentTarget({}, target);
-  assert.match(markup, /当前目标 POI.*钱江新城公园.*公园 · 上城区/);
-  assert.doesNotMatch(markup, /POI 推荐候选|武林广场停车场|画面内容与 POI 类型相符/);
-  assert.match(markup, /确认后仍挂载到此 POI/);
+  for (const name of ['mountRelationSource', 'prepareMountCamera', 'mountCanAdvance', 'advanceMountStep', 'persistCameraProfile', 'normaliseProfileTags']) load(mapSource, name, context);
+  context.prepareMountCamera(camera);
+  assert.equal(context.ui.camera.workflowStep, 1);
+  context.advanceMountStep(camera);
+  assert.equal(context.ui.camera.workflowStep, 2);
+  assert.deepEqual(context.analysisProfileStore()['camera-key'].tags, ['广场']);
+  context.ui.camera.workflowStep = 1;
+  context.prepareMountCamera(camera);
+  assert.equal(context.ui.camera.workflowStep, 2);
+  for (const target of ['p1', 'p2']) {
+    context.ui.camera.targetPoiId = target;
+    context.prepareMountCamera(camera);
+    assert.equal(context.ui.camera.workflowStep, 3);
+    assert.equal(context.ui.camera.selectedPoiId, target);
+    assert.equal(context.ui.camera.completedCameraId, 'c1');
+    assert.equal(context.ui.analysis.profileDraft, null);
+  }
+});
 
-  record = { mounts: ['p3'], sources: { p3: 'ai_pre' } };
-  const review = context.mountCurrentTarget({}, target);
-  assert.match(review, /data-map="pre-review-switch" data-id="p2"/);
-  assert.match(review, /data-map="pre-review-reject" data-id="p3"/);
-  assert.match(review, /data-map="pre-review-change-entry"/);
-  assert.doesNotMatch(review, /POI 推荐候选及挂载依据/);
+test('confirming a new recommendation keeps other manual and AI mount relationships', () => {
+  const record = { mounts: ['p1', 'p2'], sources: { p1: 'manual', p2: 'ai_pre' }, candidates: [{ id: 'p3' }, { id: 'p4' }], version: 1 };
+  const context = {
+    camera: () => ({}), can: () => true, city: () => ({ pois: [{ id: 'p3' }] }),
+    raw: () => record, stamp: () => 1, commitRecord: (_id, _stamp, _action, edit) => edit(record),
+    role: () => ({ person: 'operator' }), timestamp: () => 'now', keyOf: ids => ids.join('|')
+  };
+  vm.createContext(context);
+  load(opsSource, 'saveMapDecision', context);
+  context.saveMapDecision('c1', 'p3');
+  assert.deepEqual(Array.from(record.mounts), ['p1', 'p2', 'p3']);
+  assert.equal(record.sources.p2, 'ai_pre');
+  assert.equal(record.sources.p3, 'manual');
+  assert.deepEqual(Array.from(record.candidates, item => item.id), ['p4']);
+});
 
-  record = { mounts: ['p2'], sources: { p2: 'ai_pre' } };
-  assert.match(context.mountCurrentTarget({}, target), /data-map="pre-review-accept" data-id="p2"/);
+test('saving a different POI does not silently switch an existing AI mount', () => {
+  const camera = { id: 'c1', projectId: 'project' }, writes = [];
+  const context = {
+    ui: { camera: { cameraId: camera.id }, analysis: {} },
+    currentProject: () => ({ id: camera.projectId }),
+    rec: () => ({ mounts: ['p1'], sources: { p1: 'ai_pre' } }),
+    persistMountPoi: () => {}, showSaveResult: () => {}, render: () => {},
+    ops: { saveMapDecision: (_id, poiId) => writes.push(poiId), saveMapPreReview: () => assert.fail('unexpected AI switch') },
+    notify: assert.fail
+  };
+  vm.createContext(context);
+  load(mapSource, 'executeMountAction', context);
+  context.executeMountAction(camera, { kind: 'mount', projectId: 'project', cameraId: 'c1', entryMode: 'poi', poiId: 'p2' });
+  assert.deepEqual(writes, ['p2']);
+  assert.equal(context.ui.camera.selectedPoiId, 'p2');
 });
 
 test('a real mock camera exposes multiple candidate POIs in the queue', () => {
