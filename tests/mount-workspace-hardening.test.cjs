@@ -497,27 +497,34 @@ test('POI entry enables the next step from its fixed target', () => {
   assert.match(mapSource, /mountCanAdvance\(step,mountTargetId\(ui\.camera\.selectedPoiId\),ui\.camera\.preReviewDraft,ui\.camera\.cameraId\)/);
 });
 
-test('the fixed POI target panel displays the recommendation evidence', () => {
+test('the fixed POI target panel stays compact and keeps AI review actions when applicable', () => {
+  let record = { mounts: [], sources: {} };
   const context = {
     poiEvidence: () => ({ signals: [['画面描述关联', 'positive']], reason: '画面内容与 POI 类型相符。', caution: '仍需人工核验。' }),
     mountPoiOptions: () => ({ choices: [{ id: 'p2', name: '钱江新城公园', category: '公园', district: '上城区' }, { id: 'p3', name: '武林广场停车场', category: '停车场', district: '拱墅区' }] }),
-    rec: () => ({ mounts: [], sources: {} }),
+    rec: () => record,
+    poiName: () => '武林广场停车场',
     escape: value => value,
     tag: label => `<i>${label}</i>`,
     poiLabel: poi => poi.category
   };
   vm.createContext(context);
   load(mapSource, 'mountCurrentTarget', context);
-  const markup = context.mountCurrentTarget({}, { id: 'p2', name: '钱江新城公园', category: '公园', district: '上城区' });
-  assert.match(markup, /POI 推荐挂载依据/);
-  assert.match(markup, /画面内容与 POI 类型相符/);
-  assert.match(markup, /仍需人工核验/);
-  assert.match(markup, /POI 推荐候选/);
-  assert.match(markup, /武林广场停车场/);
-  assert.match(markup, /钱江新城公园/);
-  assert.match(markup, /POI 推荐挂载依据/);
-  assert.match(markup, /武林广场停车场/);
-  assert.equal((markup.match(/画面内容与 POI 类型相符/g) || []).length, 2);
+  const target = { id: 'p2', name: '钱江新城公园', category: '公园', district: '上城区' };
+  const markup = context.mountCurrentTarget({}, target);
+  assert.match(markup, /当前目标 POI.*钱江新城公园.*公园 · 上城区/);
+  assert.doesNotMatch(markup, /POI 推荐候选|武林广场停车场|画面内容与 POI 类型相符/);
+  assert.match(markup, /确认后仍挂载到此 POI/);
+
+  record = { mounts: ['p3'], sources: { p3: 'ai_pre' } };
+  const review = context.mountCurrentTarget({}, target);
+  assert.match(review, /data-map="pre-review-switch" data-id="p2"/);
+  assert.match(review, /data-map="pre-review-reject" data-id="p3"/);
+  assert.match(review, /data-map="pre-review-change-entry"/);
+  assert.doesNotMatch(review, /POI 推荐候选及挂载依据/);
+
+  record = { mounts: ['p2'], sources: { p2: 'ai_pre' } };
+  assert.match(context.mountCurrentTarget({}, target), /data-map="pre-review-accept" data-id="p2"/);
 });
 
 test('a real mock camera exposes multiple candidate POIs in the queue', () => {
