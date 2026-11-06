@@ -9,6 +9,7 @@ const mapSource = fs.readFileSync(path.join(root, '个人版地图运营.js'), '
 const opsSource = fs.readFileSync(path.join(root, '个人版数据运营.js'), 'utf8');
 
 function load(source, name, context) {
+  if (['mountPlaceCard', 'mountPoiPicker', 'requestMountAction'].includes(name)) load(source, 'selectedMountPoiIds', context);
   const lines = source.split('\n');
   const start = lines.findIndex(line => line.startsWith(` function ${name}(`) || line.startsWith(` async function ${name}(`));
   assert.notEqual(start, -1, `Missing function ${name}`);
@@ -219,7 +220,7 @@ test('camera outcome panel displays processed status while forms open in a dialo
     ui: { camera: { mountOutcomeDraft: null } },
     mountQueueOutcome: () => null,
     rec: () => ({}),
-    mountProjectCams: () => [{ id: 'c1' }, { id: 'c2' }],
+    mountGovernanceMatches:()=>true,mountProjectCams: () => [{ id: 'c1' }, { id: 'c2' }],
     processed: () => false,
     nextQueueCameraAfter: (cameras, currentId, isDone) => {
       const index = cameras.findIndex(camera => camera.id === currentId);
@@ -262,7 +263,7 @@ test('workflow footer offers feedback at step one and unable to mount at step tw
   const camera = { id: 'c1' };
   const context = {
     ui: { camera: { workflowStep: 1, entryMode: 'poi', targetPoiId: 'p1' } },
-    cityPois: () => [{ id: 'p1' }], mountProjectCams: () => [camera], rec: () => ({ mounts: [] }),
+    cityPois: () => [{ id: 'p1' }], mountGovernanceMatches:()=>true,mountProjectCams: () => [camera], rec: () => ({ mounts: [] }),
     hasCameraProfileChanges: () => false, processed: () => false,
     escape: value => String(value ?? '')
   };
@@ -292,7 +293,7 @@ test('camera scene shows the escaped watermark directly below the picture', () =
 test('feedback form retains entered details and offers cancel', () => {
   const context = {
     ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置与画面不符' } } },
-    mountProjectCams: () => [{ id: 'c1' }, { id: 'c2' }],
+    mountGovernanceMatches:()=>true,mountProjectCams: () => [{ id: 'c1' }, { id: 'c2' }],
     processed: () => false,
     mountQueueOutcome: () => null,
     rec: () => ({}),
@@ -311,7 +312,7 @@ test('feedback form retains entered details and offers cancel', () => {
 test('terminal outcome confirmation shows the submitted details and keeps them on cancel', () => {
   const context = {
     ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置与现场不符' } } },
-    mountProjectCams: () => [{ id: 'c1' }, { id: 'c2', name: '相机 B' }],
+    mountGovernanceMatches:()=>true,mountProjectCams: () => [{ id: 'c1' }, { id: 'c2', name: '相机 B' }],
     processed: () => false,
     buildMountQueueDecision: (type, values) => ({ type, ...values }),
     escape: value => String(value ?? '')
@@ -344,7 +345,7 @@ test('terminal camera actions advance only after save and return to the queue at
     hasCameraProfileChanges: () => false,
     mountQueueOutcome: cam => decisions.get(cam.id) || null,
     saveMountQueueOutcome: (cam, type, values) => { decisions.set(cam.id, context.buildMountQueueDecision(type, values)); events.push(`saved:${cam.id}`); },
-    mountProjectCams: () => cameras,
+    mountGovernanceMatches:()=>true,mountProjectCams: () => cameras,
     processed: cam => decisions.has(cam.id),
     mountOutcomeSuccessMessage: (_type, cam, next) => next ? `${cam.id}->${next.id}` : `${cam.id}->queue`,
     selectCamera: id => events.push(`select:${id}`),
@@ -385,7 +386,7 @@ test('processing the next camera after a saved mount does not trigger a discard 
   const events = [], camera = { id: 'c1', projectId: 'hz-public' };
   const context = {
     ui: { camera: { cameraId: 'c1', entryMode: 'camera', completedCameraId: 'c1' } },
-    mountProjectCams: () => [camera],
+    mountGovernanceMatches:()=>true,mountProjectCams: () => [camera],
     hasMountDraftChanges: () => true,
     requestCameraLeave: () => { events.push('leave-prompt'); return true; },
     nextUnprocessedId: () => 'c2',
@@ -402,7 +403,7 @@ test('completed mount auto-advance bypasses the discard guard in the real camera
   const events = [], cameras = [{ id: 'c1', projectId: 'p1' }, { id: 'c2', projectId: 'p1' }];
   const context = {
     ui: { camera: { cameraId: 'c1', entryMode: 'camera', completedCameraId: 'c1', selectedPoiId: 'p1' }, analysis: { profileDraft: null, calibration: null } },
-    mountProjectCams: () => cameras,
+    mountGovernanceMatches:()=>true,mountProjectCams: () => cameras,
     hasMountDraftChanges: () => true,
     requestCameraLeave: () => { events.push('leave-prompt'); return true; },
     nextUnprocessedId: () => 'c2',
@@ -440,7 +441,7 @@ test('unsaved terminal camera feedback is protected when leaving the camera', ()
       camera: { cameraId: 'c1', entryMode: 'camera', selectedPoiId: '', targetPoiId: '', poiCreateOpen: false, unableOpen: false, reason: '', mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置不符' } },
       analysis: { profileDraft: null, calibration: null }
     },
-    mountProjectCams: () => [{ id: 'c1' }],
+    mountGovernanceMatches:()=>true,mountProjectCams: () => [{ id: 'c1' }],
     hasCameraProfileChanges: () => false
   };
   vm.createContext(context);
@@ -572,6 +573,8 @@ test('saving a different POI does not silently switch an existing AI mount', () 
   const context = {
     ui: { camera: { cameraId: camera.id }, analysis: {} },
     currentProject: () => ({ id: camera.projectId }),
+    store: {}, copy: value => JSON.parse(JSON.stringify(value)), fixtureKey: 'fixture', analysisProfileKey: 'profile',
+    localStorage: { getItem: () => null }, cityPois: () => [{ id: 'p2' }],
     rec: () => ({ mounts: ['p1'], sources: { p1: 'ai_pre' } }),
     persistMountPoi: () => {}, showSaveResult: () => {}, render: () => {},
     ops: { saveMapDecision: (_id, poiId) => writes.push(poiId), saveMapPreReview: () => assert.fail('unexpected AI switch') },
@@ -771,7 +774,7 @@ test('closing a saved remount does not treat a later POI relation as a draft', (
   const cam = { id: 'c1' };
   const context = {
     ui: { camera: { cameraId: 'c1', completedCameraId: 'c1', entryMode: 'camera', selectedPoiId: 'p3', unableOpen: false }, analysis: {} },
-    mountProjectCams: () => [cam], hasCameraProfileChanges: () => false, confirmed: () => 'p2', mountRelationSource: (_cam, id) => id === 'p3' ? 'manual' : ''
+    mountGovernanceMatches:()=>true,mountProjectCams: () => [cam], hasCameraProfileChanges: () => false, confirmed: () => 'p2', mountRelationSource: (_cam, id) => id === 'p3' ? 'manual' : ''
   };
   vm.createContext(context);
   load(mapSource, 'hasMountDraftChanges', context);

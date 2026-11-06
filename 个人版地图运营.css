@@ -940,3 +940,67 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .analysis-archive-head>.analysis-close{grid-column:2;grid-row:1;justify-self:end}
 .analysis-detail-footer{display:flex;justify-content:flex-end;gap:8px}
 .analysis-archive .analysis-frame-tabs{margin-left:auto;justify-content:flex-end}
+
+/* Mounting uses the available page width; the inspector appears only when opened. */
+.page:has(.mount-map-workspace){max-width:none;padding-inline:16px}
+.camera-map-layout.mount-map-workspace.has-home:not(.has-panel){grid-template-columns:minmax(240px,min(300px,22vw)) minmax(0,1fr)}
+.camera-map-layout.mount-map-workspace.has-home.tree-collapsed:not(.has-panel){grid-template-columns:minmax(0,1fr)}
+.camera-map-layout.mount-map-workspace .mount-map-controls{z-index:30;top:auto;left:12px;right:12px;bottom:30px;max-width:none;width:auto;max-height:35%;overflow:auto}
+.mount-map-controls .map-layer-toggles{max-width:none;max-height:none;overflow:visible}
+.mount-map-controls .mount-map-legend{display:flex;flex-wrap:wrap;gap:7px 14px;padding:8px 0 0;border:0;border-top:1px solid #273d52;border-radius:0;background:transparent}
+.mount-governance-filters{position:absolute;z-index:30;top:76px;right:12px;display:flex;flex-wrap:wrap;gap:8px;max-width:calc(100% - 24px);padding:8px 10px;border:1px solid #344b61;border-radius:7px;background:#0b1729ed;box-shadow:0 5px 18px #0006}
+.mount-governance-filters label{display:flex;align-items:center;gap:6px;color:var(--text-secondary);font-size:var(--fs-caption)}
+.mount-governance-filters select{min-width:92px;max-width:150px;padding:5px 7px;border:1px solid #36536a;border-radius:5px;background:#14263a;color:var(--text-primary);font:inherit}
+.mount-map-workspace .mount-data-note{top:132px;right:12px;max-width:min(390px,calc(100% - 24px))}
+.mount-map-workspace .mount-map-snapshot{bottom:calc(35% + 38px);max-height:36%;overflow:auto}
+@media(min-width:1181px){
+ .camera-map-layout.mount-map-workspace.has-home.has-panel{grid-template-columns:minmax(240px,min(300px,22vw)) minmax(0,1fr) minmax(340px,28%)}
+ .camera-map-layout.mount-map-workspace.has-home.has-panel.tree-collapsed{grid-template-columns:minmax(0,1fr) minmax(340px,30%)}
+ .camera-map-layout.mount-map-workspace.has-home.has-panel .poi-work-panel,.camera-map-layout.mount-map-workspace.has-home.has-panel .camera-home-panel{position:static;width:auto;height:100%;max-height:none;border:0;border-left:1px solid #263b50;border-radius:0;box-shadow:none}
+}
+@media(min-width:701px) and (max-width:1180px){
+ .camera-map-layout.mount-map-workspace.has-home.has-panel{height:auto;grid-template-columns:minmax(220px,26vw) minmax(0,1fr);grid-template-rows:minmax(540px,70vh) minmax(360px,50vh)}
+ .camera-map-layout.mount-map-workspace.has-home.has-panel.tree-collapsed{grid-template-columns:minmax(0,1fr)}
+ .camera-map-layout.mount-map-workspace.has-home.has-panel .poi-work-panel,.camera-map-layout.mount-map-workspace.has-home.has-panel .camera-home-panel{position:static;grid-column:1/-1;width:auto;height:auto;max-height:none;border:0;border-top:1px solid #263b50;border-radius:0;box-shadow:none}
+}
+@container(max-width:560px){
+ .mount-governance-filters{top:116px;left:8px;right:8px;max-width:none;padding:6px;gap:6px}
+ .mount-governance-filters label{flex:1;min-width:0}
+ .mount-governance-filters select{flex:1;min-width:0;max-width:none}
+ .mount-map-workspace .mount-data-note{top:168px;left:8px;right:8px;max-width:none}
+}
+@media(max-width:700px){
+ .page:has(.mount-map-workspace){padding-inline:8px}
+ .camera-map-layout.mount-map-workspace.has-home:not(.has-panel){display:block;grid-template-columns:minmax(0,1fr)}
+ .camera-map-layout.mount-map-workspace.has-home.has-panel{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(560px,75vh) minmax(360px,55vh);height:auto;min-height:0}
+ .camera-map-layout.mount-map-workspace.has-home.has-panel>.mount-map-stage{grid-row:1;min-height:560px}
+ .camera-map-layout.mount-map-workspace.has-home.has-panel .poi-work-panel,.camera-map-layout.mount-map-workspace.has-home.has-panel .camera-home-panel{position:static;grid-row:2;width:auto;height:auto;max-height:none;border:0;border-top:1px solid #263b50;border-radius:0;box-shadow:none}
+ .camera-map-layout.mount-map-workspace .mount-map-controls{left:8px;right:8px;bottom:30px;max-height:32%}
+ .mount-map-workspace .mount-map-controls .map-layer-toggles{gap:6px 9px;padding:8px}
+ .mount-map-workspace .mount-map-snapshot{bottom:calc(32% + 38px);max-height:28%}
+}
+
+.mount-place-select[role="checkbox"] .map-radio-mark{border-radius:4px}
+.mount-selected-pois{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.mount-selected-pois .button{padding:5px 9px;font-size:12px}
+.mount-manual-location{display:grid;gap:8px;justify-items:end;color:var(--text-secondary)}
+.mount-manual-location small{font-size:12px}
+
+/* Keep map overlays inside their stage and stack the inspector on narrow screens. */
+.mount-map-workspace>.mount-map-stage{isolation:isolate}
+.mount-map-workspace .poi-work-progress{display:flex;align-items:center;gap:16px;margin:12px;padding:12px;border:1px solid #2a4056;border-radius:7px;background:#101e2e;font-size:var(--fs-caption)}
+.poi-work-progress>div:first-child{display:grid;gap:3px;flex:none;color:var(--text-secondary)}
+.poi-work-progress strong{color:var(--text-primary);font-size:20px;line-height:1.3}
+.poi-work-progress strong small{font-size:var(--fs-caption);font-weight:var(--fw-regular)}
+.poi-work-progress-main{display:grid;gap:8px;flex:1;min-width:0;color:var(--text-secondary)}
+.poi-work-progress-main b{color:var(--text-primary)}
+.poi-work-progress-track{height:6px;overflow:hidden;border-radius:4px;background:#34485b}
+.poi-work-progress-track i{display:block;height:100%;border-radius:inherit;background:#25d6aa}
+@media(max-width:1180px){
+ .camera-map-layout.mount-map-workspace.has-camera,.camera-map-layout.mount-map-workspace.has-camera.tree-collapsed,.camera-map-layout.mount-map-workspace.has-camera.tree-open{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(560px,72vh) auto auto;height:auto;min-height:0;overflow:visible}
+ .camera-map-layout.mount-map-workspace.has-camera>.mount-map-stage{grid-column:1;grid-row:1;height:100%;min-height:560px;min-width:0}
+ .camera-map-layout.mount-map-workspace.has-camera>.map-camera-card.mount-inspector{grid-column:1;grid-row:2;position:relative;inset:auto;width:100%;height:auto;min-height:500px;max-height:none;min-width:0;box-sizing:border-box;border:0;border-top:1px solid #2b4156;border-radius:0;box-shadow:none}
+ .camera-map-layout.mount-map-workspace.has-camera>.mount-workflow-rail{grid-column:1;grid-row:3;position:sticky;bottom:0;min-width:0;flex-wrap:wrap;z-index:40}
+ .camera-map-layout.mount-map-workspace.has-camera>.map-tree-rail:not([hidden]){grid-column:1;grid-row:1;top:8px;bottom:auto;height:calc(100% - 16px);max-height:520px;width:min(300px,calc(100% - 16px))}
+ .mount-map-workspace.has-camera .mount-rail-progress,.mount-map-workspace.has-camera .mount-rail-actions{flex-wrap:wrap;min-width:0}
+}
