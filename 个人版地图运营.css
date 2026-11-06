@@ -933,3 +933,5 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
  .camera-map-layout.has-camera .mount-map-controls{top:138px;left:12px;right:auto;max-width:clamp(136px,calc(100% - 426px),320px)}
  .camera-map-layout.has-camera .mount-map-snapshot{width:clamp(170px,calc(100% - 426px),380px)}
 }
+
+.analysis-detail-image{margin:12px 0}.analysis-detail-image img{display:block;width:100%;height:auto}.analysis-detail-footer{padding:16px 0;border-top:1px solid #30465e}.analysis-archive>.parking-saved-frame{margin:12px 0}.analysis-readout .analysis-summary-label{margin:0;font-size:13px}
