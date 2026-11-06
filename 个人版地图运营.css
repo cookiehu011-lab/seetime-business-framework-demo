@@ -1029,7 +1029,7 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .poi-detail-profile .poi-camera-value-status{font-size:var(--fs-caption);color:var(--text-secondary);line-height:var(--lh-relaxed)}
 
 /* POI 运营相机详情：信息只展示一次，次要状态默认折叠。 */
-.poi-camera-refined .poi-camera-detail-scroll{padding:0;overflow:visible}
+.poi-camera-refined .poi-camera-detail-scroll{flex:1;min-height:0;padding:0 6px 12px 0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable}
 .poi-camera-refined .poi-camera-section{padding:14px 0;border-bottom:1px solid #293e53}
 .poi-camera-refined h3{margin:0 0 10px;color:var(--text-primary);font-size:var(--fs-small);font-weight:var(--fw-semibold)}
 .poi-camera-tags{display:flex;flex-wrap:wrap;gap:6px}
