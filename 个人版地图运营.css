@@ -1081,24 +1081,35 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .dynamic-detail .dynamic-observation{box-shadow:none}
 @media(max-width:700px){.dynamic-detail .dynamic-coverage{grid-template-columns:1fr}.dynamic-camera-list .dynamic-poi-groups{max-height:300px}.personal-camera-thumb{width:48px;height:36px}}
 
-/* 递归 POI 目录：直属子级计数与独立展开操作。 */
-.mount-recursive-directory .mount-poi-project-toggle{background:#132335;border-color:#2c4359;padding:12px}
-.mount-recursive-directory .mount-poi-project-toggle small{margin-top:6px;color:var(--text-secondary);font-size:var(--fs-caption)}
+/* 轻量树形目录：单一选中态、对齐箭头与子级计数。 */
+.mount-recursive-directory .mount-poi-project-toggle{padding:10px 6px 14px;background:transparent;border:0;border-bottom:1px solid #23384a;border-radius:0;box-shadow:none;margin-bottom:10px}
+.mount-recursive-directory .mount-poi-project-toggle strong{font-size:var(--fs-small);color:var(--text-secondary);font-weight:var(--fw-medium)}
+.mount-recursive-directory .mount-poi-project-toggle small{margin-top:5px;color:var(--text-tertiary);font-size:var(--fs-caption)}
 .mount-poi-tree,.mount-poi-tree-children{list-style:none;margin:0;padding:0}
 .mount-poi-tree-node{min-width:0;position:relative}
-.mount-poi-tree-row{display:flex;align-items:flex-start;gap:0;margin:6px 0 6px calc(var(--poi-level)*12px);border:1px solid #273d51;border-radius:7px;background:#101d2c;overflow:hidden}
-.mount-poi-tree-row.selected{background:#143044;border-color:#55cde8;box-shadow:inset 3px 0 #55cde8}
-.mount-poi-tree-row .mount-poi-progress-card{flex:1;min-width:0;border:0;border-radius:0;box-shadow:none;background:transparent;padding:11px 10px 11px 0}
-.mount-poi-tree-row:hover{border-color:#43839b;background:#142a3c}
-.mount-poi-branch-toggle,.mount-poi-leaf-mark{flex:none;width:26px;display:grid;place-items:center;margin-top:9px;height:26px;color:var(--text-secondary)}
-.mount-poi-branch-toggle{border:0;background:transparent;cursor:pointer;font-size:20px}
-.mount-poi-branch-toggle:hover{color:var(--text-accent);background:#244055;border-radius:4px}
-.mount-poi-branch-toggle:focus-visible{outline:2px solid var(--text-accent);outline-offset:-2px}
-.mount-poi-leaf-mark{font-size:22px;color:#53758e}
-.mount-poi-tree-title{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 8px}
-.mount-poi-tree-title strong{color:var(--text-primary);font-size:var(--fs-small);font-weight:var(--fw-medium);overflow-wrap:anywhere}
-.mount-poi-tree-title small{flex:none;color:var(--text-tertiary);font-size:10px;font-weight:400;white-space:nowrap}
+.mount-poi-tree-row{position:relative;display:flex;align-items:flex-start;gap:0;margin:3px 0 3px calc(var(--poi-level)*14px);border:0;border-radius:6px;background:transparent;overflow:hidden}
+.mount-poi-tree-row.selected{background:#173247;box-shadow:inset 2px 0 #55cde8}
+.mount-poi-tree-row:hover{background:#14293b}
+.mount-poi-tree-row.selected:hover{background:#19394e}
+.mount-poi-tree-row .mount-poi-progress-card{flex:1;min-width:0;border:0;border-radius:0;box-shadow:none;background:transparent;padding:12px 10px 12px 0}
+.mount-poi-tree-row .mount-poi-progress-card:hover,.mount-poi-tree-row .mount-poi-progress-card.selected{background:transparent;border:0;box-shadow:none}
+.mount-recursive-directory .mount-poi-branch-toggle,.mount-recursive-directory .mount-poi-leaf-mark{flex:0 0 28px;box-sizing:border-box;width:28px;min-width:28px;max-width:28px;min-height:24px;height:24px;display:grid;place-items:center;align-self:flex-start;margin:9px 0 0;padding:0;border:0;border-radius:4px;background:transparent;box-shadow:none;color:#83a0b6;line-height:1}
+.mount-recursive-directory .mount-poi-branch-toggle{cursor:pointer;appearance:none}
+.mount-recursive-directory .mount-poi-branch-toggle:hover{color:#67d5ed;background:transparent}
+.mount-poi-branch-toggle:focus-visible{outline:2px solid var(--text-accent);outline-offset:-3px}
+.mount-tree-chevron{width:6px;height:6px;border-right:1.5px solid currentColor;border-bottom:1.5px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+.mount-poi-branch-toggle[aria-expanded=true] .mount-tree-chevron{transform:rotate(45deg) translate(-1px,-1px)}
+.mount-poi-leaf-mark{font-size:14px;opacity:.5}
+.mount-poi-tree-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-width:0}
+.mount-poi-tree-title strong{min-width:0;color:var(--text-primary);font-size:var(--fs-small);font-weight:var(--fw-medium);line-height:1.5;overflow-wrap:anywhere}
+.mount-poi-tree-row.selected .mount-poi-tree-title strong{color:#e4f8ff}
+.mount-poi-tree-title .mount-child-count{flex:none;min-width:19px;padding:1px 4px;border-radius:4px;background:#20364a;color:#9ab8cd;text-align:center;font-size:10px;line-height:16px;font-variant-numeric:tabular-nums}
+.mount-poi-tree-title .mount-child-count.is-empty{background:transparent;color:#627c91}
 .mount-poi-tree-children{position:relative}
-.mount-poi-tree-children::before{content:'';position:absolute;top:0;bottom:10px;left:calc(var(--poi-level)*12px + 5px);width:1px;background:#294458}
-.mount-poi-tree-row .mount-poi-progress-track{height:3px;background:#2b4052}
-.mount-poi-tree-row .mount-poi-card-copy{gap:7px}
+.mount-poi-tree-children::before{content:'';position:absolute;top:0;bottom:12px;left:calc(var(--poi-level)*14px + 13px);width:1px;background:#243d50}
+.mount-poi-tree-row .mount-poi-progress-track{height:2px;background:#263e50}
+.mount-poi-tree-row .mount-poi-progress-track i{background:#44bfa9}
+.mount-poi-tree-row .mount-poi-card-copy{gap:6px}
+.mount-poi-tree-row .mount-poi-card-total{color:#8fa7bb;font-size:var(--fs-caption)}
+.mount-poi-tree-row .mount-poi-statuses{gap:10px;padding-top:2px}
+.mount-poi-tree-row .mount-poi-statuses>span{font-size:var(--fs-caption)}
