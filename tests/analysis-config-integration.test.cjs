@@ -12,6 +12,6 @@ test('legacy prompt versions and draft bodies migrate once without changing sour
 });
 test('both entry pages reference integrated config and original editor parses',()=>{
  assert.equal(fs.readFileSync('index.html','utf8'),fs.readFileSync('SeeTime业务框架.html','utf8'));
- assert.match(fs.readFileSync('index.html','utf8'),/src="平台分析配置.js\?v=tags-20261109"/);
+ assert.match(fs.readFileSync('index.html','utf8'),/src="平台分析配置.js\?v=config-nav-20261109"/);
  const html=fs.readFileSync('分析配置.html','utf8');for(const match of html.matchAll(/<script>([\s\S]*?)<\/script>/g))new vm.Script(match[1]);
 });
