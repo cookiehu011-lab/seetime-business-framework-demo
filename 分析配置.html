@@ -147,6 +147,24 @@ body.embedded .page{max-width:none;padding:0 2px 16px}
 body.embedded .workspace{min-height:0}
 body.embedded .actionbar{justify-content:flex-end}
 body.embedded .actionbar .hint{order:-1;margin-right:auto}
+.management-title{font-size:15px;font-weight:600;color:var(--muted)}
+.heading h1{font-size:22px}.heading p{font-size:13px}
+.tags td{padding-block:13px}.tags td:first-child{width:30%}.tags td:nth-child(2){color:var(--muted)}
+.tag-status{color:var(--subtle);font-size:13px}.tag-status.on{color:var(--good)}
+.tag-pagination{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-top:1px solid var(--line-soft);font-size:12px;color:var(--muted);gap:10px;flex-wrap:wrap}
+.category-rows{display:grid;gap:9px}.category-row{display:flex;align-items:center;gap:12px}.category-row>span{display:flex;align-items:center;gap:5px;white-space:nowrap;font-size:12px}.category-row input[type=checkbox]{width:16px;min-height:16px;accent-color:var(--accent)}
+@media(max-width:730px){.management-title{display:none}.scope-nav button{font-size:12px}.topbar{flex-wrap:wrap}.local{font-size:10px}.tags table{min-width:620px}}
+
+body.embedded.tag-library .heading{display:block;margin-bottom:16px}
+body.embedded.tag-library .scope-path{display:none}
+body.embedded .tags-summary{align-items:center;gap:12px}
+body.embedded .tags-summary .hint{max-width:390px;text-align:right}
+body.embedded .toolbar .spacer{margin-left:auto}
+body.embedded .dialog-foot{justify-content:flex-end}
+body.embedded.tag-library .heading p{font-size:12px}
+.tag-pagination button{min-height:30px;font-size:12px}
+.tag-library .tags .table-wrap{max-height:calc(100dvh - 280px);min-height:180px;overflow:auto}.tag-library .tags th{position:sticky;top:0;background:var(--panel);z-index:1}.tag-library .tags td{padding-block:10px}
+@media(max-width:730px){body.embedded .tags-summary{align-items:flex-start;flex-direction:column}body.embedded .tags-summary .hint{text-align:left}.tags .actions{white-space:nowrap}}
 </style>
 </head>
 <body>
@@ -226,12 +244,19 @@ try {
 } catch { /* Keep original records if browser storage is unavailable. */ }
 const embedded=new URLSearchParams(location.search).has('embed');
 document.body.classList.toggle('embedded',embedded);
+if(!data.platformTagsImported&&embedded){
+ const legacy=parent.pacLoad?.();
+ if(legacy?.tags){data.tags=legacy.tags.map(t=>({...t,app:'个人版',enabled:t.enabled!==false,references:0}));data.platformTagsImported=true;try{localStorage.setItem(key,JSON.stringify(data))}catch{}}
+}
+data.categories=[...new Set(['未分类',...(data.categories||categories),...data.tags.map(t=>t.category).filter(Boolean)])];
+function refreshTagReferences(){if(!embedded)return;const counts=parent.SeeTimeMapOps?.tagReferenceCounts?.()||{};data.tags.forEach(t=>{t.references=[...new Set([t.name,...(t.previousNames||[])])].reduce((sum,name)=>sum+(counts[name]||0),0)})}
+refreshTagReferences();
 let storageFailed=false;
-window.SeeTimeConfig={dirty:()=>draftDirty(),requestLeave:apply=>navigate(apply)};
+window.SeeTimeConfig={dirty:()=>draftDirty()||byId('dialog').open,requestLeave:apply=>{if(byId('dialog').open){toast('请先保存或取消当前弹窗。');return}navigate(apply)}};
 const state = {
-  page:'prompts', app:'个人版', task:'', name:'', version:'',
+  page:new URLSearchParams(location.search).get('page')==='tags'?'tags':'prompts', app:'个人版', task:'', name:'', version:'',
   promptId:data.prompts[0]?.id, detail:'body', viewed:'', historyQuery:'',
-  tagName:'', tagCategory:'', tagStatus:'',
+  tagName:'', tagCategory:'', tagStatus:'', tagPage:1,
   trial:null
 };
 let toastTimer;
@@ -398,28 +423,33 @@ function tagRows() {
     (!state.tagStatus||t.enabled===(state.tagStatus==='启用')));
 }
 const pencil='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m14 5 5 5M4 20l5-.9L20 8l-4-4L5 15z"/></svg>';
+const trash='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg>';
 function renderTags() {
-  const rows=tagRows();
+  const rows=tagRows(),pages=Math.max(1,Math.ceil(rows.length/20));
+  state.tagPage=Math.min(state.tagPage,pages);
+  const visible=rows.slice((state.tagPage-1)*20,state.tagPage*20);
   return `<div class="box toolbar">
     ${search('标签名称','tagName',state.tagName,'搜索标签名称')}
-    ${select('标签分类','tagCategory',categories,state.tagCategory,'全部分类')}
+    ${select('标签分类','tagCategory',data.categories,state.tagCategory,'全部分类')}
     ${select('状态','tagStatus',['启用','停用'],state.tagStatus,'全部状态','narrow')}
     ${state.tagName||state.tagCategory||state.tagStatus?btn('重置','clear-tags','text-button'):''}
-    ${btn('＋ 新增标签','new-tag','primary spacer')}
+    ${btn('管理分类','categories','secondary spacer')} ${btn('＋ 新增标签','new-tag','primary')}
   </div>
-  <section class="box tags"><div class="tags-summary"><b>静态标签词库 · ${rows.length} 条</b><span class="hint">停用后从可选词库移除，历史相机记录保留原标签。</span></div>
-  ${rows.length?`<div class="table-wrap"><table><thead><tr><th>标签名称</th><th>标签分类</th><th>状态</th><th style="text-align:right">操作</th></tr></thead><tbody>
-    ${rows.map(t=>`<tr><td><b>${e(t.name)}</b></td><td>${e(t.category)}</td><td>${t.enabled?badge('启用','good'):badge('停用')}</td>
+  <section class="box tags"><div class="tags-summary"><b>标签列表 <span class="hint">${rows.length} 条</span></b><span class="hint">停用后从可选词库移除，停用或改名不改变历史相机标签。</span></div>
+  ${rows.length?`<div class="table-wrap"><table><thead><tr><th>标签名称</th><th>标签分类</th><th>状态</th><th>引用次数 <span class="hint">（本机示例）</span></th><th style="text-align:right">操作</th></tr></thead><tbody>
+    ${visible.map(t=>`<tr><td><b>${e(t.name)}</b></td><td>${e(t.category)}</td><td><span class="tag-status ${t.enabled?'on':''}">● ${t.enabled?'启用':'停用'}</span></td><td class="hint">${t.references||0}</td>
       <td class="actions"><button type="button" class="text-button" title="编辑标签" aria-label="编辑标签 ${e(t.name)}" data-action="edit-tag" data-value="${e(t.id)}">${pencil}</button>
-      ${btn(t.enabled?'停用':'启用','toggle-tag',t.enabled?'text-button danger':'text-button',t.id)}</td></tr>`).join('')}
-    </tbody></table></div>`:'<div class="empty"><b>暂无匹配标签</b>调整检索条件，或新增标签。</div>'}</section>`;
+      ${btn(t.enabled?'停用':'启用','toggle-tag','text-button',t.id)}<button type="button" class="text-button danger" title="${t.references?'已引用，请使用停用':'删除标签'}" aria-label="删除标签 ${e(t.name)}" data-action="delete-tag" data-value="${e(t.id)}" ${t.references?'disabled':''}>${trash}</button></td></tr>`).join('')}
+    </tbody></table></div>`:'<div class="empty"><b>暂无匹配标签</b>调整检索条件，或新增标签。</div>'}<div class="tag-pagination"><span>共 ${rows.length} 条 · 每页 20 条</span><div><button data-action="tag-prev" ${state.tagPage===1?'disabled':''}>上一页</button> <span>${state.tagPage} / ${pages}</span> <button data-action="tag-next" ${state.tagPage===pages?'disabled':''}>下一页</button></div></div></section>`;
 }
 function render({keepFocus=false}={}) {
   const active=document.activeElement;
   const filter=keepFocus?active?.dataset.filter:null;
   const start=filter&&active.type==='search'?active.selectionStart:null;
   const personal=state.page==='tags';
-  const title=personal?'静态标签':'分析配置';
+  const title=personal?'个人版标签库':'分析配置';
+  document.body.classList.toggle('tag-library',personal);
+  refreshTagReferences();
   document.title=title+' · SeeTime';
   byId('scope-path').textContent=personal?'个人版 / 静态标签':'平台空间 / 分析配置';
   byId('page-title').textContent=title;
@@ -427,7 +457,7 @@ function render({keepFocus=false}={}) {
   byId('page-description').hidden=!personal;
   document.body.classList.toggle('prompt-page',!personal);
   byId('page-description').textContent=personal
-    ? '管理个人版相机使用的静态标签。'
+    ? '管理相机静态标签 · 配置与引用统计来自当前浏览器示例数据。'
     : '统一管理个人版和治理版的分析提示词与版本。';
   document.querySelectorAll('.scope-nav button').forEach(button=>{
     if(button.dataset.value===state.page) button.setAttribute('aria-current','page');
@@ -450,7 +480,9 @@ function openDialog(title, fields, button, submit) {
   dialog.querySelector('form').onsubmit=ev=>{
     ev.preventDefault();
     const form=ev.currentTarget;
+    const previous=JSON.stringify(data);
     const result=submit(Object.fromEntries(new FormData(form)));
+    if(storageFailed){data=JSON.parse(previous);form.querySelector('.error').textContent='保存失败，请重试。';return;}
     if (typeof result==='string') form.querySelector('.error').textContent=result;
     else { dialog.close(); render(); }
   };
@@ -564,30 +596,55 @@ function rollback(p,v) {
     });
 }
 function editTag(t) {
+  let continueAdding=false;
   openDialog(t?'编辑标签':'新增标签',`
     ${control('标签名称',`<input name="name" required maxlength="30" value="${e(t?.name||'')}" placeholder="例如：步行入口">`)}
-    ${control('标签分类',`<select name="category">${categories.map(x=>option(x,x,t?.category||state.tagCategory||categories[0])).join('')}</select>`)}`,
+    ${control('标签分类',`<select name="category">${data.categories.map(x=>option(x,x,t?.category||state.tagCategory||'未分类')).join('')}</select>`)}`,
     '保存标签',({name,category})=>{
       name=name.trim();
       if(!name) return '请输入标签名称。';
       if(name!==t?.name&&personalTags().some(item=>item.name===name)) return '个人版已有同名标签。';
-      if(t) Object.assign(t,{name,category,app:'个人版'});
+      if(t){if(t.name!==name)t.previousNames=[...new Set([...(t.previousNames||[]),t.name])];Object.assign(t,{name,category,app:'个人版'});}
       else {
-        data.tags.unshift({id:newId(),name,category,app:'个人版',enabled:true});
+        data.tags.unshift({id:newId(),name,category,app:'个人版',enabled:true,references:0});
         clearTagFilters();
       }
       save(t?'标签已更新':'标签已新增');
+      if(continueAdding&&!storageFailed) setTimeout(()=>editTag(),0);
     });
+  if(!t) {
+    const more=document.createElement('button'); more.type='submit';more.textContent='保存并继续新增';
+    more.onclick=()=>{continueAdding=true;};
+    byId('dialog').querySelector('.primary').onclick=()=>{continueAdding=false;};
+    byId('dialog').querySelector('.dialog-foot').append(more);
+  }
 }
+function deleteTag(t) {
+  if(t.references) return;
+  openDialog('删除标签',`<p>删除「${e(t.name)}」？此标签未被相机引用。</p>`,'确认删除',()=>{data.tags=data.tags.filter(x=>x.id!==t.id);save('标签已删除');});
+}
+function manageCategories() {
+  openDialog('管理分类',`<p class="hint">修改名称会同步分类；移除分类时，其标签归入「未分类」。</p>
+  <div class="category-rows">${data.categories.filter(x=>x!=='未分类').map((x,i)=>`<label class="category-row"><input name="category-${i}" value="${e(x)}" required maxlength="24" aria-label="分类名称 ${e(x)}"><span><input type="checkbox" name="remove-${i}"> 移除</span></label>`).join('')}</div>
+  ${control('新增分类','<input name="newCategory" maxlength="24" placeholder="输入分类名称（选填）">')}`,'保存分类',fields=>{
+    const old=data.categories.filter(x=>x!=='未分类'),names=old.map((x,i)=>fields['remove-'+i]?null:fields['category-'+i].trim()),extra=fields.newCategory.trim();
+    const next=['未分类',...names.filter(x=>x!==null),...(extra?[extra]:[])];
+    if(next.some(x=>!x)) return '分类名称不能为空。';
+    if(new Set(next).size!==next.length) return '分类名称不能重复。';
+    data.tags.forEach(t=>{const i=old.indexOf(t.category);if(i>=0)t.category=names[i]||'未分类';});
+    data.categories=next;state.tagCategory='';save('分类已更新');
+  });
+}
+
 function toggleTag(t) {
   if(t.enabled) {
     openDialog('停用标签',`<p>停用「${e(t.name)}」后，此标签将从可选词库中移除。历史相机记录保留原标签。</p>`,'确认停用',()=>{
       t.enabled=false; save('标签已停用');
     });
-  } else { t.enabled=true; save('标签已启用'); render(); }
+  } else { t.enabled=true; save('标签已启用');if(storageFailed)t.enabled=false; render(); }
 }
 function clearTagFilters() {
-  Object.assign(state,{tagName:'',tagCategory:'',tagStatus:''});
+  Object.assign(state,{tagName:'',tagCategory:'',tagStatus:'',tagPage:1});
 }
 function draftDirty() {
   if(storageFailed)return true;
@@ -610,6 +667,7 @@ function changeFilter(event) {
     return;
   }
   state[name]=field.value;
+  if(name.startsWith('tag'))state.tagPage=1;
   if(name==='version') { state.viewed=''; state.historyQuery=''; state.trial=null; }
   if(state.page==='prompts') reconcilePrompt();
   render({keepFocus:true});
@@ -653,6 +711,10 @@ document.addEventListener('click',event=>{
     case 'trial-draft': draftError('');runTrial(p,v,draftFields().body);break;
     case 'publish': publish(p,v); break;
     case 'rollback': rollback(p,v); break;
+    case 'categories': manageCategories();break;
+    case 'delete-tag': deleteTag(data.tags.find(t=>t.id===value));break;
+    case 'tag-prev': state.tagPage--;render();break;
+    case 'tag-next': state.tagPage++;render();break;
     case 'clear-tags': clearTagFilters();render();break;
     case 'new-tag': editTag();break;
     case 'edit-tag': editTag(data.tags.find(t=>t.id===value));break;

@@ -1,0 +1,4 @@
+const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+const source=fs.readFileSync('个人版地图运营.js','utf8'),line=source.split('\n').find(l=>l.includes('function staticTagSuggestions()'));
+test('integrated tag candidates exclude disabled tags and governance tags',()=>{const c=vm.createContext({localStorage:{getItem:()=>JSON.stringify({platformTagsImported:true,tags:[{name:'启用标签',enabled:true,app:'个人版'},{name:'停用标签',enabled:false},{name:'治理标签',enabled:true,app:'治理版'}]})}});vm.runInContext(line,c);assert.deepEqual(Array.from(c.staticTagSuggestions()),['启用标签'])});
+test('empty managed library stays empty instead of reintroducing removed defaults',()=>{const c=vm.createContext({localStorage:{getItem:()=>JSON.stringify({platformTagsImported:true,tags:[]})}});vm.runInContext(line,c);assert.equal(c.staticTagSuggestions().length,0)});
