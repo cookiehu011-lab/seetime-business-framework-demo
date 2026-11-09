@@ -410,7 +410,7 @@
   const mounted=poiDetailMountIds(cam).length>0,point=position(cam);
   const basics=[['所属项目',cam.projectName],['安装位置',cam.installationPosition],['区县',cam.district]],more=[['经纬度 · GCJ-02',point?point.map(n=>n.toFixed(6)).join(', '):'暂无'],['水印',cam.cameraWatermark||'暂无']];
   const info=`<section class="poi-camera-section"><h3>基础信息</h3><dl class="poi-camera-info">${basics.map(([label,value])=>`<div><dt>${label}</dt><dd>${escape(value||'暂无')}</dd></div>`).join('')}</dl></section><details class="poi-camera-more"><summary>更多信息</summary><dl class="poi-camera-info">${more.map(([label,value])=>`<div><dt>${label}</dt><dd>${escape(value)}</dd></div>`).join('')}</dl></details>`;
-  const detail=analysisArchive(cam,true).replace('data-map="analysis-close"','data-map="close-poi-camera"').replace(/<footer class="analysis-detail-footer">[\s\S]*?<\/footer>/,` ${info}<footer class="analysis-detail-footer"><button type="button" class="button primary" data-map="poi-camera-mount" data-id="${escape(cam.id)}">${mounted?'重新挂载':'去挂载'}</button></footer>`);
+  const detail=analysisArchive(cam,true).replace(/<p class="analysis-camera-installation">[\s\S]*?<\/p>/,'').replace('data-map="analysis-close"','data-map="close-poi-camera"').replace(/<footer class="analysis-detail-footer">[\s\S]*?<\/footer>/,` ${info}<footer class="analysis-detail-footer"><button type="button" class="button primary" data-map="poi-camera-mount" data-id="${escape(cam.id)}">${mounted?'重新挂载':'去挂载'}</button></footer>`);
   return `<aside class="poi-narrow-profile poi-camera-profile poi-camera-refined"><div class="poi-camera-detail-scroll">${detail}</div></aside>`;
  }
 
