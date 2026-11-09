@@ -1,0 +1,95 @@
+const state={source:'',batch:'',scenario:'normal',start:'2026-11-09',end:'2026-11-09'};
+const $=s=>document.querySelector(s);
+let current, groups, buckets, detailRows=[], parentDetail=null;
+const names={personalUnknownRun:'个人版运行状态未知',governanceUnknownRun:'治理版运行状态未知',all:'已接入相机',governed:'已完成治理',pending:'待治理',unneeded:'无需治理',impact:'已订阅相机异常',mountPending:'个人版待挂载',configPending:'治理版待配置',personalValue:'个人版有价值',governanceValue:'治理版有价值',personalFunnel:'个人版已订阅 · 漏斗内',governanceFunnel:'治理版已订阅 · 漏斗内',personalNo:'个人版无价值 · 已治理范围',governanceNo:'治理版无价值 · 已治理范围',bothNo:'两版均无价值 · 已治理范围',personalUnknown:'个人版待评估',governanceUnknown:'治理版待评估',personalGap:'个人版有价值未订阅',governanceGap:'治理版有价值未订阅',personalOutside:'个人版漏斗外已订阅',governanceOutside:'治理版漏斗外已订阅',personalOnly:'仅个人版订阅',governanceOnly:'仅治理版订阅',both:'两版均订阅',neither:'均未订阅',online:'在线相机',offline:'离线相机',unknown:'连接状态未知',stream:'拉流异常',quality:'画面异常',stale:'截帧超时',rotation:'转动待核验',mounted:'已挂载相机',configured:'已启用检测',personal:'个人版订阅相机',governance:'治理版订阅相机',personalRunning:'个人版正常运行',governanceRunning:'治理版正常运行',personalAbnormal:'个人版运行异常',governanceAbnormal:'治理版运行异常'};
+const count=k=>groups[k].length;
+function metric(key,label,color='',suffix='台'){if(state.scenario==='failure'&&(key==='impact'||/Running$|Abnormal$/.test(key)))return `<div class="metric ${color}"><span>${label||names[key]}</span><strong>—</strong><em>监测暂不可用</em></div>`;return `<button class="metric ${color}" data-group="${key}"><span>${label||names[key]} <i class="help-icon" aria-hidden="true">ⓘ</i></span><strong>${count(key)}<small>${suffix}</small></strong><em>查看明细 ↗</em></button>`;}
+const link=(key,label)=>`<button class="text-link" data-group="${key}">${label||names[key]} <b>${count(key)}</b><span> ›</span></button>`;
+function section(id,no,title,sub,body,extra=''){return `<section id="${id}" class="panel"><div class="section-heading"><div><span class="section-no">${no}</span><h2>${title}</h2><span class="section-sub">${sub}</span></div>${extra}</div>${body}</section>`;}
+function funnelStage(key,label,base,width,cls=''){return `<button class="funnel-stage ${cls}" style="--width:${width}%" data-group="${key}"><span>${label} <i class="help-icon" aria-hidden="true">ⓘ</i></span><strong>${count(key)}<small> 台</small></strong><span class="conversion">${base?Metrics.pct(count(key),count(base))+' 转化':'项目相机总量'} ↗</span></button>`;}
+function conversion(){
+  const branch=(app,label)=>`<div class="funnel-branch ${app}"><h3><span class="dot"></span>${label}</h3>${funnelStage(app+'Value','有价值', 'governed',94)}<div class="flow-arrow">↓</div>${funnelStage(app+'Funnel','其中已订阅',app+'Value',76,'last')}<div class="branch-exits">${link(app+'No','无价值')}${link(app+'Unknown','待评估')}${link(app+'Gap','有价值未订阅')}</div></div>`;
+  return section('conversion','02','相机治理与应用转化','当前存量 · 分支间相机可重叠',`<div class="conversion-layout"><div class="funnel"><div class="funnel-trunk">${funnelStage('all','已接入相机',null,100)}<div class="trunk-connector"><span>↓</span><div>${link('pending')}${link('unneeded')}</div></div>${funnelStage('governed','已完成治理','all',84)}</div><div class="branch-line"></div><div class="funnel-branches">${branch('personal','个人版')}${branch('governance','治理版')}</div></div><aside class="conversion-aside"><h3>项目实际订阅</h3><p>按全部 ${count('all')} 台相机统计</p><div class="subscription-bar">${['personalOnly','governanceOnly','both','neither'].map((k,i)=>`<span class="seg-${i}" style="flex:${count(k)}" title="${names[k]} ${count(k)}"></span>`).join('')}</div><div class="subscription-list">${['personalOnly','governanceOnly','both','neither'].map((k,i)=>`<div><span class="dot seg-${i}"></span>${link(k)}</div>`).join('')}</div><div class="aside-rule"><h3>未满足转化条件的订阅</h3>${link('personalOutside','个人版待核对')}${link('governanceOutside','治理版待核对')}<p>已订阅但尚未完成治理或价值确认，单独核对。</p></div><div class="aside-rule">${link('bothNo')}<p>两版无价值的交集，不与单版数量相加。</p></div></aside></div>`,`<button class="quiet" id="definitions">统计口径 ⓘ</button>`);
+}
+function chart(){
+  buckets=Metrics.range(current,state.start,state.end);
+  const total=buckets.reduce((a,b)=>a+b.total,0),success=buckets.reduce((a,b)=>a+b.success,0),missed=buckets.flatMap(b=>b.records).reduce((a,r)=>a+r.missed,0);
+  const w=900,h=180,plot=810,x=i=>55+i*plot/Math.max(1,buckets.length-1),y=r=>145-(r-80)/20*110;
+  let paths=[],segment=[];buckets.forEach((b,i)=>{if(b.rate===null){if(segment.length)paths.push(segment.join(' '));segment=[];}else segment.push(`${segment.length?'L':'M'}${x(i)},${y(b.rate)}`);});if(segment.length)paths.push(segment.join(' '));
+  const marks=buckets.map((b,i)=>b.rate===null?'':`<g class="chart-point" tabindex="0" role="button" aria-label="${b.time} 拉流明细" data-bucket="${i}"><circle cx="${x(i)}" cy="${y(b.rate)}" r="9" fill="transparent"/><circle cx="${x(i)}" cy="${y(b.rate)}" r="3.5" fill="#50d5ed"/><title>${b.time} · ${Metrics.pct(b.success,b.total)} · ${b.total} 次请求</title></g>`).join('');
+  return `<div class="trend-head"><span>${state.start===state.end?'按小时':'按日'}汇总</span></div><div class="chart-summary"><span data-help="rate" tabindex="0">拉流成功率 ⓘ <b>${Metrics.pct(success,total)}</b></span><span data-help="requests" tabindex="0">实际请求 ⓘ <b>${total.toLocaleString()}</b> 次</span><span>成功 <b>${success.toLocaleString()}</b> 次</span><span data-help="missed" tabindex="0">计划漏执行 ⓘ <b class="amber">${missed}</b> 次</span><button class="text-link" id="stream-detail">查看周期明细 ↗</button></div><svg class="trend-chart" viewBox="0 0 ${w} ${h}" role="group" aria-label="拉流成功率趋势，可点击数据点查看明细">${[80,90,100].map(v=>`<line x1="55" y1="${y(v)}" x2="875" y2="${y(v)}" stroke="#263b4e"/><text x="4" y="${y(v)+4}">${v}%</text>`).join('')}${paths.map(d=>`<path d="${d}" fill="none" stroke="#50d5ed" stroke-width="2.5"/>`).join('')}${marks}${buckets.map((b,i)=>i%Math.ceil(buckets.length/7)===0||i===buckets.length-1?`<text text-anchor="middle" x="${x(i)}" y="172">${b.label}</text>`:'').join('')}</svg><div class="chart-foot"><span><i class="dot cyan"></i>已结束请求成功率 · 点击数据点下钻</span></div><p class="chart-note">每日 03:00 无请求、06:00 数据缺失（模拟）；缺失时段不计入成功率，未发生时段不补零。</p>`;
+}
+function health(){
+ const body=state.scenario==='failure'?`<div class="empty"><strong>运行监测暂时无法加载</strong><p>模拟请求失败，其他模块可继续查看。</p><button id="retry" class="primary">重试加载</button></div>`:`<div class="health-metrics">${metric('online','在线相机','green')}${metric('offline','离线相机','red')}${metric('quality','画面异常','amber')}${metric('stale','截帧超时','amber')}${metric('rotation','转动待核验','amber')}</div><div class="health-note">在线率 <b>${Metrics.pct(count('online'),count('all'))}</b> <span>·</span> ${link('unknown','状态未知')}${link('stream','拉流异常')}<span>各类异常可重叠，不相加</span></div><div class="current-abnormal"><aside class="abnormal-list"><h3>长时未恢复</h3><p>当前异常 · 持续时间排序</p>${current.filter(c=>c.issues.length).sort((a,b)=>b.duration-a.duration).slice(0,3).map(c=>`<button class="abnormal-row" data-camera="${c.id}"><div><strong>${c.name}</strong><small>${c.issues.join(' / ')}</small></div><b>${c.duration}h</b></button>`).join('')||'<p class="no-data">暂无异常记录</p>'}<small>演示持续时长，非生产告警阈值</small></aside></div>`;
+ return section('health','03','当前相机健康','异常分类可重叠',body);
+}
+function rangeLabel(){return `${state.start} 00:00 — ${state.end} ${state.end==='2026-11-09'?'10:40':'23:59'} · 北京时间`;}
+function apps(){
+ const block=(app,label)=>`<div class="app-block ${app}"><div class="app-title"><h3>${label}</h3>${link(app,'已订阅')}</div><div class="app-metrics">${metric(app==='personal'?'mounted':'configured',app==='personal'?'已确认挂载':'已启用检测')}${metric(app+'Running','正常运行','green')}${metric(app+'Abnormal','运行异常','amber')}</div><div class="app-bottom">${app==='personal'?`<span>覆盖 POI <b>${new Set(groups.mounted.map(c=>c.poi)).size}</b> 个</span>`:''}${state.scenario==='failure'?'<span>运行状态待恢复监测</span>':link(app+'UnknownRun','运行状态未知')}${link(app==='personal'?'mountPending':'configPending',app==='personal'?'待挂载':'待配置')}</div></div>`;
+ return section('applications','04','当前应用状态','运行状态按已挂载 / 已启用检测统计',`<div class="applications">${block('personal','个人版')}${block('governance','治理版')}</div>`);
+}
+function periodApps(){
+ const block=(app,label)=>{
+ const records=Metrics.tasks(current,app,state.start,state.end),success=records.reduce((n,r)=>n+r.success,0),failed=records.reduce((n,r)=>n+r.failed,0),output=records.reduce((n,r)=>n+r.output,0);
+ return `<div class="app-block ${app}"><div class="app-title"><h3>${label}</h3><button class="text-link" data-tasks="${app}">查看任务明细 ↗</button></div><div class="execution"><div><span data-help="taskRate" tabindex="0">终态任务成功率 ⓘ</span><b>${Metrics.pct(success,success+failed)}</b></div><div class="execution-track"><span style="width:${success+failed?success/(success+failed)*100:0}%"></span></div><div><span>成功 ${success.toLocaleString()} 次</span><span>失败 ${failed.toLocaleString()} 次</span></div></div><div class="app-bottom"><span>${app==='personal'?'观测结果':'产出线索'} <b>${output.toLocaleString()}</b> ${app==='personal'?'份':'条'}</span><span>执行相机 ${records.filter(r=>r.success+r.failed).length} 台</span></div><small>${app==='personal'?'观测结果不等于 C 端采用':'线索不等于已确认事件'} · 模拟任务记录</small></div>`;
+ };
+ return section('period-applications','06','应用任务执行与产出','所选周期内',`<div class="applications">${block('personal','个人版')}${block('governance','治理版')}</div>`);
+}
+function periodView(){
+ return `<section id="period" class="period-region" aria-labelledby="period-title"><div class="region-heading"><h2 id="period-title">周期运营表现</h2><span>仅更新本区域，上方当前状态不变</span></div><form id="period-filter" class="period-filter"><div class="segmented">${[[1,'今日'],[7,'近7天'],[30,'近30天']].map(([n,label])=>`<button type="button" data-range="${n}" aria-pressed="${state.end==='2026-11-09'&&(Date.parse(state.end)-Date.parse(state.start))/86400000+1===n}" class="${state.end==='2026-11-09'&&(Date.parse(state.end)-Date.parse(state.start))/86400000+1===n?'active':''}">${label}</button>`).join('')}</div><label>开始日期<input id="period-start" type="date" required min="2026-01-01" max="2026-11-09" value="${state.start}"></label><span>—</span><label>结束日期<input id="period-end" type="date" required min="2026-01-01" max="2026-11-09" value="${state.end}"></label><button class="primary" type="submit">查询</button><span id="period-message" role="status"></span></form><p class="period-range">统计范围：${rangeLabel()}</p>${section('period-stream','05','周期拉流监测','所选周期内',state.scenario==='failure'?'<div class="empty">运行监测暂时无法加载，请在当前相机健康中重试。</div>':`<div class="period-chart">${chart()}</div>`)}${periodApps()}</section>`;
+}
+function projectSummary(){
+ if(!current.length)return '当前筛选范围暂无相机，暂不生成运行概况。';
+ const number=(key,text)=>`<button class="summary-link" data-group="${key}">${count(key)} 台${text}</button>`;
+ const base=`当前接入 ${number('all','相机')}，治理完成率 ${Metrics.pct(count('governed'),count('all'))}；`;
+ if(state.scenario==='failure')return base+'运行监测暂不可用，恢复后再判断运行情况。';
+ const next=[['pending','待治理'],['mountPending','个人版待挂载'],['configPending','治理版待配置']].find(([key])=>count(key));
+ if(count('impact'))return base+`${number('impact','已订阅相机存在异常')}，建议优先排查${next?'，其次处理 '+number(next[0],next[1]):''}。`;
+ const issueCount=current.filter(c=>c.issues.length).length;
+ return base+(issueCount?'已订阅相机未发现运行异常，其他相机异常可在运行监测中查看':count('unknown')?'暂未发现运行异常，仍有 '+number('unknown','相机状态未知'):'当前未发现运行异常')+(next?'；建议处理 '+number(next[0],next[1]):'')+'。';
+}
+function render(){
+ MetricHelp.hide();
+ current=state.scenario==='empty'?[]:DemoData.cameras.filter(c=>(!state.source||c.source===state.source)&&(!state.batch||c.batch===state.batch));groups=Metrics.groups(current);
+ $('#scope').textContent=`当前范围：${state.source||'全部来源'} / ${state.batch||'全部批次'} · ${current.length} 台相机`;
+ $('#project-summary').innerHTML='<strong>项目运行概况</strong><span>'+projectSummary()+'</span>';
+ const tasks=section('tasks','01','待处理事项','优先处理影响应用的问题',`<div class="task-grid">${metric('impact',null,'red')}${metric('pending',null,'amber')}${metric('mountPending')}${metric('configPending')}</div>`);
+ $('#dashboard').innerHTML=(current.length?'':'<div class="empty-banner">当前项目范围暂无相机。可切回“正常数据”体验完整流程。</div>')+tasks+conversion()+health()+apps()+periodView();
+ MetricHelp.bind();filterNotice();
+}
+function openDialog(title,content,period=false){MetricHelp.hide();$('#detail-title').textContent=title;$('#detail-context').textContent=`${state.source||'全部来源'} · ${state.batch||'全部批次'} · ${period?rangeLabel():'模拟快照 2026-11-09 10:40'}`;$('#detail-body').innerHTML=content;if(!$('#details').open)$('#details').showModal();}
+function showGroup(key){parentDetail=null;detailRows=groups[key];openDialog(names[key],`<p class="drawer-description">共 ${detailRows.length} 台 · 与当前卡片相同筛选范围。点击相机查看档案。</p><div class="table-wrap"><table><thead><tr><th>相机名称 / ID</th><th>治理</th><th>订阅</th><th>状态</th></tr></thead><tbody>${detailRows.map(c=>`<tr><td><button class="camera-link" data-camera="${c.id}">${c.name}<small>${c.id}</small></button></td><td>${c.method} · ${c.gov}</td><td>${[c.personal?'个人版':'',c.governance?'治理版':''].filter(Boolean).join('、')||'未订阅'}</td><td class="${c.issues.length?'amber':'green'}">${c.issues.join('、')||c.online}</td></tr>`).join('')||'<tr><td colspan="4" class="no-data">没有符合条件的相机</td></tr>'}</tbody></table></div>`);}
+function showCamera(id){const c=current.find(c=>c.id===id);if(!c)return;if($('#details').open)parentDetail={title:$('#detail-title').textContent,context:$('#detail-context').textContent,html:$('#detail-body').innerHTML,scroll:$('#details').scrollTop,id};else parentDetail=null;openDialog(c.name,`${parentDetail?'<button id="back-detail" class="text-link">← 返回相机明细</button>':''}<div class="camera-profile"><span class="demo-badge">模拟相机档案 · 只读</span><dl>${[['相机编号',c.id],['接入来源',c.source],['来源批次',c.batch],['治理结果',c.method+' · '+c.gov],['个人版价值',c.personalValue],['治理版价值',c.governanceValue],['个人版订阅',c.personal?'已订阅':'未订阅'],['治理版订阅',c.governance?'已订阅':'未订阅'],['已挂载 POI',c.mounted?c.poi:'尚未挂载'],['当前健康',c.issues.join('、')||c.online]].map(([k,v])=>`<div><dt>${k}</dt><dd>${v}</dd></div>`).join('')}</dl><p>本 Demo 不执行治理、挂载或配置变更；正式版本从此进入对应业务功能。</p></div>`);}
+function showStream(index){const selected=index===null?buckets.filter(b=>!b.future):[buckets[index]];const records=current.map(c=>{const rs=selected.flatMap(b=>b.records).filter(r=>r.camera.id===c.id);return {c,total:rs.reduce((a,r)=>a+r.requests,0),success:rs.reduce((a,r)=>a+r.success,0),missed:rs.reduce((a,r)=>a+r.missed,0)};});openDialog('历史拉流明细',`<p class="drawer-description">${selected[0]?.time||''} — ${selected.at(-1)?.time||''} · 已结束请求；缺失时段不计入分母</p><div class="table-wrap"><table><thead><tr><th>相机</th><th>请求次数</th><th>成功次数</th><th>成功率</th><th>漏执行</th></tr></thead><tbody>${records.map(r=>`<tr><td>${r.c.id}</td><td>${r.total}</td><td>${r.success}</td><td>${Metrics.pct(r.success,r.total)}</td><td>${r.missed}</td></tr>`).join('')||'<tr><td colspan="5">暂无统计对象</td></tr>'}</tbody></table></div>`,true);}
+function showTasks(app){
+ const rows=Metrics.tasks(current,app,state.start,state.end);
+ openDialog((app==='personal'?'个人版':'治理版')+'任务执行明细',`<p class="drawer-description">模拟终态任务记录 · 进行中与超时本批均为 0；当前配置相机作为固定演示样本，不代表历史订阅档案。</p><div class="table-wrap"><table><thead><tr><th>相机</th><th>成功</th><th>失败</th><th>${app==='personal'?'观测结果':'产出线索'}</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.camera.id}</td><td>${r.success}</td><td>${r.failed}</td><td>${r.output}</td></tr>`).join('')||'<tr><td colspan="4">暂无任务数据</td></tr>'}</tbody></table></div>`,true);
+}
+function applyPeriod(start,end){
+ if(!start||!end||start>end||start<'2026-01-01'||end>'2026-11-09'){$('#period-message').textContent='请选择有效日期：2026-01-01 至 2026-11-09，开始不晚于结束。';return;}
+ state.start=start;state.end=end;const focus=document.activeElement;const selector=focus?.dataset.range?'[data-range="'+focus.dataset.range+'"]':'#period-filter button[type=submit]';render();$(selector)?.focus({preventScroll:true});
+}
+document.addEventListener('submit',e=>{if(e.target.id==='period-filter'){e.preventDefault();applyPeriod($('#period-start').value,$('#period-end').value);}});
+function toast(s){$('#toast').textContent=s;$('#toast').classList.add('visible');setTimeout(()=>$('#toast').classList.remove('visible'),2500);}
+function filterNotice(){const changed=$('#source').value!==state.source||$('#batch').value!==state.batch;$('#filter-message').textContent=changed?'条件尚未应用，点击查询更新全部模块':'来源与批次作用于全部模块；时间仅作用于周期表现。';$('#filter-message').classList.toggle('amber',changed);}
+$('#batch').onchange=filterNotice;
+$('#source').onchange=()=>{const items=$('#source').value?DemoData.batches[$('#source').value]:Object.values(DemoData.batches).flat();$('#batch').innerHTML='<option value="">全部批次</option>'+items.map(s=>`<option>${s}</option>`).join('');filterNotice();};$('#source').onchange();
+$('#filters').onsubmit=e=>{e.preventDefault();state.source=$('#source').value;state.batch=$('#batch').value;render();};
+$('#reset').onclick=()=>{state.source=state.batch='';$('#source').value='';$('#source').onchange();render();};
+$('#scenario').onchange=()=>{state.scenario=$('#scenario').value;render();};
+$('#refresh').onclick=()=>{render();$('#updated').textContent='数据快照 2026-11-09 10:40 · 北京时间';toast('已重新读取模拟数据，快照时间不变');};
+$('#close-details').onclick=()=>$('#details').close();
+document.addEventListener('click',e=>{const t=e.target.closest('[data-group],[data-camera],[data-range],[data-bucket],[data-tasks],#definitions,#retry,#stream-detail,#back-detail');if(!t)return;
+ if(t.id==='back-detail'&&parentDetail){const saved=parentDetail;openDialog(saved.title,saved.html);$('#detail-context').textContent=saved.context;$('#details').scrollTop=saved.scroll;$('#detail-body [data-camera="'+saved.id+'"]')?.focus({preventScroll:true});parentDetail=null;}
+ if(t.dataset.tasks)showTasks(t.dataset.tasks);
+ if(t.dataset.group)showGroup(t.dataset.group);
+ if(t.dataset.camera)showCamera(t.dataset.camera);
+ if(t.dataset.range){const end='2026-11-09',start=new Date(Date.parse(end+'T00:00:00Z')-(Number(t.dataset.range)-1)*86400000).toISOString().slice(0,10);applyPeriod(start,end);}
+ if(t.dataset.bucket!==undefined)showStream(Number(t.dataset.bucket));
+ if(t.id==='stream-detail')showStream(null);
+ if(t.id==='retry'){state.scenario='normal';$('#scenario').value='normal';render();toast('运行监测已恢复');}
+ if(t.id==='definitions')openDialog('统计口径与演示假设',`<div class="definition"><h3>治理 → 价值 → 订阅</h3><p>漏斗每层都是上层的子集；个人版、治理版可以使用同一路相机，分支不可直接相加。</p><h3>项目实际订阅</h3><p>仅个人版、仅治理版、两版均订阅、均未订阅互斥，合计等于当前接入数。漏斗外订阅单独展示。</p><h3>价值判断</h3><p>无价值、待评估与未订阅不同。两版均无价值是两类无价值的交集。</p><h3>Demo 假设</h3><p>无需治理暂不进入已治理层；每路相机使用单一有效治理结论。真实人工/AI优先级及应用准入规则仍需确认。</p><h3>时间与数据</h3><p>当前快照为 2026-11-09 10:40 北京时间。所有数字为可重复生成的演示数据。刷新不会请求真实相机。</p></div>`);
+});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.matches('[data-bucket]')){e.preventDefault();showStream(Number(e.target.dataset.bucket));}});
+document.addEventListener('change',e=>{if(e.target.matches('#period-start,#period-end'))$('#period-message').textContent='日期尚未应用，请点击查询';});
+render();
