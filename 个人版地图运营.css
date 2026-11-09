@@ -1115,3 +1115,15 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-poi-tree-row .mount-poi-statuses>span{font-size:var(--fs-caption)}
 
 .analysis-archive-head .analysis-camera-heading{display:flex;flex-direction:column;gap:8px}.camera-detail-identity{display:flex;align-items:center;gap:10px}.camera-detail-identity .personal-camera-id{margin:0}.analysis-camera-heading .analysis-camera-installation{margin:0}.camera-governance-note{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 0;color:var(--text-secondary);font-size:var(--fs-caption)}.camera-governance-note strong{color:var(--text-primary)}
+
+/* Camera detail section hierarchy and mounted place cards. */
+.analysis-archive .analysis-frame-heading h3,.analysis-archive .analysis-summary-label,.analysis-archive .analysis-mounted-poi>h3,.analysis-archive .camera-governance-note strong{font-size:14px;font-weight:500;line-height:1.5;color:var(--text-primary)}
+.analysis-archive .camera-governance-note{padding:14px 0;gap:14px}
+.analysis-archive .analysis-summary-row{margin:0;padding:10px 0;gap:18px}
+.analysis-archive .analysis-mounted-poi{margin-top:14px}
+.analysis-archive .analysis-mounted-poi>h3{display:flex;align-items:center;gap:9px;margin:0 0 12px}
+.camera-poi-count{font-size:12px;font-weight:400;color:var(--text-secondary)}
+.analysis-archive .analysis-mounted-place{padding:14px 16px;margin:0 0 10px;border:1px solid #28524e;border-radius:9px;background:#102c2d}
+.analysis-archive .analysis-mounted-place strong{font-size:14px;font-weight:600;color:#d7f4ed}
+.analysis-archive .analysis-mounted-place small{display:block;margin-top:6px;font-size:12px;color:#91b4b0}
+.analysis-archive .analysis-detail-footer{margin-top:18px;padding-top:16px;border-top:0}
