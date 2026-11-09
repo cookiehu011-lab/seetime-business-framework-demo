@@ -1113,3 +1113,5 @@ h1{color:var(--text-strong)}h2,h3{color:var(--text-title)}.map-drawer-head h2,.m
 .mount-poi-tree-row .mount-poi-card-total{color:#8fa7bb;font-size:var(--fs-caption)}
 .mount-poi-tree-row .mount-poi-statuses{gap:10px;padding-top:2px}
 .mount-poi-tree-row .mount-poi-statuses>span{font-size:var(--fs-caption)}
+
+.analysis-archive-head .analysis-camera-heading{display:flex;flex-direction:column;gap:8px}.camera-detail-identity{display:flex;align-items:center;gap:10px}.camera-detail-identity .personal-camera-id{margin:0}.analysis-camera-heading .analysis-camera-installation{margin:0}.camera-governance-note{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:12px 0;color:var(--text-secondary);font-size:var(--fs-caption)}.camera-governance-note strong{color:var(--text-primary)}
