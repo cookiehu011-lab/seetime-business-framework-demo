@@ -12,7 +12,7 @@
  projectOverviewPage=function(){
   const p=currentProject();if(!permitted())return noPermission();
   if(p.id!=='hz-public')return '<div class="page-heading"><h1>项目运营看板</h1></div><section class="box empty"><h2>此项目尚未配置看板示例数据</h2><p>当前仅杭州市公共空间项目提供独立运营示例；此提示不代表项目没有相机。</p>'+links.filter(([route])=>can(route)).map(([route,label])=>routeButton(label,route)).join(' ')+'</section>';
-  return '<iframe id="project-dashboard-frame" data-project="'+esc(p.id)+'" title="项目运营看板 · 独立示例" src="project-dashboard/index.html?embed=1&v=20261109" style="display:block;width:100%;height:calc(100dvh - 105px);min-height:520px;border:0"></iframe>';
+  return '<iframe id="project-dashboard-frame" data-project="'+esc(p.id)+'" title="项目运营看板 · 独立示例" src="project-dashboard/index.html?embed=1&v=20261110-filter2" style="display:block;width:100%;height:calc(100dvh - 105px);min-height:520px;border:0"></iframe>';
  };
  const style=document.createElement('style');style.textContent='.page:has(#project-dashboard-frame){max-width:none;padding:12px 16px 0}.page:has(#project-dashboard-frame)>.page-foot{display:none}';document.head.append(style);
  const previousRender=render;
