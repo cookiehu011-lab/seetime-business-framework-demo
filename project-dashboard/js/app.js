@@ -80,7 +80,7 @@ function applyPeriod(start,end){
 }
 document.addEventListener('submit',e=>{if(e.target.id==='period-filter'){e.preventDefault();applyPeriod($('#period-start').value,$('#period-end').value);}});
 function toast(s){$('#toast').textContent=s;$('#toast').classList.add('visible');setTimeout(()=>$('#toast').classList.remove('visible'),2500);}
-function filterNotice(){const changed=$('#source').value!==state.source;$('#filter-message').textContent=changed?'条件尚未应用，点击查询更新全部模块':'来源作用于全部模块；时间仅作用于周期表现。';$('#filter-message').classList.toggle('amber',changed);}
+function filterNotice(){const changed=$('#source').value!==state.source;$('#filter-message').textContent=changed?'条件尚未应用，点击查询更新全部模块':'';$('#filter-message').hidden=!changed;$('#filter-message').classList.toggle('amber',changed);}
 $('#source').onchange=filterNotice;
 $('#filters').onsubmit=e=>{e.preventDefault();state.source=$('#source').value;render();};
 $('#reset').onclick=()=>{state.source='';$('#source').value='';$('#source').onchange();render();};
