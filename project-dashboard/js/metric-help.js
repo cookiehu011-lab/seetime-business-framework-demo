@@ -9,9 +9,10 @@ const MetricHelp = (() => {
     governed:'已完成治理的相机。转化率 = 已治理 ÷ 已接入。',
     pending:'有效治理状态为待治理的相机。',
     unneeded:'无需治理的相机，不计入已治理漏斗。',
+    review:'已完成治理且至少一版有价值，存在基础信息错误反馈、转动待核验或串流待核验的相机；多项原因按相机去重。',
     impact:'已订阅应用且有异常待排查的相机；多项异常只计 1 台。',
-    mountPending:'已治理、有价值且已订阅个人版，但未确认 POI 挂载的相机。',
-    configPending:'已订阅治理版，但尚未启用检测配置的相机。',
+    mountPending:'已治理、基本信息可用、个人版有价值，但尚未挂载的相机。',
+    configPending:'已治理、基本信息可用、治理版有价值，但尚未完成检测配置的相机。',
     bothNo:'已治理且对两版均无价值的相机，与单版无价值数不相加。',
     personalOnly:'仅订阅个人版、未订阅治理版的相机。',
     governanceOnly:'仅订阅治理版、未订阅个人版的相机。',
@@ -26,8 +27,8 @@ const MetricHelp = (() => {
     rotation:'检测到可能转动、尚待核验的相机。',
     mounted:'个人版已确认 POI 挂载的相机。挂载多个 POI 仍只计 1 台。',
     configured:'已订阅治理版并启用检测的相机。',
-    personal:'全部个人版订阅相机，包含漏斗外订阅。',
-    governance:'全部治理版订阅相机，包含漏斗外订阅。'
+    personal:'完成治理、个人版有价值且挂载成功后开始订阅的相机。',
+    governance:'完成治理、治理版有价值且配置完成后开始订阅的相机。'
   };
   for (const [key,label] of [['personal','个人版'],['governance','治理版']]) {
     descriptions[key+'Value']=`已治理且对${label}有价值的相机；占比以已治理数为分母。`;
@@ -35,7 +36,7 @@ const MetricHelp = (() => {
     descriptions[key+'No']=`已治理范围内，明确判定对${label}无价值的相机。不包含待评估。`;
     descriptions[key+'Unknown']=`已治理范围内，尚未形成${label}有效价值结论的相机。`;
     descriptions[key+'Gap']=`已治理且对${label}有价值，但未订阅该应用的相机。`;
-    descriptions[key+'Outside']=`已订阅${label}，但未满足已治理、有价值条件的相机。`;
+    descriptions[key+'Outside']=`已订阅${label}，但未满足已治理、有价值及挂载成功或配置完成条件的相机。`;
     const ready=key==='personal'?'已挂载':'已启用检测';
     descriptions[key+'Running']=`${ready}、在线且无当前异常的相机（模拟运行口径）。`;
     descriptions[key+'Abnormal']=`${label}${ready}且存在当前异常的相机，多项异常按相机去重。`;

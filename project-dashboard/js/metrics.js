@@ -1,23 +1,25 @@
 const Metrics = (() => {
   const pct=(n,d)=>d?`${(n/d*100).toFixed(1)}%`:'—';
+  const reviewReasons=c=>[...(c.basicInfoUsable===false?['基础信息错误反馈']:[]),...c.issues.filter(x=>['转动待核验','串流待核验'].includes(x))];
   function groups(rows){
     const g={all:rows};
     const select=(key,fn)=>g[key]=rows.filter(fn);
     select('governed',c=>c.gov==='已治理'); select('pending',c=>c.gov==='待治理'); select('unneeded',c=>c.gov==='无需治理');
     for(const app of ['personal','governance']){
       select(`${app}Value`,c=>c.gov==='已治理'&&c[`${app}Value`]==='有价值');
-      select(`${app}Funnel`,c=>c.gov==='已治理'&&c[`${app}Value`]==='有价值'&&c[app]);
+      select(`${app}Funnel`,c=>c.gov==='已治理'&&c[`${app}Value`]==='有价值'&&c[app]&&c[app==='personal'?'mounted':'configured']);
       select(`${app}No`,c=>c.gov==='已治理'&&c[`${app}Value`]==='无价值');
       select(`${app}Unknown`,c=>c.gov==='已治理'&&c[`${app}Value`]==='待评估');
       select(`${app}Gap`,c=>c.gov==='已治理'&&c[`${app}Value`]==='有价值'&&!c[app]);
-      select(`${app}Outside`,c=>c[app]&&!(c.gov==='已治理'&&c[`${app}Value`]==='有价值'));
+      select(`${app}Outside`,c=>c[app]&&!(c.gov==='已治理'&&c[`${app}Value`]==='有价值'&&c[app==='personal'?'mounted':'configured']));
       select(app,c=>c[app]);
     }
     select('bothNo',c=>c.gov==='已治理'&&c.personalValue==='无价值'&&c.governanceValue==='无价值');
     select('personalOnly',c=>c.personal&&!c.governance);select('governanceOnly',c=>c.governance&&!c.personal);select('both',c=>c.personal&&c.governance);select('neither',c=>!c.personal&&!c.governance);
     select('impact',c=>c.issues.length&&(c.personal||c.governance));
-    select('mountPending',c=>c.gov==='已治理'&&c.personalValue==='有价值'&&c.personal&&!c.mounted);
-    select('configPending',c=>c.governance&&!c.configured);
+    select('mountPending',c=>c.gov==='已治理'&&c.personalValue==='有价值'&&c.basicInfoUsable!==false&&!c.mounted);
+    select('configPending',c=>c.gov==='已治理'&&c.governanceValue==='有价值'&&c.basicInfoUsable!==false&&!c.configured);
+    select('review',c=>c.gov==='已治理'&&(c.personalValue==='有价值'||c.governanceValue==='有价值')&&reviewReasons(c).length);
     select('online',c=>c.online==='在线');select('offline',c=>c.online==='离线');select('unknown',c=>c.online==='未知');
     select('stream',c=>c.issues.includes('拉流异常'));select('quality',c=>c.issues.includes('画面异常'));select('stale',c=>c.issues.includes('截帧超时'));select('rotation',c=>c.issues.includes('转动待核验'));
     select('mounted',c=>c.mounted);select('configured',c=>c.configured);select('personalRunning',c=>c.mounted&&!c.issues.length&&c.online==='在线');select('governanceRunning',c=>c.configured&&!c.issues.length&&c.online==='在线');select('personalUnknownRun',c=>c.mounted&&!c.issues.length&&c.online!=='在线');select('governanceUnknownRun',c=>c.configured&&!c.issues.length&&c.online!=='在线');select('personalAbnormal',c=>c.mounted&&c.issues.length);select('governanceAbnormal',c=>c.configured&&c.issues.length);
@@ -73,5 +75,5 @@ const Metrics = (() => {
       return r;
     });
   }
-  return {pct,groups,series,range,tasks};
+  return {pct,groups,series,range,tasks,reviewReasons};
 })();
