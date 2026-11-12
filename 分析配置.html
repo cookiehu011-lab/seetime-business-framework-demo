@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
+<meta name="color-scheme" content="light">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>分析配置 · SeeTime</title>
 <style>
-:root{color-scheme:dark;--bg:#0a1321;--panel:#101d2d;--input:#0c1725;--line:#2a4158;--line-soft:#23364a;--text:#edf4ff;--muted:#a7b9cf;--subtle:#8ba3bc;--accent:#4ce2f7;--accent-bg:#123448;--good:#6ce7ad;--warn:#ffd28b;--danger:#ffa9ab;--radius:9px}
+:root{color-scheme:light;--bg:#f5f7fa;--panel:#ffffff;--input:#ffffff;--line:#f8fafc;--line-soft:#f8fafc;--text:#edf4ff;--muted:#a7b9cf;--subtle:#2563eb;--accent:#0ea5e9;--accent-bg:#f8fafc;--good:#10b981;--warn:#f59e0b;--danger:#ef4444;--radius:9px}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.55 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
 button,input,select,textarea{font:inherit}
@@ -13,18 +14,18 @@ button,input,select,textarea{min-height:38px;border:1px solid var(--line);border
 input,select,textarea{width:100%;padding:8px 11px}
 textarea{resize:vertical;line-height:1.7}
 button{padding:7px 13px;cursor:pointer;white-space:nowrap}
-button:hover:not(:disabled){background:#192f44;border-color:#537a96}
+button:hover:not(:disabled){background:#ffffff;border-color:#2563eb}
 button:disabled{opacity:.45;cursor:default}
 :focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 ::placeholder{color:var(--subtle)}
 h1,h2,h3,p{margin:0}
 a{color:var(--accent)}
-.topbar{min-height:62px;padding:10px 24px;display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--line-soft);background:#0e1928}
+.topbar{min-height:62px;padding:10px 24px;display:flex;align-items:center;gap:22px;border-bottom:1px solid var(--line-soft);background:#ffffff}
 .brand{display:flex;align-items:center;gap:9px;font-size:22px;font-weight:700;line-height:1;letter-spacing:-.8px;white-space:nowrap}
 .brand svg{width:30px;height:30px;color:var(--accent)}
 .scope-nav{display:flex;gap:5px;border-left:1px solid var(--line);padding-left:16px}
 .scope-nav button{background:transparent;border-color:transparent;color:var(--muted)}
-.scope-nav button[aria-current=page]{background:var(--accent-bg);border-color:#35647c;color:var(--accent)}
+.scope-nav button[aria-current=page]{background:var(--accent-bg);border-color:#bfdbfe;color:var(--accent)}
 .scope-path{margin-bottom:6px;color:var(--subtle);font-size:12px}
 .local{margin-left:auto;white-space:nowrap}
 .page{width:100%;margin:auto;padding:16px 24px 18px}
@@ -34,7 +35,7 @@ h1{font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.02em}
 .tabs{display:flex;gap:19px;border-bottom:1px solid var(--line);margin-bottom:18px}
 .tabs button{border:0;border-radius:0;background:none;padding:11px 10px 9px;color:var(--muted);border-bottom:3px solid transparent}
 .tabs button[aria-selected=true]{border-bottom-color:var(--accent);color:var(--accent);font-weight:600}
-.tabs button:hover:not(:disabled){background:#122538;border-bottom-color:var(--accent)}
+.tabs button:hover:not(:disabled){background:#ffffff;border-bottom-color:var(--accent)}
 .box{border:1px solid var(--line);background:var(--panel);border-radius:var(--radius);min-width:0}
 .toolbar{display:flex;align-items:end;gap:12px;padding:13px 15px;margin-bottom:17px;flex-wrap:wrap}
 .control{display:grid;gap:4px;color:var(--muted);font-size:12px;min-width:0}
@@ -46,10 +47,10 @@ h1{font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.02em}
 .segment button{border-radius:0;border-right-width:0;padding-inline:11px}
 .segment button:first-child{border-radius:7px 0 0 7px}
 .segment button:last-child{border-right-width:1px;border-radius:0 7px 7px 0}
-.segment button[aria-pressed=true]{background:var(--accent-bg);color:var(--accent);box-shadow:inset 0 0 0 1px #36839a}
-.primary{background:var(--accent);border-color:var(--accent);color:#052130;font-weight:700}
-.primary:hover:not(:disabled){background:#84edfc;border-color:#84edfc}
-.secondary{color:var(--accent);border-color:#376781}
+.segment button[aria-pressed=true]{background:var(--accent-bg);color:var(--accent);box-shadow:inset 0 0 0 1px #0ea5e9}
+.primary{background:var(--accent);border-color:var(--accent);color:#0f172a;font-weight:700}
+.primary:hover:not(:disabled){background:#0ea5e9;border-color:#0ea5e9}
+.secondary{color:var(--accent);border-color:#bfdbfe}
 .text-button{min-height:32px;padding:4px 7px;background:none;border-color:transparent;color:var(--accent)}
 .danger{color:var(--danger)}
 .clear{align-self:end}
@@ -65,17 +66,17 @@ h1{font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.02em}
 .lib-row[aria-current=true]{border-left-color:var(--accent);background:var(--accent-bg)}
 .lib-row strong,.lib-row small{display:block;overflow-wrap:anywhere}
 .lib-row small{color:var(--subtle);margin-top:3px;font-size:12px}
-.badge{display:inline-flex;gap:5px;align-items:center;vertical-align:middle;border:1px solid #3a536d;border-radius:5px;padding:2px 7px;font-size:12px;line-height:1.4;color:var(--muted);background:#132338;white-space:nowrap}
-.badge.good{background:#102c27;border-color:#2b6854;color:var(--good)}
-.badge.warn{background:#2b2418;border-color:#6c5432;color:var(--warn)}
-.badge.cyan{background:#112c3c;border-color:#35647c;color:var(--accent)}
+.badge{display:inline-flex;gap:5px;align-items:center;vertical-align:middle;border:1px solid #bfdbfe;border-radius:5px;padding:2px 7px;font-size:12px;line-height:1.4;color:var(--muted);background:#ffffff;white-space:nowrap}
+.badge.good{background:#ffffff;border-color:#a7f3d0;color:var(--good)}
+.badge.warn{background:#fffbeb;border-color:#fde68a;color:var(--warn)}
+.badge.cyan{background:#ffffff;border-color:#bfdbfe;color:var(--accent)}
 .editor{padding:17px 21px 20px;min-height:470px}
 .edit-head{display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:12px;margin-bottom:11px}
 .edit-head h2{font-size:23px;line-height:1.3;overflow-wrap:anywhere}
 .meta{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-top:6px;font-size:13px;color:var(--muted)}
 .editor .tabs{margin-bottom:15px}
 .doc,.trial pre{white-space:pre-wrap;overflow-wrap:anywhere}
-.doc{margin:0;background:#0b1624;border:1px solid var(--line-soft);border-radius:7px;padding:16px 18px;font-size:14px;line-height:1.85;min-height:220px}
+.doc{margin:0;background:#ffffff;border:1px solid var(--line-soft);border-radius:7px;padding:16px 18px;font-size:14px;line-height:1.85;min-height:220px}
 .doc-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:8px;color:var(--subtle);font-size:12px}
 .doc-head h3{color:var(--text)}
 .form-stack{display:grid;gap:13px}
@@ -83,16 +84,16 @@ h1{font-size:30px;line-height:1.25;font-weight:700;letter-spacing:.02em}
 .actionbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:14px}
 .hint{font-size:12px;color:var(--subtle)}
 .actionbar .hint{flex:1 1 210px}
-.trial{margin-top:13px;border:1px solid #2c566d;border-radius:7px;padding:12px 14px;background:#0d2030}
-.trial pre{font-size:13px;margin:9px 0 0;color:#c9e7f7}
+.trial{margin-top:13px;border:1px solid #bfdbfe;border-radius:7px;padding:12px 14px;background:#ffffff}
+.trial pre{font-size:13px;margin:9px 0 0;color:#0f172a}
 .table-wrap{overflow:auto}
 table{width:100%;border-collapse:collapse;text-align:left}
 th,td{padding:11px 13px;border-bottom:1px solid var(--line-soft);vertical-align:middle}
-th{font-weight:600;font-size:12px;color:var(--muted);background:#0d1928;white-space:nowrap}
+th{font-weight:600;font-size:12px;color:var(--muted);background:#ffffff;white-space:nowrap}
 tbody tr:last-child td{border-bottom:0}
 td{overflow-wrap:anywhere}
 td:last-child.actions{text-align:right;white-space:nowrap}
-.row-current{background:#102738}
+.row-current{background:#ffffff}
 .history-scroll{max-height:375px;overflow:auto;border:1px solid var(--line-soft);border-radius:7px}
 .history-scroll thead{position:sticky;top:0}
 .history-head{display:flex;align-items:end;gap:12px;margin-bottom:11px}
@@ -106,8 +107,8 @@ td:last-child.actions{text-align:right;white-space:nowrap}
 .tags .actions svg{width:16px;height:16px;vertical-align:middle}
 .tags .actions .text-button{min-width:34px}
 footer{font-size:12px;color:var(--subtle);margin-top:16px}
-dialog{border:1px solid #41617a;border-radius:11px;width:min(520px,calc(100% - 28px));max-height:calc(100dvh - 36px);padding:0;background:var(--panel);color:var(--text);box-shadow:0 14px 60px #0008}
-dialog::backdrop{background:#050b14b8}
+dialog{border:1px solid #bfdbfe;border-radius:11px;width:min(520px,calc(100% - 28px));max-height:calc(100dvh - 36px);padding:0;background:var(--panel);color:var(--text);box-shadow:0 14px 60px #0f172a88}
+dialog::backdrop{background:#ffffffb8}
 .dialog-head,.dialog-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 18px}
 .dialog-head{border-bottom:1px solid var(--line-soft)}
 .dialog-head h2{font-size:17px}
@@ -118,7 +119,7 @@ dialog::backdrop{background:#050b14b8}
 .error:empty{display:none}
 .impact{border:1px solid var(--line-soft);border-radius:7px;background:var(--input);padding:10px 12px;color:var(--muted)}
 .impact strong{color:var(--text)}
-#toast{position:fixed;bottom:22px;right:22px;max-width:calc(100% - 44px);background:#123147;border:1px solid #35677d;border-radius:8px;padding:9px 14px;box-shadow:0 8px 30px #0006;z-index:2}
+#toast{position:fixed;bottom:22px;right:22px;max-width:calc(100% - 44px);background:#ffffff;border:1px solid #bae6fd;border-radius:8px;padding:9px 14px;box-shadow:0 8px 30px #0f172a66;z-index:2}
 @media(max-width:1000px){.page{padding-inline:21px}.toolbar{gap:9px}.workspace{grid-template-columns:220px minmax(0,1fr)}}
 @media(max-width:730px){.page{padding:18px 13px 24px}.topbar{padding-inline:13px;gap:9px}.brand{font-size:18px}.brand svg{width:22px}.scope-nav{padding-left:6px;gap:2px}.scope-nav button{padding-inline:7px;font-size:12px}.workspace{grid-template-columns:1fr;gap:11px}.lib-list{max-height:220px}.editor{padding:13px;min-height:0}.doc{padding:12px}.toolbar{padding:10px}.toolbar .task,.toolbar .narrow{flex:1 1 105px}.toolbar .search{flex-basis:125px}.lib-head{padding:10px 13px}.edit-head h2{font-size:21px}.history-head{align-items:start;flex-direction:column}.history-head .hint{padding-bottom:0}}
 @media(max-width:405px){.heading p{font-size:13px}.heading h1{font-size:26px}.scope-nav button{font-size:11px}.local{font-size:11px}.form-grid{grid-template-columns:1fr}.tabs{gap:8px}.tabs button{padding-inline:7px}.actionbar .spacer{margin-left:0}}
@@ -132,13 +133,13 @@ dialog::backdrop{background:#050b14b8}
 .prompt-page .edit-head h2{font-size:20px}
 .prompt-page .lib-row{padding-block:16px}
 .prompt-page .lib-list{max-height:calc(100dvh - 335px)}
-.prompt-input{border:1px solid #365269;border-radius:8px;overflow:hidden;background:#0b1624}
+.prompt-input{border:1px solid #bfdbfe;border-radius:8px;overflow:hidden;background:#ffffff}
 .input-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 12px;border-bottom:1px solid var(--line-soft);font-weight:600}
 .input-toolbar small{font-size:12px;color:var(--subtle);font-weight:400;margin-left:10px}
 .prompt-input textarea{display:block;border:0;border-radius:0;padding:16px 18px;min-height:180px;height:clamp(260px,calc(100dvh - 600px),750px);background:transparent;line-height:1.85;resize:vertical;font-size:14px}
 .prompt-input textarea:focus-visible{outline-offset:-2px}
 .input-foot{display:flex;justify-content:space-between;padding:5px 13px;font-size:12px;color:var(--subtle);border-top:1px solid var(--line-soft)}
-.prompt-input.expanded{position:fixed;inset:18px;z-index:10;display:flex;flex-direction:column;box-shadow:0 0 0 30px #050c17ed}
+.prompt-input.expanded{position:fixed;inset:18px;z-index:10;display:flex;flex-direction:column;box-shadow:0 0 0 30px #0f172aed}
 .prompt-input.expanded textarea{flex:1;height:auto;resize:none;min-height:0}
 body.editor-expanded{overflow:hidden}
 @media(max-width:730px){.prompt-page .workspace{grid-template-columns:1fr;min-height:0}.prompt-page .lib-list{max-height:200px}.prompt-page .editor{padding:13px}.prompt-input textarea{height:300px;padding:12px}.input-toolbar{flex-wrap:wrap}.input-toolbar small{display:block;margin-left:0}.prompt-input.expanded{inset:8px}}
@@ -164,6 +165,27 @@ body.embedded .dialog-foot{justify-content:flex-end}
 body.embedded.tag-library .heading p{font-size:12px}
 .tag-pagination button{min-height:30px;font-size:12px}
 .tag-library .tags .table-wrap{max-height:calc(100dvh - 280px);min-height:180px;overflow:auto}.tag-library .tags th{position:sticky;top:0;background:var(--panel);z-index:1}.tag-library .tags td{padding-block:10px}
+.tag-category-nav{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line-soft);background:#F8FAFC}
+.tag-category-nav a,.tag-category-nav button{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#334155;font-size:13px;font-weight:500;text-decoration:none;box-shadow:none}
+.tag-category-nav a b,.tag-category-nav button b{color:#2563EB;font-weight:600}
+.tag-category-nav a:hover,.tag-category-nav button:hover{border-color:#BFDBFE;background:#EFF6FF}
+.tag-category-nav a.is-current,.tag-category-nav button.is-current{border-color:#2563EB;background:#EFF6FF;color:#2563EB;font-weight:600;box-shadow:inset 0 0 0 1px #BFDBFE}
+.tag-category-nav a.is-current b{color:#2563EB}
+.tag-group.is-current{background:#F8FAFC}
+.tag-group.is-current h2{color:#2563EB}
+.tag-group{padding:16px 16px 12px;border-top:1px solid #F1F5F9}
+.tag-group header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.tag-group h2{margin:0;font-size:15px;font-weight:600;color:#0F172A}
+.tag-group header span{color:#64748B;font-size:12px}
+.tag-chip-grid{display:flex;flex-wrap:wrap;gap:8px}
+.tag-chip{display:flex;align-items:center;gap:8px;min-height:40px;padding:4px 6px 4px 12px;border:1px solid #E5E7EB;border-radius:8px;background:#fff}
+.tag-chip.is-off{background:#F8FAFC}
+.tag-chip.is-off strong{color:#64748B;font-weight:500}
+.tag-chip-main{display:flex;align-items:center;gap:8px;min-width:0}
+.tag-chip-main strong{color:#0F172A;font-size:14px;font-weight:600}
+.tag-chip .hint{color:#64748B;font-size:12px;white-space:nowrap}
+.tag-chip .actions{display:flex;align-items:center}
+.tag-chip .actions svg{width:16px;height:16px}
 @media(max-width:730px){body.embedded .tags-summary{align-items:flex-start;flex-direction:column}body.embedded .tags-summary .hint{text-align:left}.tags .actions{white-space:nowrap}}
 </style>
 </head>
@@ -256,7 +278,7 @@ window.SeeTimeConfig={dirty:()=>draftDirty()||byId('dialog').open,requestLeave:a
 const state = {
   page:new URLSearchParams(location.search).get('page')==='tags'?'tags':'prompts', app:'个人版', task:'', name:'', version:'',
   promptId:data.prompts[0]?.id, detail:'body', viewed:'', historyQuery:'',
-  tagName:'', tagCategory:'', tagStatus:'', tagPage:1,
+  tagName:'', tagCategory:'', tagStatus:'', tagPage:1, tagFocus:'',
   trial:null
 };
 let toastTimer;
@@ -425,9 +447,12 @@ function tagRows() {
 const pencil='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m14 5 5 5M4 20l5-.9L20 8l-4-4L5 15z"/></svg>';
 const trash='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg>';
 function renderTags() {
-  const rows=tagRows(),pages=Math.max(1,Math.ceil(rows.length/20));
-  state.tagPage=Math.min(state.tagPage,pages);
-  const visible=rows.slice((state.tagPage-1)*20,state.tagPage*20);
+  const rows=tagRows();
+  const order=[...data.categories];
+  rows.forEach(t=>{if(t.category&&!order.includes(t.category))order.push(t.category)});
+  const groups=order.map(category=>({category,tags:rows.filter(t=>t.category===category)})).filter(group=>group.tags.length);
+  const current=groups.some(group=>group.category===state.tagFocus)?state.tagFocus:(groups.length===1?groups[0].category:'');
+  const card=t=>`<article class="tag-chip ${t.enabled?'':'is-off'}"><div class="tag-chip-main"><strong>${e(t.name)}</strong><span class="tag-status ${t.enabled?'on':''}">${t.enabled?'启用':'停用'}</span><span class="hint">引用 ${t.references||0}</span></div><div class="actions"><button type="button" class="text-button" title="编辑标签" aria-label="编辑标签 ${e(t.name)}" data-action="edit-tag" data-value="${e(t.id)}">${pencil}</button>${btn(t.enabled?'停用':'启用','toggle-tag','text-button',t.id)}<button type="button" class="text-button danger" title="${t.references?'已引用，请使用停用':'删除标签'}" aria-label="删除标签 ${e(t.name)}" data-action="delete-tag" data-value="${e(t.id)}" ${t.references?'disabled':''}>${trash}</button></div></article>`;
   return `<div class="box toolbar">
     ${search('标签名称','tagName',state.tagName,'搜索标签名称')}
     ${select('标签分类','tagCategory',data.categories,state.tagCategory,'全部分类')}
@@ -435,12 +460,8 @@ function renderTags() {
     ${state.tagName||state.tagCategory||state.tagStatus?btn('重置','clear-tags','text-button'):''}
     ${btn('管理分类','categories','secondary spacer')} ${btn('＋ 新增标签','new-tag','primary')}
   </div>
-  <section class="box tags"><div class="tags-summary"><b>标签列表 <span class="hint">${rows.length} 条</span></b><span class="hint">停用后从可选词库移除，停用或改名不改变历史相机标签。</span></div>
-  ${rows.length?`<div class="table-wrap"><table><thead><tr><th>标签名称</th><th>标签分类</th><th>状态</th><th>引用次数 <span class="hint">（本机示例）</span></th><th style="text-align:right">操作</th></tr></thead><tbody>
-    ${visible.map(t=>`<tr><td><b>${e(t.name)}</b></td><td>${e(t.category)}</td><td><span class="tag-status ${t.enabled?'on':''}">● ${t.enabled?'启用':'停用'}</span></td><td class="hint">${t.references||0}</td>
-      <td class="actions"><button type="button" class="text-button" title="编辑标签" aria-label="编辑标签 ${e(t.name)}" data-action="edit-tag" data-value="${e(t.id)}">${pencil}</button>
-      ${btn(t.enabled?'停用':'启用','toggle-tag','text-button',t.id)}<button type="button" class="text-button danger" title="${t.references?'已引用，请使用停用':'删除标签'}" aria-label="删除标签 ${e(t.name)}" data-action="delete-tag" data-value="${e(t.id)}" ${t.references?'disabled':''}>${trash}</button></td></tr>`).join('')}
-    </tbody></table></div>`:'<div class="empty"><b>暂无匹配标签</b>调整检索条件，或新增标签。</div>'}<div class="tag-pagination"><span>共 ${rows.length} 条 · 每页 20 条</span><div><button data-action="tag-prev" ${state.tagPage===1?'disabled':''}>上一页</button> <span>${state.tagPage} / ${pages}</span> <button data-action="tag-next" ${state.tagPage===pages?'disabled':''}>下一页</button></div></div></section>`;
+  <section class="box tags"><div class="tags-summary"><b>按分类查看 <span class="hint">${groups.length} 类 · ${rows.length} 个标签</span></b><span class="hint">停用后从可选词库移除，停用或改名不改变历史相机标签。</span></div>
+  ${groups.length?`<nav class="tag-category-nav" aria-label="标签分类">${groups.map(group=>`<button type="button" class="${group.category===current?'is-current':''}" aria-pressed="${group.category===current}" data-action="focus-tag-group" data-value="${e(group.category)}">${e(group.category)}<b>${group.tags.length}</b></button>`).join('')}</nav><div class="tag-groups">${groups.map((group,index)=>`<section class="tag-group ${group.category===current?'is-current':''}" id="tag-group-${index}" data-category="${e(group.category)}"><header><h2>${e(group.category)}</h2><span>${group.tags.length} 个 · 启用 ${group.tags.filter(t=>t.enabled).length}</span></header><div class="tag-chip-grid">${group.tags.map(card).join('')}</div></section>`).join('')}</div>`:'<div class="empty"><b>暂无匹配标签</b>调整检索条件，或新增标签。</div>'}</section>`;
 }
 function render({keepFocus=false}={}) {
   const active=document.activeElement;
@@ -598,8 +619,8 @@ function rollback(p,v) {
 function editTag(t) {
   let continueAdding=false;
   openDialog(t?'编辑标签':'新增标签',`
-    ${control('标签名称',`<input name="name" required maxlength="30" value="${e(t?.name||'')}" placeholder="例如：步行入口">`)}
-    ${control('标签分类',`<select name="category">${data.categories.map(x=>option(x,x,t?.category||state.tagCategory||'未分类')).join('')}</select>`)}`,
+    ${control('标签分类',`<select name="category">${data.categories.map(x=>option(x,x,t?.category||state.tagCategory||'未分类')).join('')}</select>`)}
+    ${control('标签名称',`<input name="name" required maxlength="30" value="${e(t?.name||'')}" placeholder="例如：步行入口">`)}`,
     '保存标签',({name,category})=>{
       name=name.trim();
       if(!name) return '请输入标签名称。';
@@ -644,7 +665,7 @@ function toggleTag(t) {
   } else { t.enabled=true; save('标签已启用');if(storageFailed)t.enabled=false; render(); }
 }
 function clearTagFilters() {
-  Object.assign(state,{tagName:'',tagCategory:'',tagStatus:'',tagPage:1});
+  Object.assign(state,{tagName:'',tagCategory:'',tagStatus:'',tagPage:1,tagFocus:''});
 }
 function draftDirty() {
   if(storageFailed)return true;
@@ -715,6 +736,7 @@ document.addEventListener('click',event=>{
     case 'delete-tag': deleteTag(data.tags.find(t=>t.id===value));break;
     case 'tag-prev': state.tagPage--;render();break;
     case 'tag-next': state.tagPage++;render();break;
+    case 'focus-tag-group': state.tagFocus=value;render();document.querySelector('.tag-group.is-current')?.scrollIntoView({block:'start',behavior:'smooth'});break;
     case 'clear-tags': clearTagFilters();render();break;
     case 'new-tag': editTag();break;
     case 'edit-tag': editTag(data.tags.find(t=>t.id===value));break;
@@ -728,5 +750,13 @@ window.addEventListener('beforeunload',event=>{
 });
 render();
 </script>
+
+<link rel="stylesheet" href="seetime-design-tokens.css">
+<link rel="stylesheet" href="seetime-light.css?v=20261112-light8">
+<style>
+.tag-category-nav button.is-current{border-color:#2563EB !important;background:#EFF6FF !important;color:#2563EB !important;font-weight:600;box-shadow:none !important}
+.tag-group.is-current{background:#F8FAFC;box-shadow:inset 3px 0 0 #2563EB}
+.tag-group.is-current h2{color:#2563EB}
+</style>
 </body>
 </html>

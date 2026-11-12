@@ -1,0 +1,237 @@
+/*
+ * SeeTime Business Framework — Design Tokens
+ * 设计 Token 文件，全站唯一来源
+ * 用法：在根文件 import 本文件，然后各组件通过 var(--token-name) 引用
+ */
+
+:root {
+
+  /* ============================================================
+   * 1. 中性色（Neutral）
+   * ============================================================ */
+
+  /* 背景层级 */
+  --bg-page:            #F5F7FA;   /* 页面底色（最底层） */
+  --bg-surface:         #F8FAFC;   /* 次级背景、hover 态 */
+  --bg-card:            #FFFFFF;   /* 卡片/容器底色 */
+
+  /* 边框 */
+  --border:             #E5E7EB;   /* 常规边框 */
+  --border-soft:        #F1F5F9;   /* 弱边框、分割线 */
+  --border-hover:       #CBD5E1;   /* hover 态边框 */
+
+  /* 文字（按语义分级） */
+  --text-1:             #0F172A;   /* 一级文字：页面标题、卡片标题、重要数字 */
+  --text-2:             #475569;   /* 二级文字：正文、表单 label、表格内容 */
+  --text-3:             #94A3B8;   /* 三级文字：辅助说明、时间戳、placeholder */
+  --text-inverse:       #FFFFFF;   /* 反白文字（深色按钮上） */
+
+  /* ============================================================
+   * 2. 品牌色（Brand）
+   * ============================================================ */
+
+  /* 主品牌色：蓝青渐变体系 */
+  --primary:            #2563EB;   /* 主色：按钮、激活态、关键操作 */
+  --primary-hover:      #1D4ED8;   /* hover 态 */
+  --primary-pressed:    #1E40AF;   /* 按下态 */
+  --primary-soft:       #EFF6FF;   /* 浅底（用于标签背景、激活菜单项背景） */
+  --primary-border:     #BFDBFE;   /* 浅边框 */
+
+  /* 渐变组合 */
+  --gradient-primary:   linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+  --gradient-logo:      linear-gradient(135deg, #2563EB 0%, #0EA5E9 100%);
+
+  /* 青色点缀 */
+  --accent-cyan:        #0EA5E9;
+
+  /* ============================================================
+   * 3. 业务链色（Chain Colors）
+   * 用于区分两条不同的业务流，与主品牌色同属冷色系，不冲突
+   * ============================================================ */
+
+  /* 业务链 A：个人版（青蓝系） */
+  --chain-a:            #0EA5E9;
+  --chain-a-soft:       #F0F9FF;
+  --chain-a-border:     #BAE6FD;
+
+  /* 业务链 B：治理版（翠绿系） */
+  --chain-b:            #10B981;
+  --chain-b-soft:       #ECFDF5;
+  --chain-b-border:     #A7F3D0;
+
+  /* ============================================================
+   * 4. 功能色（Semantic）
+   * ============================================================ */
+
+  --success:            #10B981;
+  --success-soft:       #ECFDF5;
+  --success-border:     #A7F3D0;
+  --warning:            #F59E0B;
+  --warning-soft:       #FFFBEB;
+  --warning-border:     #FDE68A;
+  --danger:             #EF4444;
+  --danger-soft:        #FEF2F2;
+  --danger-border:      #FECACA;
+  --info:               #0EA5E9;
+  --info-soft:          #F0F9FF;
+  --info-border:        #BAE6FD;
+
+  /* ============================================================
+   * 5. 字体（Typography）
+   * ============================================================ */
+
+  --font-family:        -apple-system, BlinkMacSystemFont, "PingFang SC",
+                        "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+  --font-mono:          "SF Mono", "Menlo", "Monaco", "Consolas", monospace;
+
+  /* 字号（1px = 1/16rem，括号内为使用场景） */
+  --fs-11:  11px;   /* 英文标签、徽章、页脚小字 */
+  --fs-12:  12px;   /* 辅助说明、卡片副标题、时间戳、表单提示 */
+  --fs-13:  13px;   /* 按钮文字、表格内容、顶栏操作、面包屑、链名 */
+  --fs-14:  14px;   /* 正文、菜单项、表单输入、描述段落（body 默认） */
+  --fs-15:  15px;   /* 卡片标题、步骤标题、链卡片标题 */
+  --fs-16:  16px;   /* 小节标题、区块标题 */
+  --fs-18:  18px;   /* Logo 文字 */
+  --fs-20:  20px;   /* 流程容器标题 */
+  --fs-24:  24px;   /* 页面主标题 */
+
+  /* 字重 */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+
+  --tracking-tight: -0.02em;
+  --tracking-wide:   0.08em;
+
+  /* 行高（配合字号） */
+  --lh-tight:    1.3;    /* 标题、短标签 */
+  --lh-normal:   1.5;    /* 正文默认 */
+  --lh-relaxed:  1.6;    /* 描述性段落、卡片说明 */
+
+  /* ============================================================
+   * 6. 间距（Spacing）
+   * 基于 4px 网格
+   * ============================================================ */
+
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  28px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* 页面级间距 */
+  --page-padding:          24px;   /* 内容区左右内边距 */
+  --section-gap:           24px;   /* 区块之间的间距 */
+  --block-gap:             16px;   /* 同区块内卡片之间 */
+
+  /* ============================================================
+   * 7. 圆角（Radius）
+   * ============================================================ */
+
+  --radius-xs:   4px;    /* 极小元素：徽章、标签 */
+  --radius-sm:   6px;    /* 小按钮、输入框、菜单项 */
+  --radius-md:   10px;   /* 卡片内元素、头像、Logo icon */
+  --radius-lg:   12px;   /* 主要卡片、容器 */
+  --radius-xl:   16px;   /* 大面板（预留） */
+  --radius-full: 50%;    /* 圆形：头像、状态指示器 */
+
+  /* ============================================================
+   * 8. 阴影（Shadow）
+   * 浅色后台阴影要"隐形"，用低透明度 + 深色投下
+   * ============================================================ */
+
+  --shadow-none:    none;
+  --shadow-1:       0 1px 2px rgba(15, 23, 42, 0.04);    /* 默认卡片阴影（极淡） */
+  --shadow-2:       0 4px 12px rgba(15, 23, 42, 0.08);   /* hover 态阴影 */
+  --shadow-3:       0 8px 24px rgba(15, 23, 42, 0.12);   /* 弹层/下拉阴影 */
+  --shadow-btn:     0 2px 6px rgba(37, 99, 235, 0.25);  /* 主按钮自带投影 */
+  --overlay-bg:     rgba(15, 23, 42, 0.48);
+
+  /* ============================================================
+   * 9. 布局尺寸（Layout）
+   * ============================================================ */
+
+  --sidebar-width:          240px;
+  --sidebar-collapsed:      64px;
+  --topbar-height:          56px;
+  --content-max-width:      1440px;   /* 内容区最大宽度，超宽屏留白 */
+
+  /* ============================================================
+   * 10. 动画（Motion）
+   * ============================================================ */
+
+  --duration-fast:    120ms;
+  --duration-normal:  200ms;
+  --duration-slow:    320ms;
+  --ease:             cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ============================================================
+   * 11. 组件级 Token（Component）
+   * 高频复用的组件约束集中管理
+   * ============================================================ */
+
+  /* Button */
+  --btn-height-sm:   28px;
+  --btn-height-md:   32px;
+  --btn-height-lg:   38px;
+  --btn-padding-sm:  4px 12px;
+  --btn-padding-md:  6px 16px;
+  --btn-padding-lg:  10px 24px;
+  --btn-radius:      var(--radius-sm);    /* 6px */
+
+  /* Card */
+  --card-padding:        24px;
+  --card-radius:         var(--radius-lg);   /* 12px */
+  --card-border:         1px solid var(--border);
+  --card-shadow:         var(--shadow-1);
+  --card-shadow-hover:   var(--shadow-2);
+
+  /* Input */
+  --input-height:     32px;
+  --input-padding:    0 12px;
+  --input-radius:     var(--radius-sm);
+  --input-border:     1px solid var(--border);
+  --input-border-focus: 1px solid var(--primary);
+
+  /* Tag / Badge */
+  --tag-height:       22px;
+  --tag-padding:      3px 10px;
+  --tag-font:         var(--fs-11);
+
+  /* Avatar */
+  --avatar-sm:        24px;
+  --avatar-md:        32px;
+  --avatar-lg:        40px;
+
+  /* Icon */
+  --icon-xs:          12px;
+  --icon-sm:          14px;
+  --icon-md:          16px;     /* 菜单项、按钮内图标 */
+  --icon-lg:          20px;     /* 空状态图标 */
+  --icon-xl:          24px;
+
+  /* Sidebar Menu Item */
+  --menu-item-height:   36px;
+  --menu-item-padding:  10px 12px;
+  --menu-item-radius:   var(--radius-sm);
+
+  /* Table */
+  --table-header-bg:    #F8FAFC;
+  --table-header-font:  var(--fs-13);
+  --table-cell-font:    var(--fs-13);
+  --table-row-height:   48px;
+  --table-row-hover:    #F8FAFC;
+  --table-border:       1px solid var(--border-soft);
+
+  /* Step Number（步骤编号徽章） */
+  --step-num-size:    26px;
+  --step-num-font:    var(--fs-12);
+  --step-num-radius:  var(--radius-sm);
+
+}

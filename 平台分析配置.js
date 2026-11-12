@@ -18,7 +18,7 @@
   return `<div class="nav-entry"><button id="module-nav-analysisConfig" class="nav-button ${active?'active':''}" data-route="analysisConfig" aria-label="分析配置" title="分析配置" aria-expanded="${active}">${icon('book')}<span>分析配置</span></button>${active?`<div class="module-subnav" role="group" aria-label="分析配置二级功能">${configSections()}</div>`:''}</div>`;
  };
  const style=document.createElement('style');
- style.textContent='.app-shell.sidebar-collapsed .config-secondary{display:flex}.config-secondary{gap:7px;overflow-x:auto;margin:0 0 16px}.config-secondary .module-section-button{border:1px solid #2c425d;padding:7px 12px}.config-secondary .active{border-color:#4283a0}';
+ style.textContent='.app-shell.sidebar-collapsed .config-secondary{display:flex}.config-secondary{gap:7px;overflow-x:auto;margin:0 0 16px}.config-secondary .module-section-button{border:1px solid #e5e7eb;padding:7px 12px}.config-secondary .active{border-color:#0ea5e9}';
  document.head.appendChild(style);
  const previousRender=render;
  render=function(){
@@ -27,7 +27,7 @@
   const tags=state.tab==='tags';
   const allowed=can('analysisConfig')&&(!tags||can('personalAnalysisConfig'));
   destroyCameraMap();
-  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+(tags?'个人版标签库':'分析配置：个人版与治理版提示词')+'" src="分析配置.html?embed=1&page='+(tags?'tags':'prompts')+'&v=config-nav-20261109" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
+  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+(tags?'个人版标签库':'分析配置：个人版与治理版提示词')+'" src="分析配置.html?embed=1&page='+(tags?'tags':'prompts')+'&v=tag-focus-20261112" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
   const label=tags?'个人版标签库':'提示词管理';
   document.querySelector('.crumb').insertAdjacentHTML('beforeend',icon('chevron')+'<strong aria-current="page">'+label+'</strong>');
   document.title=label+' · 分析配置 · SeeTime';
