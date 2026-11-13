@@ -153,7 +153,7 @@ test('queue outcome persistence failure leaves the stored decision unchanged', (
   load(mapSource, 'putMountQueueDecision', context);
   load(mapSource, 'readMountQueueOutcomes', context);
   load(mapSource, 'saveMountQueueOutcome', context);
-  assert.throws(() => context.saveMountQueueOutcome({ projectId: 'hz-public', id: 'HZ-C01' }, 'basic_feedback', { field: '安装位置', note: '安装位置不符' }), /未能保存/);
+  assert.throws(() => context.saveMountQueueOutcome({ projectId: 'hz-public', id: 'HZ-C01' }, 'basic_feedback', { field: '位置与画面不一致', note: '安装位置不符' }), /未能保存/);
   assert.equal(context.readMountQueueOutcomes()['hz:hz-public:HZ-C01'].reason, '旧记录');
 });
 
@@ -173,7 +173,7 @@ test('queue outcome persistence round-trips a successful decision through local 
   load(mapSource, 'readMountQueueOutcomes', context);
   load(mapSource, 'saveMountQueueOutcome', context);
   load(mapSource, 'isMountQueueOutcomeProcessed', context);
-  const outcome = context.saveMountQueueOutcome({ projectId: 'hz-public', id: 'HZ-C01' }, 'basic_feedback', { field: '安装位置', note: '安装位置与画面不符' });
+  const outcome = context.saveMountQueueOutcome({ projectId: 'hz-public', id: 'HZ-C01' }, 'basic_feedback', { field: '位置与画面不一致', note: '安装位置与画面不符' });
   assert.equal(outcome.status, 'pending_review');
   assert.equal(context.isMountQueueOutcomeProcessed(context.readMountQueueOutcomes()['hz:hz-public:HZ-C01']), true);
 });
@@ -192,12 +192,12 @@ test('basic camera information feedback stays pending review and does not overwr
   const context = {};
   vm.createContext(context);
   load(mapSource, 'buildMountQueueDecision', context);
-  const decision = context.buildMountQueueDecision('basic_feedback', { field: '安装位置', note: '安装位置与画面不符' }, '运营员', '2026-11-05T10:00:00Z');
+  const decision = context.buildMountQueueDecision('basic_feedback', { field: '位置与画面不一致', note: '安装位置与画面不符' }, '运营员', '2026-11-05T10:00:00Z');
   assert.equal(decision.status, 'pending_review');
-  assert.equal(decision.field, '安装位置');
+  assert.equal(decision.field, '位置与画面不一致');
   assert.equal(decision.note, '安装位置与画面不符');
   assert.equal(context.buildMountQueueDecision('no_value', { reason: '  ' }, '运营员', 'now').reason, '');
-  assert.equal(context.buildMountQueueDecision('basic_feedback', { field: '安装位置' }, '运营员', 'now').note, '');
+  assert.equal(context.buildMountQueueDecision('basic_feedback', { field: '位置与画面不一致' }, '运营员', 'now').note, '');
   assert.throws(() => context.buildMountQueueDecision('basic_feedback', { field: '未知字段', note: '待核对' }, '运营员', 'now'), /选择/);
 });
 
@@ -233,9 +233,9 @@ test('camera outcome panel displays processed status while forms open in a dialo
   load(mapSource, 'mountQueueOutcomeActions', context);
   const actions = context.mountQueueOutcomeActions({ id: 'c1' });
   assert.equal(actions, '');
-  context.mountQueueOutcome = () => ({ type: 'basic_feedback', field: '安装位置', note: '安装位置与画面不符', status: 'pending_review' });
+  context.mountQueueOutcome = () => ({ type: 'basic_feedback', field: '位置与画面不一致', note: '安装位置与画面不符', status: 'pending_review' });
   const processed = context.mountQueueOutcomeActions({ id: 'c1' });
-  assert.match(processed, /基础信息反馈已提交/);
+  assert.match(processed, /已打回/);
   assert.match(processed, /安装位置与画面不符/);
   assert.doesNotMatch(processed, /标记相机无价值|反馈相机基础信息/);
   context.mountQueueOutcome = () => null;
@@ -255,7 +255,7 @@ test('camera outcome panel displays processed status while forms open in a dialo
   context.ui.camera.mountOutcomeDraft = { cameraId: 'c1', type: 'basic_feedback' };
   const feedbackForm = context.mountQueueOutcomeDialog({ id: 'c1' });
   assert.match(feedbackForm, /select name="field" required/);
-  assert.match(feedbackForm, /反馈说明（选填）/);
+  assert.match(feedbackForm, /补充说明（选填）/);
   assert.doesNotMatch(feedbackForm, /<textarea[^>]* required/);
 });
 
@@ -270,7 +270,7 @@ test('workflow footer offers feedback at step one and unable to mount at step tw
   vm.createContext(context);
   for (const name of ['mountCanAdvance', 'mountWorkflowRail']) load(mapSource, name, context);
   const first = context.mountWorkflowRail(camera);
-  assert.match(first, /标记相机无价值.*反馈相机基础信息.*下一步：选择 POI/);
+  assert.match(first, /标记相机无价值.*打回.*下一步：选择 POI/);
   assert.doesNotMatch(first, /标记无法挂载/);
   context.ui.camera.workflowStep = 2;
   const second = context.mountWorkflowRail(camera);
@@ -292,7 +292,7 @@ test('camera scene shows the escaped watermark directly below the picture', () =
 
 test('feedback form retains entered details and offers cancel', () => {
   const context = {
-    ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置与画面不符' } } },
+    ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '位置与画面不一致', note: '位置与画面不符' } } },
     mountGovernanceMatches:()=>true,mountProjectCams: () => [{ id: 'c1' }, { id: 'c2' }],
     processed: () => false,
     mountQueueOutcome: () => null,
@@ -311,7 +311,7 @@ test('feedback form retains entered details and offers cancel', () => {
 
 test('terminal outcome confirmation shows the submitted details and keeps them on cancel', () => {
   const context = {
-    ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置与现场不符' } } },
+    ui: { camera: { mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '位置与画面不一致', note: '位置与现场不符' } } },
     mountGovernanceMatches:()=>true,mountProjectCams: () => [{ id: 'c1' }, { id: 'c2', name: '相机 B' }],
     processed: () => false,
     buildMountQueueDecision: (type, values) => ({ type, ...values }),
@@ -322,12 +322,12 @@ test('terminal outcome confirmation shows the submitted details and keeps them o
   load(mapSource, 'cancelMountQueueOutcomeConfirmation', context);
   load(mapSource, 'mountQueueOutcomeConfirmation', context);
   load(mapSource, 'nextQueueCameraAfter', context);
-  context.prepareMountQueueOutcomeConfirmation({ id: 'c1' }, 'basic_feedback', { field: '安装位置', note: '位置与现场不符' });
+  context.prepareMountQueueOutcomeConfirmation({ id: 'c1' }, 'basic_feedback', { field: '位置与画面不一致', note: '位置与现场不符' });
   const draft = context.ui.camera.mountOutcomeDraft;
   assert.equal(draft.confirmOpen, true);
   const markup = context.mountQueueOutcomeConfirmation({ id: 'c1', name: '相机 A' }, draft);
-  assert.match(markup, /确认提交基础信息反馈/);
-  assert.match(markup, /安装位置/);
+  assert.match(markup, /确认打回/);
+  assert.match(markup, /位置与画面不一致/);
   assert.match(markup, /位置与现场不符/);
   assert.match(markup, /确认提交并进入下一台/);
   assert.match(markup, /下一台：相机 B/);
@@ -360,14 +360,14 @@ test('terminal camera actions advance only after save and return to the queue at
   context.finishMountQueueOutcome(cameras[0], 'no_value', {});
   assert.deepEqual(events.slice(0, 3), ['saved:c1', 'select:c2', 'notify:c1->c2']);
   events.length = 0;
-  context.finishMountQueueOutcome(cameras[1], 'basic_feedback', { field: '安装位置' });
+  context.finishMountQueueOutcome(cameras[1], 'basic_feedback', { field: '位置与画面不一致' });
   assert.equal(context.ui.camera.queueOpen, true);
   assert.equal(context.ui.camera.cameraId, '');
   assert.deepEqual(events, ['saved:c2', 'render', 'notify:c2->queue']);
   events.length = 0;
   decisions.delete('c2');
   context.saveMountQueueOutcome = () => { events.push('save-failed'); throw new Error('storage unavailable'); };
-  assert.throws(() => context.finishMountQueueOutcome(cameras[1], 'basic_feedback', { field: '安装位置', note: '需核对' }), /storage unavailable/);
+  assert.throws(() => context.finishMountQueueOutcome(cameras[1], 'basic_feedback', { field: '位置与画面不一致', note: '需核对' }), /storage unavailable/);
   assert.deepEqual(events, ['save-failed']);
   events.length = 0;
   decisions.delete('c2');
@@ -438,7 +438,7 @@ test('leaving after a completed mount does not ask to discard the saved camera',
 test('unsaved terminal camera feedback is protected when leaving the camera', () => {
   const context = {
     ui: {
-      camera: { cameraId: 'c1', entryMode: 'camera', selectedPoiId: '', targetPoiId: '', poiCreateOpen: false, unableOpen: false, reason: '', mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '安装位置', note: '位置不符' } },
+      camera: { cameraId: 'c1', entryMode: 'camera', selectedPoiId: '', targetPoiId: '', poiCreateOpen: false, unableOpen: false, reason: '', mountOutcomeDraft: { cameraId: 'c1', type: 'basic_feedback', field: '位置与画面不一致', note: '位置不符' } },
       analysis: { profileDraft: null, calibration: null }
     },
     mountGovernanceMatches:()=>true,mountProjectCams: () => [{ id: 'c1' }],
@@ -476,7 +476,7 @@ test('POI camera list labels basic-info feedback as pending review', () => {
   vm.createContext(context);
   load(mapSource, 'poiCameraRows', context);
   const markup = context.poiCameraRows([{ id: 'c1', name: '入口相机' }], 'pendingReview', { id: 'p1' });
-  assert.match(markup, /基础信息待复核/);
+  assert.match(markup, /已打回待复核/);
   assert.match(markup, /查看处理记录/);
 });
 

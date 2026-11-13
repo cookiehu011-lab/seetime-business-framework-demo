@@ -1263,6 +1263,71 @@ textarea:focus-visible,
   filter: none;
 }
 
+/* 定位只画这一个圈，不给每一路相机加阴影。 */
+.camera-locate-ring {
+  display: block;
+  width: 36px;
+  height: 36px;
+  box-sizing: border-box;
+  border: 3px solid #F59E0B;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.16);
+  box-shadow: 0 0 0 3px #FFFFFF;
+  pointer-events: none;
+  animation: camera-locate-pulse 0.9s ease-out 2;
+}
+
+@keyframes camera-locate-pulse {
+  0% { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 3px #F59E0B; }
+  70% { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 14px rgba(245, 158, 11, 0); }
+  100% { box-shadow: 0 0 0 3px #FFFFFF, 0 0 0 3px #F59E0B; }
+}
+
+.parking-calibration-dialog {
+  width: min(1240px, calc(100vw - 32px));
+  height: min(860px, calc(100dvh - 32px));
+  max-height: calc(100dvh - 32px);
+}
+
+.parking-calibration-content {
+  flex: 1;
+  min-height: 0;
+}
+
+@media (min-width: 900px) {
+  .parking-calibration-content {
+    grid-template-columns: minmax(0, 1fr) 280px !important;
+  }
+
+  .parking-calibration-stage {
+    height: 100%;
+    aspect-ratio: auto;
+    align-self: stretch;
+  }
+}
+
+.parking-slot-shape polygon {
+  fill: #2563EB;
+  fill-opacity: .28;
+  stroke: #2563EB;
+}
+
+.parking-slot-shape.selected polygon {
+  fill: #2563EB;
+  fill-opacity: .42;
+  stroke: #1D4ED8;
+}
+
+.parking-slot-handle {
+  fill: #FFFFFF;
+  stroke: #1D4ED8;
+  cursor: grab;
+}
+
+.parking-slot-shape polygon {
+  cursor: move;
+}
+
 select {
   appearance: none;
   background-color: #FFFFFF;
