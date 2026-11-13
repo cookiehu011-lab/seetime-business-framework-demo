@@ -215,7 +215,7 @@ function draw() {
   placeOverlay();
   const width = photo.naturalWidth || 1;
   const scale = screenPerImage();
-  const handle = Math.max(6, 8 / (scale || 1));
+  const handle = Math.max(3, 3.5 / (scale || 1));
   const label = slots.map((slot, index) => {
     const center = slot.points.reduce((sum, point) => [sum[0] + point[0], sum[1] + point[1]], [0, 0]).map(value => value / 4);
     const [cx, cy] = px(center);
@@ -223,13 +223,13 @@ function draw() {
     const polygon = slot.points.map(px).map(point => point.join(',')).join(' ');
     const handles = active ? slot.points.map((point, vertex) => {
       const [x, y] = px(point);
-      return `<circle class="handle" data-index="${index}" data-vertex="${vertex}" cx="${x}" cy="${y}" r="${handle}" fill="#fff" stroke="#1d4ed8" stroke-width="${2 / (scale || 1)}"/>`;
+      return `<circle class="handle" data-index="${index}" data-vertex="${vertex}" cx="${x}" cy="${y}" r="${handle}" fill="#fff" stroke="#1d4ed8" stroke-width="${1 / (scale || 1)}"/>`;
     }).join('') : '';
-    return `<g data-index="${index}"><polygon points="${polygon}" fill="${active ? 'rgba(37,99,235,.34)' : 'rgba(37,99,235,.18)'}" stroke="${active ? '#1d4ed8' : '#2563eb'}" stroke-width="${2 / (scale || 1)}"></polygon><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="#fff" stroke="#0f172a" stroke-width="${4 / (scale || 1)}" paint-order="stroke" font-size="${16 / (scale || 1)}" font-family="PingFang SC, sans-serif">P${String(index + 1).padStart(2, '0')}</text>${handles}</g>`;
+    return `<g data-index="${index}"><polygon points="${polygon}" fill="${active ? 'rgba(37,99,235,.34)' : 'rgba(37,99,235,.18)'}" stroke="${active ? '#1d4ed8' : '#2563eb'}" stroke-width="${1 / (scale || 1)}"></polygon><text x="${cx}" y="${cy}" text-anchor="middle" dominant-baseline="middle" fill="#fff" stroke="#0f172a" stroke-width="${4 / (scale || 1)}" paint-order="stroke" font-size="${16 / (scale || 1)}" font-family="PingFang SC, sans-serif">P${String(index + 1).padStart(2, '0')}</text>${handles}</g>`;
   }).join('');
-  const draftMarkup = draft.length ? `<polyline points="${draft.map(px).map(point => point.join(',')).join(' ')}" fill="none" stroke="#c2410c" stroke-width="${2 / (scale || 1)}"></polyline>${draft.map(point => {
+  const draftMarkup = draft.length ? `<polyline points="${draft.map(px).map(point => point.join(',')).join(' ')}" fill="none" stroke="#c2410c" stroke-width="${1 / (scale || 1)}"></polyline>${draft.map(point => {
     const [x, y] = px(point);
-    return `<circle cx="${x}" cy="${y}" r="${handle}" fill="#fff" stroke="#c2410c" stroke-width="${2 / (scale || 1)}"/>`;
+    return `<circle cx="${x}" cy="${y}" r="${handle}" fill="#fff" stroke="#c2410c" stroke-width="${1 / (scale || 1)}"/>`;
   }).join('')}` : '';
   overlay.innerHTML = label + draftMarkup;
   countEl.innerHTML = `${slots.length}<small>个已画</small>`;

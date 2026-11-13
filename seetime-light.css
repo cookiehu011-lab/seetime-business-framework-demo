@@ -1306,22 +1306,40 @@ textarea:focus-visible,
   }
 }
 
-.parking-slot-shape polygon {
+.parking-slot-shape polygon,
+.parking-slot-shape.selected polygon,
+.parking-slot-draft {
   fill: #2563EB;
-  fill-opacity: .28;
+  fill-opacity: .22;
   stroke: #2563EB;
+  stroke-width: 1px !important;
+  vector-effect: non-scaling-stroke;
 }
 
 .parking-slot-shape.selected polygon {
-  fill: #2563EB;
-  fill-opacity: .42;
+  fill-opacity: .32;
   stroke: #1D4ED8;
 }
 
-.parking-slot-handle {
+.parking-slot-draft {
+  fill: none;
+  stroke: #C2410C;
+}
+
+.parking-slot-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+  cursor: grab;
+}
+
+.parking-slot-handle,
+.parking-slot-draft-point {
   fill: #FFFFFF;
   stroke: #1D4ED8;
-  cursor: grab;
+  stroke-width: 1px !important;
+  vector-effect: non-scaling-stroke;
+  pointer-events: none;
 }
 
 .parking-slot-shape polygon {
