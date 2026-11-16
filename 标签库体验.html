@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个人版标签库</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: #f5f7fa;
+    color: #0f172a;
+    font: 14px/1.5 "PingFang SC", "Noto Sans SC", sans-serif;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    height: 56px;
+    padding: 0 20px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  header strong { font-size: 15px; }
+  header span { color: #64748b; font-size: 13px; }
+  main { height: calc(100% - 56px); padding: 20px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .lead { margin: 4px 0 0; color: #64748b; font-size: 13px; }
+  .workspace {
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 240px minmax(0, 1fr);
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .categories { min-height: 0; overflow: auto; border-right: 1px solid #e5e7eb; padding: 12px; display: grid; align-content: start; gap: 4px; }
+  .categories h2 { margin: 4px 8px 8px; font-size: 12px; font-weight: 500; color: #64748b; }
+  .categories button {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 36px;
+    padding: 0 10px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: #0f172a;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .categories button small { color: #64748b; font-size: 12px; }
+  .categories button[aria-current="true"] { background: #eff6ff; color: #1d4ed8; box-shadow: inset 3px 0 0 #2563eb; }
+  .categories button[aria-current="true"] small { color: #1d4ed8; }
+  .content { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); }
+  .toolbar { display: flex; gap: 8px; align-items: center; padding: 14px 16px; border-bottom: 1px solid #e5e7eb; }
+  .toolbar input, .toolbar select { height: 36px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #0f172a; font: inherit; font-size: 13px; }
+  .toolbar input { flex: 1; min-width: 0; padding: 0 12px; }
+  .toolbar select { padding: 0 10px; }
+  .toolbar .primary { height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+  .summary { padding: 12px 16px 0; color: #475569; font-size: 13px; }
+  .chips { min-height: 0; overflow: auto; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; padding: 12px 16px 16px; }
+  .chip { display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 4px 8px 4px 12px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; }
+  .chip b { font-size: 14px; font-weight: 600; }
+  .chip .meta, .chip .cat { color: #64748b; font-size: 12px; }
+  .chip.off { background: #f8fafc; }
+  .chip.off b { color: #94a3b8; font-weight: 500; }
+  .act { height: 28px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: #2563eb; font: inherit; font-size: 13px; cursor: pointer; }
+  .act:hover { background: #eff6ff; }
+  .act.danger { color: #dc2626; }
+  .act.danger:hover { background: #fef2f2; }
+  .empty { padding: 28px 16px; color: #64748b; }
+  dialog { width: min(420px, calc(100vw - 32px)); border: 1px solid #e5e7eb; border-radius: 12px; padding: 0; }
+  dialog::backdrop { background: rgba(15, 23, 42, .28); }
+  dialog form { display: grid; gap: 12px; padding: 18px; }
+  dialog h2 { margin: 0; font-size: 16px; }
+  dialog label { display: grid; gap: 6px; color: #475569; font-size: 13px; }
+  dialog input, dialog select { height: 36px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 0 10px; font: inherit; color: #0f172a; }
+  dialog footer { display: flex; justify-content: flex-end; gap: 8px; }
+  dialog .ghost, dialog .primary { height: 36px; padding: 0 14px; border-radius: 8px; font: inherit; cursor: pointer; }
+  dialog .ghost { border: 1px solid #e5e7eb; background: #fff; }
+  dialog .primary { border: 0; background: #2563eb; color: #fff; }
+  @media (max-width: 720px) {
+    .workspace { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
+    .categories { border-right: 0; border-bottom: 1px solid #e5e7eb; max-height: 180px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <strong>SeeTime</strong>
+  <span>分析配置 / 个人版标签库</span>
+</header>
+<main>
+  <div>
+    <h1>个人版标签库</h1>
+    <p class="lead">一次只看一个分类。要找某一个标签，直接搜索，结果会标出它属于哪一类。</p>
+  </div>
+  <section class="workspace">
+    <nav class="categories" id="categories" aria-label="标签分类"></nav>
+    <section class="content">
+      <form class="toolbar" id="toolbar">
+        <input id="query" type="search" placeholder="搜索标签名称" aria-label="搜索标签名称" />
+        <select id="status" aria-label="状态">
+          <option value="all">全部状态</option>
+          <option value="on">启用</option>
+          <option value="off">停用</option>
+        </select>
+        <button class="primary" id="create" type="button">新增标签</button>
+      </form>
+      <div class="summary" id="summary"></div>
+      <div class="chips" id="chips"></div>
+    </section>
+  </section>
+</main>
+<dialog id="editor">
+  <form method="dialog">
+    <h2 id="editor-title">新增标签</h2>
+    <label>标签名称<input id="editor-name" required maxlength="20" /></label>
+    <label>标签分类<select id="editor-category"></select></label>
+    <footer>
+      <button class="ghost" value="cancel" type="submit">取消</button>
+      <button class="primary" value="save" type="submit">保存</button>
+    </footer>
+  </form>
+</dialog>
+<script>
+const seed = [
+  ['空间与场地', ['广场', '庭院', '观景平台', '步道', '林荫道', '滨水空间', '室内空间']],
+  ['自然景观', ['水面', '湖景', '河景', '山景', '林地', '草坪', '花园', '开阔视野']],
+  ['步行与休憩设施', ['座椅', '休息区', '遮阴', '台阶', '栈道', '骑行道']],
+  ['文化与建筑', ['古建筑', '历史遗迹', '寺庙', '雕塑', '展馆']],
+  ['交通与公共设施', ['出入口', '停车场', '公交站', '骑行停放点', '卫生间', '服务中心']],
+  ['场景体验', ['适合散步', '可短暂停留', '适合观景', '适合拍照']]
+];
+const used = { 广场: 10, 步道: 15 };
+let categories = seed.map(([name, tags]) => ({
+  name,
+  tags: tags.map(tag => ({ name: tag, used: used[tag] || 0, enabled: true }))
+}));
+let selected = 0;
+let query = '';
+let status = 'all';
+let editing = null;
+
+const categoryList = document.getElementById('categories');
+const summary = document.getElementById('summary');
+const chips = document.getElementById('chips');
+const queryInput = document.getElementById('query');
+const statusInput = document.getElementById('status');
+const editor = document.getElementById('editor');
+const editorTitle = document.getElementById('editor-title');
+const editorName = document.getElementById('editor-name');
+const editorCategory = document.getElementById('editor-category');
+
+function matchesStatus(tag) {
+  if (status === 'on') return tag.enabled;
+  if (status === 'off') return !tag.enabled;
+  return true;
+}
+function visibleTags() {
+  const keyword = query.trim();
+  const rows = [];
+  categories.forEach((category, categoryIndex) => {
+    category.tags.forEach((tag, tagIndex) => {
+      if (!matchesStatus(tag)) return;
+      if (keyword && !tag.name.includes(keyword)) return;
+      if (!keyword && categoryIndex !== selected) return;
+      rows.push({ category, categoryIndex, tag, tagIndex });
+    });
+  });
+  return rows;
+}
+function meta(tag) {
+  if (!tag.enabled) return '已停用';
+  if (!tag.used) return '未被使用';
+  return `引用 ${tag.used}`;
+}
+function render() {
+  categoryList.innerHTML = `<h2>分类</h2>` + categories.map((category, index) => `<button type="button" data-category="${index}" ${index === selected && !query.trim() ? 'aria-current="true"' : ''}>${category.name}<small>${category.tags.length}</small></button>`).join('');
+  const rows = visibleTags();
+  const keyword = query.trim();
+  summary.textContent = keyword
+    ? `找到 ${rows.length} 个「${keyword}」`
+    : `${categories[selected].name} · ${rows.length} 个标签`;
+  if (!rows.length) {
+    chips.innerHTML = `<div class="empty">${keyword ? '没有找到这个标签。' : '这一类里没有符合状态的标签。'}</div>`;
+    return;
+  }
+  chips.innerHTML = rows.map(({ category, categoryIndex, tag, tagIndex }) => {
+    const key = `${categoryIndex}-${tagIndex}`;
+    return `<article class="chip ${tag.enabled ? '' : 'off'}"><b>${tag.name}</b>${keyword ? `<span class="cat">${category.name}</span>` : ''}<span class="meta">${meta(tag)}</span><button class="act" type="button" data-edit="${key}">编辑</button><button class="act" type="button" data-toggle="${key}">${tag.enabled ? '停用' : '启用'}</button><button class="act danger" type="button" data-remove="${key}">删除</button></article>`;
+  }).join('');
+}
+function tagAt(key) {
+  const [categoryIndex, tagIndex] = key.split('-').map(Number);
+  return { categoryIndex, tagIndex, tag: categories[categoryIndex].tags[tagIndex], category: categories[categoryIndex] };
+}
+function fillCategories(current) {
+  editorCategory.innerHTML = categories.map(category => `<option ${category.name === current ? 'selected' : ''}>${category.name}</option>`).join('');
+}
+function openEditor(item) {
+  editing = item;
+  editorTitle.textContent = item ? '编辑标签' : '新增标签';
+  editorName.value = item ? item.tag.name : '';
+  fillCategories(item ? item.category.name : categories[selected].name);
+  editor.showModal();
+  editorName.focus();
+}
+categoryList.addEventListener('click', event => {
+  const button = event.target.closest('[data-category]');
+  if (!button) return;
+  selected = Number(button.dataset.category);
+  query = '';
+  queryInput.value = '';
+  render();
+});
+queryInput.addEventListener('input', () => { query = queryInput.value; render(); });
+statusInput.addEventListener('change', () => { status = statusInput.value; render(); });
+document.getElementById('create').addEventListener('click', () => openEditor(null));
+chips.addEventListener('click', event => {
+  const edit = event.target.closest('[data-edit]');
+  const toggle = event.target.closest('[data-toggle]');
+  const remove = event.target.closest('[data-remove]');
+  if (edit) { openEditor(tagAt(edit.dataset.edit)); return; }
+  if (toggle) { const item = tagAt(toggle.dataset.toggle); item.tag.enabled = !item.tag.enabled; render(); return; }
+  if (remove) { const item = tagAt(remove.dataset.remove); categories[item.categoryIndex].tags.splice(item.tagIndex, 1); render(); }
+});
+editor.addEventListener('close', () => {
+  if (editor.returnValue !== 'save') return;
+  const name = editorName.value.trim();
+  if (!name) return;
+  const categoryName = editorCategory.value;
+  const category = categories.find(item => item.name === categoryName);
+  if (editing) {
+    const source = categories[editing.categoryIndex];
+    const [tag] = source.tags.splice(editing.tagIndex, 1);
+    tag.name = name;
+    category.tags.push(tag);
+    selected = categories.indexOf(category);
+  } else if (!category.tags.some(tag => tag.name === name)) {
+    category.tags.push({ name, used: 0, enabled: true });
+    selected = categories.indexOf(category);
+  }
+  query = '';
+  queryInput.value = '';
+  render();
+});
+render();
+</script>
+</body>
+</html>

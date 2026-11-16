@@ -184,8 +184,28 @@ body.embedded.tag-library .heading p{font-size:12px}
 .tag-chip-main{display:flex;align-items:center;gap:8px;min-width:0}
 .tag-chip-main strong{color:#0F172A;font-size:14px;font-weight:600}
 .tag-chip .hint{color:#64748B;font-size:12px;white-space:nowrap}
-.tag-chip .actions{display:flex;align-items:center}
-.tag-chip .actions svg{width:16px;height:16px}
+.tag-chip .actions{display:flex;align-items:center;gap:2px}
+.tag-chip .actions .text-button{min-height:28px;padding:0 8px;font-size:13px}
+.library-split{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100dvh - 220px);background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden}
+.library-nav{overflow:auto;border-right:1px solid #E5E7EB;padding:12px;display:grid;align-content:start;gap:4px}
+.library-nav h2{margin:4px 8px 8px;font-size:12px;font-weight:500;color:#64748B}
+.library-nav button{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;min-height:36px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:#0F172A;font:inherit;text-align:left;box-shadow:none}
+.library-nav button b{color:#64748B;font-size:12px;font-weight:500}
+.library-nav button[aria-current="true"]{background:#EFF6FF;color:#1D4ED8;box-shadow:inset 3px 0 0 #2563EB}
+.library-nav button[aria-current="true"] b{color:#1D4ED8}
+.library-main{min-width:0;display:grid;grid-template-rows:auto auto minmax(0,1fr)}
+.library-main .toolbar{border:0;border-bottom:1px solid #E5E7EB;border-radius:0;margin:0}
+.library-summary{padding:12px 16px 0;color:#475569;font-size:13px}
+.library-chips{overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;padding:12px 16px 16px}
+.position-rows{overflow:auto;padding:4px 16px 16px}
+.position-row{display:grid;grid-template-columns:180px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #F1F5F9}
+.position-row b{display:block;font-size:14px}
+.position-row .code,.position-inherit{color:#64748B;font-size:12px}
+.position-chips{display:flex;flex-wrap:wrap;gap:6px}
+.position-chips i{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:#F1F5F9;color:#334155;font-style:normal;font-size:12px}
+.position-choices{display:flex;flex-wrap:wrap;gap:8px}
+.position-choices label{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px;border:1px solid #E5E7EB;border-radius:8px}
+@media(max-width:800px){.library-split{grid-template-columns:1fr}.library-nav{max-height:180px;border-right:0;border-bottom:1px solid #E5E7EB}.position-row{grid-template-columns:1fr}}
 @media(max-width:730px){body.embedded .tags-summary{align-items:flex-start;flex-direction:column}body.embedded .tags-summary .hint{text-align:left}.tags .actions{white-space:nowrap}}
 </style>
 </head>
@@ -194,7 +214,8 @@ body.embedded.tag-library .heading p{font-size:12px}
   <div class="brand"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M16 3.5 26 9.3v12L16 28.5 6 22.7V10.5Z M6 22.7l10-7 10 5.6M16 15.7V3.5" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/></svg>SeeTime</div>
   <nav class="scope-nav" aria-label="工作空间">
     <button type="button" data-action="page" data-value="prompts">平台空间</button>
-    <button type="button" data-action="page" data-value="tags">个人版</button>
+    <button type="button" data-action="page" data-value="tags">个人版标签库</button>
+    <button type="button" data-action="page" data-value="positions">个人版空间位置库</button>
   </nav>
   <span class="badge local">本地演示</span>
 </header>
@@ -276,9 +297,9 @@ refreshTagReferences();
 let storageFailed=false;
 window.SeeTimeConfig={dirty:()=>draftDirty()||byId('dialog').open,requestLeave:apply=>{if(byId('dialog').open){toast('请先保存或取消当前弹窗。');return}navigate(apply)}};
 const state = {
-  page:new URLSearchParams(location.search).get('page')==='tags'?'tags':'prompts', app:'个人版', task:'', name:'', version:'',
+  page:['tags','positions'].includes(new URLSearchParams(location.search).get('page'))?new URLSearchParams(location.search).get('page'):'prompts', app:'个人版', task:'', name:'', version:'',
   promptId:data.prompts[0]?.id, detail:'body', viewed:'', historyQuery:'',
-  tagName:'', tagCategory:'', tagStatus:'', tagPage:1, tagFocus:'',
+  tagName:'', tagCategory:'', tagStatus:'', tagPage:1, tagFocus:'', positionFocus:'', positionQuery:'', positionLevel:'',
   trial:null
 };
 let toastTimer;
@@ -447,44 +468,92 @@ function tagRows() {
 const pencil='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="m14 5 5 5M4 20l5-.9L20 8l-4-4L5 15z"/></svg>';
 const trash='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7M14 10v7"/></svg>';
 function renderTags() {
-  const rows=tagRows();
+  const all=personalTags();
   const order=[...data.categories];
-  rows.forEach(t=>{if(t.category&&!order.includes(t.category))order.push(t.category)});
-  const groups=order.map(category=>({category,tags:rows.filter(t=>t.category===category)})).filter(group=>group.tags.length);
-  const current=groups.some(group=>group.category===state.tagFocus)?state.tagFocus:(groups.length===1?groups[0].category:'');
-  const card=t=>`<article class="tag-chip ${t.enabled?'':'is-off'}"><div class="tag-chip-main"><strong>${e(t.name)}</strong><span class="tag-status ${t.enabled?'on':''}">${t.enabled?'启用':'停用'}</span><span class="hint">引用 ${t.references||0}</span></div><div class="actions"><button type="button" class="text-button" title="编辑标签" aria-label="编辑标签 ${e(t.name)}" data-action="edit-tag" data-value="${e(t.id)}">${pencil}</button>${btn(t.enabled?'停用':'启用','toggle-tag','text-button',t.id)}<button type="button" class="text-button danger" title="${t.references?'已引用，请使用停用':'删除标签'}" aria-label="删除标签 ${e(t.name)}" data-action="delete-tag" data-value="${e(t.id)}" ${t.references?'disabled':''}>${trash}</button></div></article>`;
-  return `<div class="box toolbar">
-    ${search('标签名称','tagName',state.tagName,'搜索标签名称')}
-    ${select('标签分类','tagCategory',data.categories,state.tagCategory,'全部分类')}
-    ${select('状态','tagStatus',['启用','停用'],state.tagStatus,'全部状态','narrow')}
-    ${state.tagName||state.tagCategory||state.tagStatus?btn('重置','clear-tags','text-button'):''}
-    ${btn('管理分类','categories','secondary spacer')} ${btn('＋ 新增标签','new-tag','primary')}
-  </div>
-  <section class="box tags"><div class="tags-summary"><b>按分类查看 <span class="hint">${groups.length} 类 · ${rows.length} 个标签</span></b><span class="hint">停用后从可选词库移除，停用或改名不改变历史相机标签。</span></div>
-  ${groups.length?`<nav class="tag-category-nav" aria-label="标签分类">${groups.map(group=>`<button type="button" class="${group.category===current?'is-current':''}" aria-pressed="${group.category===current}" data-action="focus-tag-group" data-value="${e(group.category)}">${e(group.category)}<b>${group.tags.length}</b></button>`).join('')}</nav><div class="tag-groups">${groups.map((group,index)=>`<section class="tag-group ${group.category===current?'is-current':''}" id="tag-group-${index}" data-category="${e(group.category)}"><header><h2>${e(group.category)}</h2><span>${group.tags.length} 个 · 启用 ${group.tags.filter(t=>t.enabled).length}</span></header><div class="tag-chip-grid">${group.tags.map(card).join('')}</div></section>`).join('')}</div>`:'<div class="empty"><b>暂无匹配标签</b>调整检索条件，或新增标签。</div>'}</section>`;
+  all.forEach(t=>{if(t.category&&!order.includes(t.category))order.push(t.category)});
+  const listed=order.filter(category=>all.some(t=>t.category===category));
+  if(!listed.includes(state.tagFocus))state.tagFocus=listed[0]||'';
+  const keyword=state.tagName.trim();
+  const rows=all.filter(t=>(!keyword||includes(t.name,keyword))&&(!state.tagStatus||t.enabled===(state.tagStatus==='启用'))&&(keyword||t.category===state.tagFocus));
+  const meta=t=>!t.enabled?'已停用':t.references?`引用 ${t.references}`:'未被使用';
+  const card=t=>`<article class="tag-chip ${t.enabled?'':'is-off'}"><div class="tag-chip-main"><strong>${e(t.name)}</strong>${keyword?`<span class="hint">${e(t.category||'未分类')}</span>`:''}<span class="hint">${meta(t)}</span></div><div class="actions"><button type="button" class="text-button" data-action="edit-tag" data-value="${e(t.id)}">编辑</button>${btn(t.enabled?'停用':'启用','toggle-tag','text-button',t.id)}<button type="button" class="text-button danger" title="${t.references?'已引用，请使用停用':'删除标签'}" aria-label="删除标签 ${e(t.name)}" data-action="delete-tag" data-value="${e(t.id)}" ${t.references?'disabled':''}>删除</button></div></article>`;
+  return `<section class="library-split"><nav class="library-nav" aria-label="标签分类"><h2>分类</h2>${listed.map(category=>`<button type="button" data-action="focus-tag-group" data-value="${e(category)}" ${!keyword&&category===state.tagFocus?'aria-current="true"':''}>${e(category)}<b>${all.filter(t=>t.category===category).length}</b></button>`).join('')}</nav><div class="library-main"><div class="box toolbar">${search('标签名称','tagName',state.tagName,'搜索标签名称')}${select('状态','tagStatus',['启用','停用'],state.tagStatus,'全部状态','narrow')}${btn('管理分类','categories','secondary spacer')}${btn('＋ 新增标签','new-tag','primary')}</div><div class="library-summary">${keyword?`找到 ${rows.length} 个「${e(keyword)}」`:`${e(state.tagFocus||'未分类')} · ${rows.length} 个标签`}</div>${rows.length?`<div class="library-chips">${rows.map(card).join('')}</div>`:'<div class="empty"><b>没有找到这个标签</b>换一个词，或看其他分类。</div>'}</div></section>`;
+}
+const positionVocabulary=['出入口','加油或充电工位','维修工位','洗车工位','排队等候区','停车区','用餐区','售卖区','步行区','观景区','候车区'];
+const positionSeed=[
+  {code:'010000',name:'汽车服务',positions:['出入口','加油或充电工位','维修工位','排队等候区','停车区'],children:[{code:'010100',name:'加油站'},{code:'010200',name:'其它能源站'},{code:'010300',name:'加气站'},{code:'010400',name:'汽车养护/装饰'},{code:'010500',name:'洗车场',positions:['出入口','洗车工位','排队等候区']},{code:'011100',name:'充电站'}]},
+  {code:'020000',name:'汽车销售',positions:['出入口','停车区'],children:[{code:'020100',name:'大众特约销售'},{code:'020200',name:'本田特约销售'},{code:'020300',name:'奥迪特约销售'}]},
+  {code:'050000',name:'餐饮服务',positions:['出入口','用餐区','排队等候区'],children:[{code:'050100',name:'中餐厅'},{code:'050300',name:'快餐厅'}]},
+  {code:'060000',name:'购物服务',positions:['出入口','售卖区','停车区'],children:[{code:'060100',name:'商场'},{code:'060200',name:'便民商店/便利店'}]},
+  {code:'110000',name:'风景名胜',positions:['出入口','步行区','观景区'],children:[{code:'110100',name:'公园广场'},{code:'110200',name:'风景名胜'}]},
+  {code:'150000',name:'交通设施服务',positions:['出入口','候车区','停车区'],children:[{code:'150500',name:'地铁站'},{code:'150700',name:'公交车站'},{code:'150900',name:'停车场'}]}
+];
+const positionKey='seetime-position-library-v1';
+function positionGroups(){try{const saved=JSON.parse(localStorage.getItem(positionKey)||'null');if(Array.isArray(saved)&&saved.length)return saved}catch{}return JSON.parse(JSON.stringify(positionSeed))}
+function savePositionGroups(groups){localStorage.setItem(positionKey,JSON.stringify(groups))}
+function renderPositions(){
+  const groups=positionGroups();
+  if(!groups.some(group=>group.code===state.positionFocus))state.positionFocus=groups[0]?.code||'';
+  const keyword=state.positionQuery||'';
+  const level=state.positionLevel||'';
+  const chips=list=>`<span class="position-chips">${list.map(item=>`<i>${e(item)}</i>`).join('')}</span>`;
+  const lines=[];
+  groups.forEach(group=>{
+    const showGroup=!keyword||`${group.code}${group.name}${group.positions.join('')}`.includes(keyword);
+    const children=group.children.filter(child=>{
+      if(level==='只看大类')return false;
+      const places=child.positions||group.positions;
+      return !keyword||`${child.code}${child.name}${places.join('')}${group.name}`.includes(keyword);
+    });
+    if(level!=='只看中类'&&showGroup)lines.push({group,child:null});
+    children.forEach(child=>{if(keyword||group.code===state.positionFocus)lines.push({group,child})});
+  });
+  const visible=keyword?lines:lines.filter(line=>line.group.code===state.positionFocus);
+  const current=groups.find(group=>group.code===state.positionFocus)||groups[0];
+  return `<section class="library-split"><nav class="library-nav" aria-label="高德大类"><h2>大类</h2>${groups.map(group=>`<button type="button" data-action="focus-position-group" data-value="${e(group.code)}" ${!keyword&&group.code===state.positionFocus?'aria-current="true"':''}>${e(group.name)}<b>${group.children.length}</b></button>`).join('')}</nav><div class="library-main"><div class="box toolbar">${search('类型','positionQuery',keyword,'搜索编码、名称或空间位置')}${select('层级','positionLevel',['只看大类','只看中类'],level,'全部层级','narrow')}${btn('＋ 新增类型','new-position','primary spacer')}</div><div class="library-summary">${keyword?`找到 ${visible.length} 个「${e(keyword)}」`:`${e(current?.name||'')} · 1 个大类 · ${current?.children.length||0} 个中类`}</div><div class="position-rows">${visible.length?visible.map(({group,child})=>{const own=child&&child.positions;const places=own||!child?chips(child?child.positions:group.positions):`<span class="position-inherit">沿用「${e(group.name)}」</span>`;const id=child?child.code:group.code;const action=child&&!own?btn('单独设置','edit-position','text-button',id):btn('编辑','edit-position','text-button',id);return `<article class="position-row"><div><b>${e(child?child.name:group.name)}</b><span class="code">${child?'中类':'大类'} · ${e(id)}${keyword&&child?' · '+e(group.name):''}</span></div><div>${places}</div><div>${action}</div></article>`}).join(''):'<div class="empty">没有找到这个类型。</div>'}</div></div></section>`;
+}
+function findPosition(code){const groups=positionGroups();for(const group of groups){if(group.code===code)return {groups,group,child:null};const child=group.children.find(item=>item.code===code);if(child)return {groups,group,child}}return null}
+function editPosition(code){
+  const found=findPosition(code);if(!found)return;
+  const current=found.child?(found.child.positions||found.group.positions):found.group.positions;
+  const dialog=byId('dialog');
+  dialog.innerHTML=`<form><div class="dialog-head"><h2 id="dialog-title">编辑「${e(found.child?found.child.name:found.group.name)}」的空间位置</h2><button type="button" class="icon-close" data-close aria-label="关闭">×</button></div><div class="dialog-body"><div class="position-choices">${positionVocabulary.map(name=>`<label><input type="checkbox" name="place" value="${e(name)}" ${current.includes(name)?'checked':''}>${e(name)}</label>`).join('')}</div></div><div class="dialog-foot">${found.child&&found.child.positions?'<button type="button" data-restore>恢复沿用大类</button>':''}<button type="button" data-close>取消</button><button class="primary" type="submit">保存</button></div></form>`;
+  dialog.querySelectorAll('[data-close]').forEach(button=>button.onclick=()=>dialog.close());
+  dialog.querySelector('[data-restore]')?.addEventListener('click',()=>{delete found.child.positions;savePositionGroups(found.groups);dialog.close();render()});
+  dialog.querySelector('form').onsubmit=event=>{event.preventDefault();const picked=[...new FormData(event.currentTarget).getAll('place')];if(found.child)found.child.positions=picked;else found.group.positions=picked;savePositionGroups(found.groups);dialog.close();render()};
+  dialog.showModal();
+}
+function addPosition(){
+  openDialog('新增中类',control('类型名称','<input name="name" required maxlength="30" placeholder="例如：洗车场">'),'添加',values=>{
+    const name=String(values.name||'').trim();if(!name)return '请填写类型名称';
+    const groups=positionGroups();const group=groups.find(item=>item.code===state.positionFocus)||groups[0];
+    group.children.push({code:'自定义',name});savePositionGroups(groups);
+  });
 }
 function render({keepFocus=false}={}) {
   const active=document.activeElement;
   const filter=keepFocus?active?.dataset.filter:null;
   const start=filter&&active.type==='search'?active.selectionStart:null;
-  const personal=state.page==='tags';
-  const title=personal?'个人版标签库':'分析配置';
-  document.body.classList.toggle('tag-library',personal);
+  const library=state.page==='tags'||state.page==='positions';
+  const title=state.page==='tags'?'个人版标签库':state.page==='positions'?'个人版空间位置库':'分析配置';
+  document.body.classList.toggle('tag-library',library);
   refreshTagReferences();
   document.title=title+' · SeeTime';
-  byId('scope-path').textContent=personal?'个人版 / 静态标签':'平台空间 / 分析配置';
+  byId('scope-path').textContent=state.page==='tags'?'个人版 / 静态标签':state.page==='positions'?'个人版 / 空间位置':'平台空间 / 分析配置';
   byId('page-title').textContent=title;
-  byId('page-title').hidden=!personal;
-  byId('page-description').hidden=!personal;
-  document.body.classList.toggle('prompt-page',!personal);
-  byId('page-description').textContent=personal
-    ? '管理相机静态标签 · 配置与引用统计来自当前浏览器示例数据。'
+  byId('page-title').hidden=!library;
+  byId('page-description').hidden=!library;
+  document.body.classList.toggle('prompt-page',!library);
+  byId('page-description').textContent=state.page==='positions'
+    ? '一次只看一个大类。中类没单独设置时沿用大类。改这里不改变相机上已经保存的空间位置。'
+    : library
+    ? '一次只看一个分类。要找某一个标签，直接搜索，结果会标出它属于哪一类。'
     : '统一管理个人版和治理版的分析提示词与版本。';
   document.querySelectorAll('.scope-nav button').forEach(button=>{
     if(button.dataset.value===state.page) button.setAttribute('aria-current','page');
     else button.removeAttribute('aria-current');
   });
-  byId('screen').innerHTML=personal?renderTags():renderPrompts();
+  byId('screen').innerHTML=state.page==='tags'?renderTags():state.page==='positions'?renderPositions():renderPrompts();
   if(filter) {
     const field=document.querySelector(`[data-filter="${filter}"]`);
     field?.focus();
@@ -681,7 +750,7 @@ function navigate(apply) {
 function changeFilter(event) {
   const field=event.target,name=field.dataset.filter;
   if(!name||!field.isConnected||event.isComposing) return;
-  if(field.tagName==='INPUT' ? event.type==='change' : event.type!=='change') return;
+  if(field.tagName==='SELECT' ? event.type!=='change' : event.type!=='input' && event.type!=='compositionend') return;
   if(draftDirty()&&state.page==='prompts') {
     field.value=state[name];
     toast('请先保存草稿，再调整筛选条件。');
@@ -736,7 +805,10 @@ document.addEventListener('click',event=>{
     case 'delete-tag': deleteTag(data.tags.find(t=>t.id===value));break;
     case 'tag-prev': state.tagPage--;render();break;
     case 'tag-next': state.tagPage++;render();break;
-    case 'focus-tag-group': state.tagFocus=value;render();document.querySelector('.tag-group.is-current')?.scrollIntoView({block:'start',behavior:'smooth'});break;
+    case 'focus-tag-group': state.tagFocus=value;state.tagName='';render();break;
+    case 'focus-position-group': state.positionFocus=value;state.positionQuery='';render();break;
+    case 'edit-position': editPosition(value);break;
+    case 'new-position': addPosition();break;
     case 'clear-tags': clearTagFilters();render();break;
     case 'new-tag': editTag();break;
     case 'edit-tag': editTag(data.tags.find(t=>t.id===value));break;

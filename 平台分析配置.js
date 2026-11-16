@@ -9,7 +9,7 @@
  navigate=function(route,tab=''){
   return previousNavigate(route==='personalAnalysisConfig'?'analysisConfig':route,route==='personalAnalysisConfig'?'tags':tab);
  };
- const configSections=()=>[['prompts','提示词管理'],...(can('personalAnalysisConfig')?[['tags','个人版标签库']]:[])].map(([id,label])=>`<button type="button" class="module-section-button ${((state.tab==='tags')===(id==='tags'))?'active':''}" data-route="analysisConfig" data-route-tab="${id}" ${((state.tab==='tags')===(id==='tags'))?'aria-current="page"':''}>${label}</button>`).join('');
+ const configSections=()=>{const current=state.tab==='tags'?'tags':state.tab==='positions'?'positions':'prompts';return [['prompts','提示词管理'],...(can('personalAnalysisConfig')?[['tags','个人版标签库'],['positions','个人版空间位置库']]:[])].map(([id,label])=>`<button type="button" class="module-section-button ${current===id?'active':''}" data-route="analysisConfig" data-route-tab="${id}" ${current===id?'aria-current="page"':''}>${label}</button>`).join('')};
  const previousNavItem=frameworkNavItem;
  frameworkNavItem=function(id,...args){
   if(id==='personalAnalysisConfig')return '';
@@ -24,11 +24,11 @@
  render=function(){
   if(!['analysisConfig','personalAnalysisConfig'].includes(state.route))return previousRender();
   if(state.route==='personalAnalysisConfig'){state.route='analysisConfig';state.tab='tags'}
-  const tags=state.tab==='tags';
-  const allowed=can('analysisConfig')&&(!tags||can('personalAnalysisConfig'));
+  const page=state.tab==='tags'?'tags':state.tab==='positions'?'positions':'prompts';
+  const label=page==='tags'?'个人版标签库':page==='positions'?'个人版空间位置库':'提示词管理';
+  const allowed=can('analysisConfig')&&(page==='prompts'||can('personalAnalysisConfig'));
   destroyCameraMap();
-  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+(tags?'个人版标签库':'分析配置：个人版与治理版提示词')+'" src="分析配置.html?embed=1&page='+(tags?'tags':'prompts')+'&v=tag-focus-20261112" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
-  const label=tags?'个人版标签库':'提示词管理';
+  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+label+'" src="分析配置.html?embed=1&page='+page+'&v=library-20261116" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
   document.querySelector('.crumb').insertAdjacentHTML('beforeend',icon('chevron')+'<strong aria-current="page">'+label+'</strong>');
   document.title=label+' · 分析配置 · SeeTime';
  };

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>个人版空间位置库</title>
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body { background: #f5f7fa; color: #0f172a; font: 14px/1.5 "PingFang SC", "Noto Sans SC", sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; height: 56px; padding: 0 20px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+  header strong { font-size: 15px; }
+  header span { color: #64748b; font-size: 13px; }
+  main { height: calc(100% - 56px); padding: 20px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
+  h1 { margin: 0; font-size: 20px; font-weight: 600; }
+  .lead { margin: 4px 0 0; color: #64748b; font-size: 13px; }
+  .workspace { min-height: 0; display: grid; grid-template-columns: 240px minmax(0, 1fr); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+  .groups { min-height: 0; overflow: auto; border-right: 1px solid #e5e7eb; padding: 12px; display: grid; align-content: start; gap: 4px; }
+  .groups h2 { margin: 4px 8px 8px; font-size: 12px; font-weight: 500; color: #64748b; }
+  .groups button { display: flex; justify-content: space-between; gap: 8px; width: 100%; min-height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #0f172a; font: inherit; text-align: left; cursor: pointer; }
+  .groups button small { color: #64748b; font-size: 12px; }
+  .groups button[aria-current="true"] { background: #eff6ff; color: #1d4ed8; box-shadow: inset 3px 0 0 #2563eb; }
+  .groups button[aria-current="true"] small { color: #1d4ed8; }
+  .content { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); }
+  .toolbar { display: flex; gap: 8px; align-items: center; padding: 14px 16px; border-bottom: 1px solid #e5e7eb; }
+  .toolbar input, .toolbar select { height: 36px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #0f172a; font: inherit; font-size: 13px; }
+  .toolbar input { flex: 1; min-width: 0; padding: 0 12px; }
+  .toolbar select { padding: 0 10px; }
+  .toolbar .primary { height: 36px; padding: 0 14px; border: 0; border-radius: 8px; background: #2563eb; color: #fff; font: inherit; font-size: 13px; cursor: pointer; }
+  .summary { padding: 12px 16px 0; color: #475569; font-size: 13px; }
+  .rows { min-height: 0; overflow: auto; padding: 8px 16px 16px; }
+  .row { display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+  .row b { display: block; font-size: 14px; }
+  .row .code { color: #64748b; font-size: 12px; }
+  .inherit { color: #64748b; }
+  .pos { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pos i { display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 6px; background: #f1f5f9; color: #334155; font-style: normal; font-size: 12px; }
+  .act { height: 28px; padding: 0 8px; border: 0; border-radius: 6px; background: transparent; color: #2563eb; font: inherit; font-size: 13px; cursor: pointer; }
+  .act:hover { background: #eff6ff; }
+  .empty { padding: 28px 0; color: #64748b; }
+  dialog { width: min(480px, calc(100vw - 32px)); border: 1px solid #e5e7eb; border-radius: 12px; padding: 0; }
+  dialog::backdrop { background: rgba(15, 23, 42, .28); }
+  dialog form { display: grid; gap: 12px; padding: 18px; }
+  dialog h2 { margin: 0; font-size: 16px; }
+  dialog .choices { display: flex; flex-wrap: wrap; gap: 8px; }
+  dialog .choices label { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
+  dialog footer { display: flex; justify-content: flex-end; gap: 8px; }
+  dialog .ghost, dialog .primary { height: 36px; padding: 0 14px; border-radius: 8px; font: inherit; cursor: pointer; }
+  dialog .ghost { border: 1px solid #e5e7eb; background: #fff; }
+  dialog .primary { border: 0; background: #2563eb; color: #fff; }
+  @media (max-width: 800px) {
+    .workspace { grid-template-columns: 1fr; }
+    .groups { max-height: 180px; border-right: 0; border-bottom: 1px solid #e5e7eb; }
+    .row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<header><strong>SeeTime</strong><span>分析配置 / 个人版空间位置库</span></header>
+<main>
+  <div>
+    <h1>个人版空间位置库</h1>
+    <p class="lead">一次只看一个大类。中类没单独设置时，沿用大类。要找某一个类型，直接搜索。</p>
+  </div>
+  <section class="workspace">
+    <nav class="groups" id="groups" aria-label="高德大类"></nav>
+    <section class="content">
+      <form class="toolbar">
+        <input id="query" type="search" placeholder="搜索编码、名称或空间位置" aria-label="搜索编码、名称或空间位置" />
+        <select id="level" aria-label="层级">
+          <option value="all">全部层级</option>
+          <option value="major">只看大类</option>
+          <option value="mid">只看中类</option>
+        </select>
+        <button class="primary" id="create" type="button">新增类型</button>
+      </form>
+      <div class="summary" id="summary"></div>
+      <div class="rows" id="rows"></div>
+    </section>
+  </section>
+</main>
+<dialog id="editor">
+  <form method="dialog">
+    <h2 id="editor-title">编辑空间位置</h2>
+    <div class="choices" id="choices"></div>
+    <footer>
+      <button class="ghost" id="restore" type="button">恢复沿用大类</button>
+      <button class="ghost" value="cancel" type="submit">取消</button>
+      <button class="primary" value="save" type="submit">保存</button>
+    </footer>
+  </form>
+</dialog>
+<script>
+const vocabulary = ['出入口', '加油或充电工位', '维修工位', '洗车工位', '排队等候区', '停车区', '用餐区', '售卖区', '步行区', '观景区', '候车区'];
+const groups = [
+  { code: '010000', name: '汽车服务', positions: ['出入口', '加油或充电工位', '维修工位', '排队等候区', '停车区'], children: [
+    { code: '010100', name: '加油站' },
+    { code: '010200', name: '其它能源站' },
+    { code: '010300', name: '加气站' },
+    { code: '010400', name: '汽车养护/装饰' },
+    { code: '010500', name: '洗车场', positions: ['出入口', '洗车工位', '排队等候区'] },
+    { code: '011100', name: '充电站' }
+  ]},
+  { code: '020000', name: '汽车销售', positions: ['出入口', '停车区'], children: [
+    { code: '020100', name: '大众特约销售' },
+    { code: '020200', name: '本田特约销售' },
+    { code: '020300', name: '奥迪特约销售' }
+  ]},
+  { code: '050000', name: '餐饮服务', positions: ['出入口', '用餐区', '排队等候区'], children: [
+    { code: '050100', name: '中餐厅' },
+    { code: '050300', name: '快餐厅' }
+  ]},
+  { code: '060000', name: '购物服务', positions: ['出入口', '售卖区', '停车区'], children: [
+    { code: '060100', name: '商场' },
+    { code: '060200', name: '便民商店/便利店' }
+  ]},
+  { code: '110000', name: '风景名胜', positions: ['出入口', '步行区', '观景区'], children: [
+    { code: '110100', name: '公园广场' },
+    { code: '110200', name: '风景名胜' }
+  ]},
+  { code: '150000', name: '交通设施服务', positions: ['出入口', '候车区', '停车区'], children: [
+    { code: '150500', name: '地铁站' },
+    { code: '150700', name: '公交车站' },
+    { code: '150900', name: '停车场' }
+  ]}
+];
+let selected = 0;
+let query = '';
+let level = 'all';
+let editing = null;
+const groupList = document.getElementById('groups');
+const summary = document.getElementById('summary');
+const rows = document.getElementById('rows');
+const queryInput = document.getElementById('query');
+const levelInput = document.getElementById('level');
+const editor = document.getElementById('editor');
+const choices = document.getElementById('choices');
+const restore = document.getElementById('restore');
+
+function positionsOf(group, child) {
+  return child && child.positions ? child.positions : group.positions;
+}
+function chips(list) {
+  return `<span class="pos">${list.map(item => `<i>${item}</i>`).join('')}</span>`;
+}
+function rowMatches(group, child) {
+  const keyword = query.trim();
+  const item = child || group;
+  if (level === 'major' && child) return false;
+  if (level === 'mid' && !child) return false;
+  if (!keyword) return true;
+  const text = `${item.code}${item.name}${positionsOf(group, child).join('')}`;
+  return text.includes(keyword);
+}
+function render() {
+  const keyword = query.trim();
+  groupList.innerHTML = `<h2>大类</h2>` + groups.map((group, index) => `<button type="button" data-group="${index}" ${index === selected && !keyword ? 'aria-current="true"' : ''}>${group.name}<small>${group.children.length}</small></button>`).join('');
+  const source = keyword ? groups.map((group, index) => ({ group, index })) : [{ group: groups[selected], index: selected }];
+  const lines = [];
+  source.forEach(({ group, index }) => {
+    if (rowMatches(group, null)) lines.push({ group, index, child: null });
+    group.children.forEach((child, childIndex) => {
+      if (rowMatches(group, child)) lines.push({ group, index, child, childIndex });
+    });
+  });
+  summary.textContent = keyword ? `找到 ${lines.length} 个「${keyword}」` : `${groups[selected].name} · 1 个大类 · ${groups[selected].children.length} 个中类`;
+  if (!lines.length) { rows.innerHTML = '<div class="empty">没有找到这个类型。</div>'; return; }
+  rows.innerHTML = lines.map(line => {
+    const item = line.child || line.group;
+    const own = line.child && line.child.positions;
+    const place = own || !line.child ? chips(positionsOf(line.group, line.child)) : `<span class="inherit">沿用「${line.group.name}」</span>`;
+    const action = line.child && !own
+      ? `<button class="act" type="button" data-customize="${line.index}-${line.childIndex}">单独设置</button>`
+      : `<button class="act" type="button" data-edit="${line.child ? line.index + '-' + line.childIndex : line.index}">编辑</button>`;
+    return `<article class="row"><div><b>${item.name}</b><span class="code">${line.child ? '中类' : '大类'} · ${item.code}${keyword && line.child ? ' · ' + line.group.name : ''}</span></div><div>${place}</div><div>${action}</div></article>`;
+  }).join('');
+}
+function openEditor(groupIndex, childIndex) {
+  const group = groups[groupIndex];
+  const child = childIndex == null ? null : group.children[childIndex];
+  editing = { groupIndex, childIndex };
+  document.getElementById('editor-title').textContent = `编辑「${child ? child.name : group.name}」的空间位置`;
+  const current = child ? (child.positions || group.positions) : group.positions;
+  choices.innerHTML = vocabulary.map(name => `<label><input type="checkbox" value="${name}" ${current.includes(name) ? 'checked' : ''}>${name}</label>`).join('');
+  restore.hidden = !child || !child.positions;
+  editor.showModal();
+}
+groupList.addEventListener('click', event => {
+  const button = event.target.closest('[data-group]');
+  if (!button) return;
+  selected = Number(button.dataset.group);
+  query = '';
+  queryInput.value = '';
+  render();
+});
+queryInput.addEventListener('input', () => { query = queryInput.value; render(); });
+levelInput.addEventListener('change', () => { level = levelInput.value; render(); });
+document.getElementById('create').addEventListener('click', () => {
+  const name = window.prompt('新的中类名称');
+  if (!name || !name.trim()) return;
+  groups[selected].children.push({ code: '自定义', name: name.trim() });
+  render();
+});
+rows.addEventListener('click', event => {
+  const edit = event.target.closest('[data-edit]');
+  const customize = event.target.closest('[data-customize]');
+  const key = (edit || customize)?.dataset.edit || (edit || customize)?.dataset.customize;
+  if (!key) return;
+  const [groupIndex, childIndex] = key.split('-').map(Number);
+  openEditor(groupIndex, Number.isInteger(childIndex) ? childIndex : null);
+});
+restore.addEventListener('click', () => {
+  if (!editing || editing.childIndex == null) return;
+  delete groups[editing.groupIndex].children[editing.childIndex].positions;
+  editor.close();
+  render();
+});
+editor.addEventListener('close', () => {
+  if (editor.returnValue !== 'save' || !editing) return;
+  const picked = [...choices.querySelectorAll('input:checked')].map(input => input.value);
+  if (editing.childIndex == null) groups[editing.groupIndex].positions = picked;
+  else groups[editing.groupIndex].children[editing.childIndex].positions = picked;
+  render();
+});
+render();
+</script>
+</body>
+</html>
