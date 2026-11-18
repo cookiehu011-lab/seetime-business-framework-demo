@@ -15,3 +15,7 @@
 .gt-camera-option:has(input:checked) strong,.gt-stage-option:has(input:checked) strong{color:#2563EB}
 .gt-page .button.small.primary{min-height:28px;padding:0 10px;border-radius:8px;font-size:12px}
 .gt-row-actions{gap:8px}
+.gt-page .gt-batch-title{flex-wrap:wrap}
+.gt-batch-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-left:auto}
+.gt-page .gt-create-batch{min-height:32px;padding:0 12px;border-radius:8px;font-size:13px;line-height:1.2;white-space:nowrap}
+.gt-create-batch .ico{width:14px;height:14px}
