@@ -24,7 +24,7 @@
   }
   header strong { font-size: 15px; }
   header span { color: #64748b; font-size: 13px; }
-  main { height: calc(100% - 56px); padding: 20px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
+  main { height: calc(100% - 56px); padding: 20px; display: grid; grid-template-rows: auto auto minmax(0, 1fr); gap: 14px; }
   h1 { margin: 0; font-size: 20px; font-weight: 600; }
   .lead { margin: 4px 0 0; color: #64748b; font-size: 13px; }
   .workspace {
@@ -57,8 +57,8 @@
   .categories button small { color: #64748b; font-size: 12px; }
   .categories button[aria-current="true"] { background: #eff6ff; color: #1d4ed8; box-shadow: inset 3px 0 0 #2563eb; }
   .categories button[aria-current="true"] small { color: #1d4ed8; }
-  .content { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); }
-  .toolbar { display: flex; gap: 8px; align-items: center; padding: 14px 16px; border-bottom: 1px solid #e5e7eb; }
+  .content { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+  .toolbar { display: flex; gap: 8px; align-items: center; padding: 12px 14px; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; }
   .toolbar input, .toolbar select { height: 36px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #0f172a; font: inherit; font-size: 13px; }
   .toolbar input { flex: 1; min-width: 0; padding: 0 12px; }
   .toolbar select { padding: 0 10px; }
@@ -99,20 +99,20 @@
 <main>
   <div>
     <h1>个人版标签库</h1>
-    <p class="lead">一次只看一个分类。要找某一个标签，直接搜索，结果会标出它属于哪一类。</p>
+    <p class="lead">一次只看一个分类。搜索、状态和新增都作用于全部标签。</p>
   </div>
+  <form class="toolbar" id="toolbar">
+    <input id="query" type="search" placeholder="搜索全部标签" aria-label="搜索全部标签" />
+    <select id="status" aria-label="状态">
+      <option value="all">全部状态</option>
+      <option value="on">启用</option>
+      <option value="off">停用</option>
+    </select>
+    <button class="primary" id="create" type="button">新增标签</button>
+  </form>
   <section class="workspace">
     <nav class="categories" id="categories" aria-label="标签分类"></nav>
     <section class="content">
-      <form class="toolbar" id="toolbar">
-        <input id="query" type="search" placeholder="搜索标签名称" aria-label="搜索标签名称" />
-        <select id="status" aria-label="状态">
-          <option value="all">全部状态</option>
-          <option value="on">启用</option>
-          <option value="off">停用</option>
-        </select>
-        <button class="primary" id="create" type="button">新增标签</button>
-      </form>
       <div class="summary" id="summary"></div>
       <div class="chips" id="chips"></div>
     </section>

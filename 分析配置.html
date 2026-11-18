@@ -165,6 +165,7 @@ body.embedded .dialog-foot{justify-content:flex-end}
 body.embedded.tag-library .heading p{font-size:12px}
 .tag-pagination button{min-height:30px;font-size:12px}
 .tag-library .tags .table-wrap{max-height:calc(100dvh - 280px);min-height:180px;overflow:auto}.tag-library .tags th{position:sticky;top:0;background:var(--panel);z-index:1}.tag-library .tags td{padding-block:10px}
+.library-switch{margin:0 0 12px}.library-switch[hidden]{display:none}.library-switch button[aria-current=page]{border-bottom-color:var(--accent);color:var(--accent);font-weight:600}
 .tag-category-nav{display:flex;flex-wrap:wrap;gap:8px;padding:12px 16px;border-bottom:1px solid var(--line-soft);background:#F8FAFC}
 .tag-category-nav a,.tag-category-nav button{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px;border:1px solid #E5E7EB;border-radius:8px;background:#fff;color:#334155;font-size:13px;font-weight:500;text-decoration:none;box-shadow:none}
 .tag-category-nav a b,.tag-category-nav button b{color:#2563EB;font-weight:600}
@@ -186,7 +187,9 @@ body.embedded.tag-library .heading p{font-size:12px}
 .tag-chip .hint{color:#64748B;font-size:12px;white-space:nowrap}
 .tag-chip .actions{display:flex;align-items:center;gap:2px}
 .tag-chip .actions .text-button{min-height:28px;padding:0 8px;font-size:13px}
-.library-split{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100dvh - 220px);background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden}
+.library-page{display:grid;gap:12px}
+.library-page>.toolbar{margin:0}
+.library-split{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:calc(100dvh - 280px);background:#fff;border:1px solid #E5E7EB;border-radius:12px;overflow:hidden}
 .library-nav{overflow:auto;border-right:1px solid #E5E7EB;padding:12px;display:grid;align-content:start;gap:4px}
 .library-nav h2{margin:4px 8px 8px;font-size:12px;font-weight:500;color:#64748B}
 .library-nav button{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;min-height:36px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:#0F172A;font:inherit;text-align:left;box-shadow:none}
@@ -196,16 +199,25 @@ body.embedded.tag-library .heading p{font-size:12px}
 .library-main{min-width:0;display:grid;grid-template-rows:auto auto minmax(0,1fr)}
 .library-main .toolbar{border:0;border-bottom:1px solid #E5E7EB;border-radius:0;margin:0}
 .library-summary{padding:12px 16px 0;color:#475569;font-size:13px}
-.library-chips{overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px;padding:12px 16px 16px}
+.library-chips{overflow:auto;display:flex;flex-wrap:wrap;align-content:flex-start;align-items:center;gap:8px;padding:12px 16px 16px}
 .position-rows{overflow:auto;padding:4px 16px 16px}
-.position-row{display:grid;grid-template-columns:180px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid #F1F5F9}
+.position-head,.position-row{display:grid;grid-template-columns:180px minmax(0,1fr) auto;gap:12px;align-items:center}
+.position-head{padding:8px 0 2px;color:#64748B;font-size:12px}
+.position-row{padding:12px 0;border-bottom:1px solid #F1F5F9}
+.position-row .secondary{white-space:nowrap}
+.position-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
+.position-places{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .position-row b{display:block;font-size:14px}
 .position-row .code,.position-inherit{color:#64748B;font-size:12px}
-.position-chips{display:flex;flex-wrap:wrap;gap:6px}
-.position-chips i{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:6px;background:#F1F5F9;color:#334155;font-style:normal;font-size:12px}
-.position-choices{display:flex;flex-wrap:wrap;gap:8px}
-.position-choices label{display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:0 10px;border:1px solid #E5E7EB;border-radius:8px}
-@media(max-width:800px){.library-split{grid-template-columns:1fr}.library-nav{max-height:180px;border-right:0;border-bottom:1px solid #E5E7EB}.position-row{grid-template-columns:1fr}}
+.position-chips{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.position-chips i{display:inline-flex;align-items:center;gap:2px;height:26px;padding:0 6px 0 8px;border-radius:6px;background:#F1F5F9;color:#334155;font-style:normal;font-size:12px}
+.chip-x{display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;padding:0;border:0;background:transparent;color:#64748B;font-size:14px;line-height:1;cursor:pointer}
+.place-plus{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;padding:0;border:1px dashed #CBD5E1;border-radius:6px;background:#fff;color:#334155;font-size:16px;line-height:1;cursor:pointer}
+.place-plus:hover{border-color:#2563EB;color:#2563EB}
+.place-plus.tag-plus{width:40px;height:40px;border-radius:8px}
+.place-add{width:92px;height:26px;padding:0 8px;border:1px solid #2563EB;border-radius:6px;background:#fff;color:#0F172A;font:inherit;font-size:12px}
+.place-add.tag-add{width:120px;height:40px;border-radius:8px;font-size:14px}
+@media(max-width:800px){.library-split{grid-template-columns:1fr}.library-nav{max-height:180px;border-right:0;border-bottom:1px solid #E5E7EB}.position-head{display:none}.position-row{grid-template-columns:1fr}}
 @media(max-width:730px){body.embedded .tags-summary{align-items:flex-start;flex-direction:column}body.embedded .tags-summary .hint{text-align:left}.tags .actions{white-space:nowrap}}
 </style>
 </head>
@@ -215,12 +227,15 @@ body.embedded.tag-library .heading p{font-size:12px}
   <nav class="scope-nav" aria-label="工作空间">
     <button type="button" data-action="page" data-value="prompts">平台空间</button>
     <button type="button" data-action="page" data-value="tags">个人版标签库</button>
-    <button type="button" data-action="page" data-value="positions">个人版空间位置库</button>
   </nav>
   <span class="badge local">本地演示</span>
 </header>
 <main class="page">
   <div class="heading"><div><div id="scope-path" class="scope-path"></div><h1 id="page-title">分析配置</h1><p id="page-description"></p></div></div>
+  <nav id="library-switch" class="tabs library-switch" aria-label="个人版标签库功能" hidden>
+    <button type="button" data-action="page" data-value="tags" aria-current="page">静态标签</button>
+    <button type="button" data-action="page" data-value="positions">空间位置</button>
+  </nav>
   <div id="screen"></div>
   <footer>本地演示 · 数据保存在当前浏览器，试跑使用模拟输出。</footer>
 </main>
@@ -299,7 +314,7 @@ window.SeeTimeConfig={dirty:()=>draftDirty()||byId('dialog').open,requestLeave:a
 const state = {
   page:['tags','positions'].includes(new URLSearchParams(location.search).get('page'))?new URLSearchParams(location.search).get('page'):'prompts', app:'个人版', task:'', name:'', version:'',
   promptId:data.prompts[0]?.id, detail:'body', viewed:'', historyQuery:'',
-  tagName:'', tagCategory:'', tagStatus:'', tagPage:1, tagFocus:'', positionFocus:'', positionQuery:'', positionLevel:'',
+  tagName:'', tagCategory:'', tagStatus:'', tagPage:1, tagFocus:'', addingTag:'', positionFocus:'', positionQuery:'', positionLevel:'', addingPlace:'',
   trial:null
 };
 let toastTimer;
@@ -471,15 +486,16 @@ function renderTags() {
   const all=personalTags();
   const order=[...data.categories];
   all.forEach(t=>{if(t.category&&!order.includes(t.category))order.push(t.category)});
-  const listed=order.filter(category=>all.some(t=>t.category===category));
+  const listed=order.filter(category=>category!=='未分类'||all.some(t=>t.category===category));
   if(!listed.includes(state.tagFocus))state.tagFocus=listed[0]||'';
   const keyword=state.tagName.trim();
   const rows=all.filter(t=>(!keyword||includes(t.name,keyword))&&(!state.tagStatus||t.enabled===(state.tagStatus==='启用'))&&(keyword||t.category===state.tagFocus));
   const meta=t=>!t.enabled?'已停用':t.references?`引用 ${t.references}`:'未被使用';
   const card=t=>`<article class="tag-chip ${t.enabled?'':'is-off'}"><div class="tag-chip-main"><strong>${e(t.name)}</strong>${keyword?`<span class="hint">${e(t.category||'未分类')}</span>`:''}<span class="hint">${meta(t)}</span></div><div class="actions"><button type="button" class="text-button" data-action="edit-tag" data-value="${e(t.id)}">编辑</button>${btn(t.enabled?'停用':'启用','toggle-tag','text-button',t.id)}<button type="button" class="text-button danger" title="${t.references?'已引用，请使用停用':'删除标签'}" aria-label="删除标签 ${e(t.name)}" data-action="delete-tag" data-value="${e(t.id)}" ${t.references?'disabled':''}>删除</button></div></article>`;
-  return `<section class="library-split"><nav class="library-nav" aria-label="标签分类"><h2>分类</h2>${listed.map(category=>`<button type="button" data-action="focus-tag-group" data-value="${e(category)}" ${!keyword&&category===state.tagFocus?'aria-current="true"':''}>${e(category)}<b>${all.filter(t=>t.category===category).length}</b></button>`).join('')}</nav><div class="library-main"><div class="box toolbar">${search('标签名称','tagName',state.tagName,'搜索标签名称')}${select('状态','tagStatus',['启用','停用'],state.tagStatus,'全部状态','narrow')}${btn('管理分类','categories','secondary spacer')}${btn('＋ 新增标签','new-tag','primary')}</div><div class="library-summary">${keyword?`找到 ${rows.length} 个「${e(keyword)}」`:`${e(state.tagFocus||'未分类')} · ${rows.length} 个标签`}</div>${rows.length?`<div class="library-chips">${rows.map(card).join('')}</div>`:'<div class="empty"><b>没有找到这个标签</b>换一个词，或看其他分类。</div>'}</div></section>`;
+  const adder=!keyword&&state.tagFocus?(state.addingTag===state.tagFocus?`<input class="place-add tag-add" data-tag-add="${e(state.tagFocus)}" maxlength="30" placeholder="标签名称" aria-label="新增标签">`:`<button type="button" class="place-plus tag-plus" data-action="start-add-tag" data-value="${e(state.tagFocus)}" aria-label="在这一类新增标签">+</button>`):'';
+  const body=keyword&&!rows.length?'<div class="empty"><b>没有找到这个标签</b>换一个词，或看其他分类。</div>':`<div class="library-chips">${rows.map(card).join('')}${adder}</div>`;
+  return `<div class="library-page"><div class="box toolbar">${search('标签名称','tagName',state.tagName,'搜索全部标签')}${select('状态','tagStatus',['启用','停用'],state.tagStatus,'全部状态','narrow')}${btn('管理分类','categories','secondary spacer')}</div><section class="library-split"><nav class="library-nav" aria-label="标签分类"><h2>分类</h2>${listed.map(category=>`<button type="button" data-action="focus-tag-group" data-value="${e(category)}" ${!keyword&&category===state.tagFocus?'aria-current="true"':''}>${e(category)}<b>${all.filter(t=>t.category===category).length}</b></button>`).join('')}</nav><div class="library-main"><div class="library-summary">${keyword?`在全部标签里找到 ${rows.length} 个「${e(keyword)}」`:`${e(state.tagFocus||'未分类')} · ${rows.length} 个标签`}</div>${body}</div></section></div>`;
 }
-const positionVocabulary=['出入口','加油或充电工位','维修工位','洗车工位','排队等候区','停车区','用餐区','售卖区','步行区','观景区','候车区'];
 const positionSeed=[
   {code:'010000',name:'汽车服务',positions:['出入口','加油或充电工位','维修工位','排队等候区','停车区'],children:[{code:'010100',name:'加油站'},{code:'010200',name:'其它能源站'},{code:'010300',name:'加气站'},{code:'010400',name:'汽车养护/装饰'},{code:'010500',name:'洗车场',positions:['出入口','洗车工位','排队等候区']},{code:'011100',name:'充电站'}]},
   {code:'020000',name:'汽车销售',positions:['出入口','停车区'],children:[{code:'020100',name:'大众特约销售'},{code:'020200',name:'本田特约销售'},{code:'020300',name:'奥迪特约销售'}]},
@@ -496,7 +512,10 @@ function renderPositions(){
   if(!groups.some(group=>group.code===state.positionFocus))state.positionFocus=groups[0]?.code||'';
   const keyword=state.positionQuery||'';
   const level=state.positionLevel||'';
-  const chips=list=>`<span class="position-chips">${list.map(item=>`<i>${e(item)}</i>`).join('')}</span>`;
+  const plus=code=>state.addingPlace===code
+    ? `<input class="place-add" data-place-add="${e(code)}" maxlength="20" placeholder="空间位置" aria-label="新增空间位置">`
+    : `<button type="button" class="place-plus" data-action="start-add-place" data-value="${e(code)}" aria-label="新增空间位置">+</button>`;
+  const chips=(list,code,removable)=>`<span class="position-chips">${list.map(item=>`<i>${e(item)}${removable?`<button type="button" class="chip-x" data-action="remove-place" data-value="${e(code)}" data-place="${e(item)}" aria-label="去掉${e(item)}">×</button>`:''}</i>`).join('')}${plus(code)}</span>`;
   const lines=[];
   groups.forEach(group=>{
     const showGroup=!keyword||`${group.code}${group.name}${group.positions.join('')}`.includes(keyword);
@@ -510,24 +529,51 @@ function renderPositions(){
   });
   const visible=keyword?lines:lines.filter(line=>line.group.code===state.positionFocus);
   const current=groups.find(group=>group.code===state.positionFocus)||groups[0];
-  return `<section class="library-split"><nav class="library-nav" aria-label="高德大类"><h2>大类</h2>${groups.map(group=>`<button type="button" data-action="focus-position-group" data-value="${e(group.code)}" ${!keyword&&group.code===state.positionFocus?'aria-current="true"':''}>${e(group.name)}<b>${group.children.length}</b></button>`).join('')}</nav><div class="library-main"><div class="box toolbar">${search('类型','positionQuery',keyword,'搜索编码、名称或空间位置')}${select('层级','positionLevel',['只看大类','只看中类'],level,'全部层级','narrow')}${btn('＋ 新增类型','new-position','primary spacer')}</div><div class="library-summary">${keyword?`找到 ${visible.length} 个「${e(keyword)}」`:`${e(current?.name||'')} · 1 个大类 · ${current?.children.length||0} 个中类`}</div><div class="position-rows">${visible.length?visible.map(({group,child})=>{const own=child&&child.positions;const places=own||!child?chips(child?child.positions:group.positions):`<span class="position-inherit">沿用「${e(group.name)}」</span>`;const id=child?child.code:group.code;const action=child&&!own?btn('单独设置','edit-position','text-button',id):btn('编辑','edit-position','text-button',id);return `<article class="position-row"><div><b>${e(child?child.name:group.name)}</b><span class="code">${child?'中类':'大类'} · ${e(id)}${keyword&&child?' · '+e(group.name):''}</span></div><div>${places}</div><div>${action}</div></article>`}).join(''):'<div class="empty">没有找到这个类型。</div>'}</div></div></section>`;
+  return `<div class="library-page"><div class="box toolbar">${search('类型或空间位置','positionQuery',keyword,'搜索类型或空间位置')}${select('层级','positionLevel',['只看大类','只看中类'],level,'全部层级','narrow')}${btn('＋ 新增类型','new-position','primary spacer')}</div><section class="library-split"><nav class="library-nav" aria-label="高德大类"><h2>大类</h2>${groups.map(group=>`<button type="button" data-action="focus-position-group" data-value="${e(group.code)}" ${!keyword&&group.code===state.positionFocus?'aria-current="true"':''}>${e(group.name)}<b>${group.children.length}</b></button>`).join('')}</nav><div class="library-main"><div class="library-summary">${keyword?`在全部类型里找到 ${visible.length} 个「${e(keyword)}」`:`${e(current?.name||'')} · 1 个大类 · ${current?.children.length||0} 个中类`}</div><div class="position-rows">${visible.length?`<div class="position-head"><span>类型</span><span>空间位置</span><span></span></div>`+visible.map(({group,child})=>{const own=!child||Array.isArray(child.positions);const places=child?(child.positions||group.positions):group.positions;const id=child?child.code:group.code;const note=child&&!own?'<span class="position-inherit">沿用大类</span>':'';const actions=child&&own?btn('恢复沿用','restore-position','text-button',id):'';return `<article class="position-row"><div><b>${e(child?child.name:group.name)}</b><span class="code">${child?'中类':'大类'} · ${e(id)}${keyword&&child?' · '+e(group.name):''}</span></div><div class="position-places">${chips(places,id,own)}${note}</div><div class="position-actions">${actions}</div></article>`}).join(''):'<div class="empty">没有找到这个类型。</div>'}</div></div></section></div>`;
 }
 function findPosition(code){const groups=positionGroups();for(const group of groups){if(group.code===code)return {groups,group,child:null};const child=group.children.find(item=>item.code===code);if(child)return {groups,group,child}}return null}
-function editPosition(code){
-  const found=findPosition(code);if(!found)return;
-  const current=found.child?(found.child.positions||found.group.positions):found.group.positions;
-  const dialog=byId('dialog');
-  dialog.innerHTML=`<form><div class="dialog-head"><h2 id="dialog-title">编辑「${e(found.child?found.child.name:found.group.name)}」的空间位置</h2><button type="button" class="icon-close" data-close aria-label="关闭">×</button></div><div class="dialog-body"><div class="position-choices">${positionVocabulary.map(name=>`<label><input type="checkbox" name="place" value="${e(name)}" ${current.includes(name)?'checked':''}>${e(name)}</label>`).join('')}</div></div><div class="dialog-foot">${found.child&&found.child.positions?'<button type="button" data-restore>恢复沿用大类</button>':''}<button type="button" data-close>取消</button><button class="primary" type="submit">保存</button></div></form>`;
-  dialog.querySelectorAll('[data-close]').forEach(button=>button.onclick=()=>dialog.close());
-  dialog.querySelector('[data-restore]')?.addEventListener('click',()=>{delete found.child.positions;savePositionGroups(found.groups);dialog.close();render()});
-  dialog.querySelector('form').onsubmit=event=>{event.preventDefault();const picked=[...new FormData(event.currentTarget).getAll('place')];if(found.child)found.child.positions=picked;else found.group.positions=picked;savePositionGroups(found.groups);dialog.close();render()};
-  dialog.showModal();
+function currentPlaces(found){return found.child?(found.child.positions?found.child.positions.slice():found.group.positions.slice()):found.group.positions.slice()}
+function writePlaces(found,places){if(found.child)found.child.positions=places;else found.group.positions=places;savePositionGroups(found.groups)}
+function commitPlace(code,raw){
+  if(state.addingPlace!==code)return;
+  state.addingPlace='';
+  const place=String(raw||'').trim();
+  if(!place){render();return}
+  const found=findPosition(code);
+  if(!found){render();return}
+  const places=currentPlaces(found);
+  if(places.includes(place)){toast('这个空间位置已经有了');render();return}
+  places.push(place);
+  writePlaces(found,places);
+  render();
+}
+function removePlace(code,place){
+  const found=findPosition(code);if(!found||!place)return;
+  writePlaces(found,currentPlaces(found).filter(item=>item!==place));
+  render();
+}
+function restorePosition(code){
+  const found=findPosition(code);if(!found?.child?.positions)return;
+  delete found.child.positions;
+  savePositionGroups(found.groups);
+  render();
+}
+function nextPositionCode(group){
+  const used=new Set([group.code,...group.children.map(child=>child.code)]);
+  let n=group.children.length+1,code=`自定义${n}`;
+  while(used.has(code)){n+=1;code=`自定义${n}`}
+  return code;
 }
 function addPosition(){
-  openDialog('新增中类',control('类型名称','<input name="name" required maxlength="30" placeholder="例如：洗车场">'),'添加',values=>{
-    const name=String(values.name||'').trim();if(!name)return '请填写类型名称';
-    const groups=positionGroups();const group=groups.find(item=>item.code===state.positionFocus)||groups[0];
-    group.children.push({code:'自定义',name});savePositionGroups(groups);
+  openDialog('新增类型',control('类型名称','<input name="name" required maxlength="30" placeholder="例如：洗车场">'),'添加',values=>{
+    const name=String(values.name||'').trim();
+    if(!name)return '请填写类型名称';
+    const groups=positionGroups();
+    const group=groups.find(item=>item.code===state.positionFocus)||groups[0];
+    if(!group)return '请先选择一个大类';
+    if(group.children.some(child=>child.name===name))return '这个大类里已经有同名类型';
+    group.children.push({code:nextPositionCode(group),name});
+    savePositionGroups(groups);
   });
 }
 function render({keepFocus=false}={}) {
@@ -537,6 +583,11 @@ function render({keepFocus=false}={}) {
   const library=state.page==='tags'||state.page==='positions';
   const title=state.page==='tags'?'个人版标签库':state.page==='positions'?'个人版空间位置库':'分析配置';
   document.body.classList.toggle('tag-library',library);
+  byId('library-switch').hidden=!library;
+  byId('library-switch').querySelectorAll('button').forEach(button=>{
+    if(button.dataset.value===state.page)button.setAttribute('aria-current','page');
+    else button.removeAttribute('aria-current');
+  });
   refreshTagReferences();
   document.title=title+' · SeeTime';
   byId('scope-path').textContent=state.page==='tags'?'个人版 / 静态标签':state.page==='positions'?'个人版 / 空间位置':'平台空间 / 分析配置';
@@ -545,9 +596,9 @@ function render({keepFocus=false}={}) {
   byId('page-description').hidden=!library;
   document.body.classList.toggle('prompt-page',!library);
   byId('page-description').textContent=state.page==='positions'
-    ? '一次只看一个大类。中类没单独设置时沿用大类。改这里不改变相机上已经保存的空间位置。'
+    ? '一次只看一个大类。空间位置点标签后面的 + 添加。中类没单独加过时，先沿用大类。改这里不改变相机上已经保存的空间位置。'
     : library
-    ? '一次只看一个分类。要找某一个标签，直接搜索，结果会标出它属于哪一类。'
+    ? '一次只看一个分类。要加标签，点这一类后面的 +。要找某一个标签，直接搜索。'
     : '统一管理个人版和治理版的分析提示词与版本。';
   document.querySelectorAll('.scope-nav button').forEach(button=>{
     if(button.dataset.value===state.page) button.setAttribute('aria-current','page');
@@ -558,7 +609,7 @@ function render({keepFocus=false}={}) {
     const field=document.querySelector(`[data-filter="${filter}"]`);
     field?.focus();
     if(start!==null) field?.setSelectionRange(start,start);
-  }
+  } else document.querySelector('.place-add')?.focus();
 }
 function openDialog(title, fields, button, submit) {
   const dialog=byId('dialog');
@@ -685,6 +736,19 @@ function rollback(p,v) {
       save('已回滚到 '+versionLabel(v.number));
     });
 }
+function commitTag(category,raw){
+  if(state.addingTag!==category)return false;
+  state.addingTag='';
+  const name=String(raw||'').trim();
+  if(!name){render();return false}
+  if(personalTags().some(item=>item.name===name)){toast('个人版已有同名标签');render();return false}
+  const tag={id:newId(),name,category:category||'未分类',app:'个人版',enabled:true,references:0};
+  data.tags.unshift(tag);
+  save('标签已新增');
+  if(storageFailed)data.tags.shift();
+  render();
+  return !storageFailed;
+}
 function editTag(t) {
   let continueAdding=false;
   openDialog(t?'编辑标签':'新增标签',`
@@ -781,13 +845,34 @@ document.addEventListener('submit',event=>{
   saveDraft(p,v,draftFields());
   render();
 });
+document.addEventListener('keydown',event=>{
+  const field=event.target.closest?.('.place-add');
+  if(!field||event.isComposing)return;
+  if(event.key==='Escape'){state.addingPlace='';state.addingTag='';render();return}
+  if(event.key!=='Enter')return;
+  event.preventDefault();
+  if(field.dataset.placeAdd)commitPlace(field.dataset.placeAdd,field.value);
+  else commitTag(field.dataset.tagAdd,field.value);
+});
+document.addEventListener('focusout',event=>{
+  const field=event.target.closest?.('.place-add');
+  if(!field)return;
+  const placeCode=field.dataset.placeAdd;
+  const tagCategory=field.dataset.tagAdd;
+  const value=field.value;
+  setTimeout(()=>{
+    if(document.activeElement?.classList.contains('place-add'))return;
+    if(placeCode)commitPlace(placeCode,value);
+    else commitTag(tagCategory,value);
+  },0);
+});
 document.addEventListener('click',event=>{
   const b=event.target.closest('[data-action]');
   if(!b) return;
   const {action,value}=b.dataset,p=currentPrompt(),v=p?selectedVersion(p):null;
   switch(action) {
     case 'expand-editor': toggleEditor();break;
-    case 'page': if(state.page!==value) navigate(()=>{state.page=value;}); break;
+    case 'page': if(state.page!==value) navigate(()=>{state.page=value;state.addingPlace='';state.addingTag='';}); break;
     case 'app': if(state.app!==value) navigate(()=>{state.app=value;clearPromptFilters();reconcilePrompt();}); break;
     case 'prompt': if(state.promptId!==value) navigate(()=>showPrompt(data.prompts.find(x=>x.id===value))); break;
     case 'clear-prompts': navigate(()=>{clearPromptFilters();state.viewed='';reconcilePrompt();}); break;
@@ -805,12 +890,41 @@ document.addEventListener('click',event=>{
     case 'delete-tag': deleteTag(data.tags.find(t=>t.id===value));break;
     case 'tag-prev': state.tagPage--;render();break;
     case 'tag-next': state.tagPage++;render();break;
-    case 'focus-tag-group': state.tagFocus=value;state.tagName='';render();break;
-    case 'focus-position-group': state.positionFocus=value;state.positionQuery='';render();break;
-    case 'edit-position': editPosition(value);break;
+    case 'focus-tag-group': {
+      const pending=document.querySelector('[data-tag-add]');
+      const pendingCategory=pending?.dataset.tagAdd;
+      const pendingText=pending?.value.trim()||'';
+      state.tagFocus=value;state.tagName='';state.addingTag='';
+      if(pendingCategory&&pendingText){
+        if(personalTags().some(item=>item.name===pendingText))toast('个人版已有同名标签');
+        else {
+          const tag={id:newId(),name:pendingText,category:pendingCategory,app:'个人版',enabled:true,references:0};
+          data.tags.unshift(tag);
+          save('标签已新增');
+          if(storageFailed)data.tags.shift();
+        }
+      }
+      render();
+      break;
+    }
+    case 'focus-position-group': state.positionFocus=value;state.positionQuery='';state.addingPlace='';render();break;
+    case 'start-add-place': {
+      const pending=document.querySelector('.place-add');
+      const pendingCode=pending?.dataset.placeAdd;
+      const pendingText=pending?.value.trim()||'';
+      state.addingPlace=value;
+      if(pendingCode&&pendingCode!==value&&pendingText){
+        const found=findPosition(pendingCode);
+        if(found){const places=currentPlaces(found);if(!places.includes(pendingText)){places.push(pendingText);writePlaces(found,places)}}
+      }
+      render();
+      break;
+    }
+    case 'remove-place': removePlace(value,b.dataset.place);break;
+    case 'restore-position': restorePosition(value);break;
     case 'new-position': addPosition();break;
     case 'clear-tags': clearTagFilters();render();break;
-    case 'new-tag': editTag();break;
+    case 'start-add-tag': state.addingTag=value;render();break;
     case 'edit-tag': editTag(data.tags.find(t=>t.id===value));break;
     case 'toggle-tag': toggleTag(data.tags.find(t=>t.id===value));break;
   }

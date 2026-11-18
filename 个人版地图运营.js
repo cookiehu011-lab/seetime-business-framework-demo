@@ -521,7 +521,7 @@
    const ordered=pending.remountPoiId&&ids.includes(pending.remountPoiId)?[pending.remountPoiId,...ids.filter(id=>id!==pending.remountPoiId)]:ids;
    let remountPoiId=pending.remountPoiId;
    for(const id of ordered){if(id===reviewTarget)continue;if(cam.mountDemo)saveFixtureDecision(cam,id,'',remountPoiId);else ops.saveMapDecision(cam.id,id,'',remountPoiId);remountPoiId=''}
-   ui.analysis.profileDraft=null;ui.camera.unableOpen=false;ui.camera.selectedPoiIds=ids;ui.camera.selectedPoiId=ids[0];ui.camera.preReviewDraft=null;ui.camera.selectionBeforeUnable='';ui.camera.reason='';ui.camera.reasonError='';ui.camera.completedCameraId=cam.id;ui.camera.remountPoiId='';showSaveResult('.mount-saved-heading')
+   ui.analysis.profileDraft=null;ui.camera.unableOpen=false;ui.camera.selectedPoiIds=ids;ui.camera.selectedPoiId=ids[0];ui.camera.preReviewDraft=null;ui.camera.selectionBeforeUnable='';ui.camera.reason='';ui.camera.reasonError='';ui.camera.completedCameraId=cam.id;ui.camera.remountPoiId='';window.SeeTimeMapOps?.onMountSaved?.(cam.id);showSaveResult('.mount-saved-heading')
   }catch(error){
    Object.assign(store,storeBefore);ui.analysis.profileDraft=profileBefore;ui.camera.candidateDemoPreviewId=previewBefore;
    let rollbackFailed=false;for(const [key,value] of storageBefore){try{if(localStorage.getItem(key)!==value){if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value)}}catch{rollbackFailed=true}}
