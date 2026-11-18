@@ -297,7 +297,7 @@
       : kind === 'lead' ? [['team', '待分派任务'], ['issues', '问题跟进']]
         : kind === 'auditor' ? [['quality', '质量抽查'], ['auditLog', '抽查记录']]
           : [['mine', '我的任务'], ['rework', '整改任务'], ['issues', '问题记录']];
-    return `<div class="tabs gt-tabs" role="tablist">${items.map(([id, label]) => `<button class="tab ${taskState.tab === id ? 'active' : ''}" role="tab" aria-selected="${taskState.tab === id}" data-task-action="tab" data-id="${id}">${label}</button>`).join('')}</div>`;
+    return `<div class="tabs gt-tabs" role="tablist">${items.map(([id, label]) => `<button class="tab ${taskState.tab === id ? 'on' : ''}" role="tab" aria-selected="${taskState.tab === id}" data-task-action="tab" data-id="${id}">${label}</button>`).join('')}</div>`;
   }
   function taskTable(items, mode = 'default') {
     const rows = items.map((item, index) => {
