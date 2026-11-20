@@ -1358,3 +1358,36 @@ select {
   color: #0F172A;
   padding-right: 28px;
 }
+
+/* Business tabs share one selected treatment in the platform and embedded workspaces. */
+html body :is([role="tablist"] > [aria-selected="true"], .module-view-tabs > [aria-current="page"], .library-switch > [aria-current="page"], .map-panel-tabs > button.active),
+html body .mount-inspector .mount-place-tabs > button[aria-selected="true"] {
+  color: #1d4ed8 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-bottom: 2px solid #2563eb !important;
+  border-radius: 0 !important;
+  font-weight: 600;
+}
+html body .mount-inspector .mount-place-tabs > button[aria-selected="true"]::after { content: none; }
+
+/* Sequential workflows use numbered markers and connecting lines. */
+body .gt-wizard-steps { justify-content: center; gap: 0; }
+body .gt-wizard-steps > span { flex: 0 1 auto; flex-direction: row; align-items: center; }
+body .gt-wizard-steps > span:not(:last-child)::after {
+  content: ""; width: clamp(12px, 4vw, 48px); height: 2px; margin: 0 8px; background: #dbe3ed;
+}
+body .gt-wizard-steps > span.complete::after,
+body .mount-inspector .mount-flow-steps > span.complete::after { background: #99d9bd; }
+body .gt-wizard-steps > span i,
+body .mount-inspector .mount-flow-steps > span i { background: white; color: #637389; border-color: #b7c3d1; flex-shrink: 0; }
+body .gt-wizard-steps > span.active i,
+body .mount-inspector .mount-flow-steps > span.current i { background: #2563eb; border-color: #2563eb; color: white; box-shadow: none; }
+body .gt-wizard-steps > span.complete i,
+body .mount-inspector .mount-flow-steps > span.complete i { background: #e3f6ec; border-color: #9fd8bc; color: #087750; }
+@media(max-width:600px) {
+  body .gt-wizard-steps { padding-inline: 8px; }
+  body .gt-wizard-steps > span { gap: 3px; }
+  body .gt-wizard-steps > span:not(:last-child)::after { margin-inline: 2px; width: 8px; }
+}
