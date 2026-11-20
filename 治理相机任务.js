@@ -262,7 +262,15 @@
     if (!ctx) return '';
     const item = center().items.find(entry => entry.id === ctx.itemId);
     if (!item) return '';
-    return `<section class="gt-context"><div><span class="gt-kicker">治理任务上下文</span><strong>${esc(item.batchName)} · ${esc(item.cameraName)} · ${esc(item.stageName)}</strong><small>${esc(item.status)} · ${esc(item.assignee)}</small></div><div><button type="button" class="button ghost small" data-task-action="report">报告问题</button><button type="button" class="button small" data-task-action="return">返回治理任务</button></div></section>`;
+    const stages = Object.entries(STAGES).map(([stage, info]) => {
+      const sameStage = entry => entry.batchId === item.batchId && entry.cameraId === item.cameraId && entry.stage === stage;
+      const sibling = center().items.find(sameStage);
+      const current = stage === item.stage;
+      const available = sibling && sibling.assigneeId === personIdForRole() && ['pending', 'active', 'rework', 'reworking'].includes(sibling.statusCode);
+      const status = sibling?.status || center().plans.find(sameStage)?.status || '未纳入本批次';
+      return `<button type="button" aria-current="${current ? 'step' : 'false'}" ${available && !current ? `data-task-action="open" data-id="${esc(sibling.id)}"` : 'disabled'}>${stage === 'base' ? '相机基础信息治理' : info.label}<small>${esc(status)}</small></button>`;
+    }).join('');
+    return `<section class="gt-context"><div><strong>${esc(item.batchName)} · ${esc(item.cameraName)}</strong><small>${esc(item.assignee)}</small></div><div><button type="button" class="button ghost small" data-task-action="report">报告问题</button><button type="button" class="button small" data-task-action="return">返回治理任务</button></div><nav class="gt-work-stages" aria-label="相机任务阶段">${stages}</nav></section>`;
   }
   moduleWorkspace = function (content) {
     if (state.cameraTaskContext) return taskContextBar() + content;
