@@ -1,0 +1,88 @@
+/* Governance workspaces share the platform type scale, controls and accent. */
+.gt-page { gap: 16px; align-content: start; }
+.gt-workspace-head, .gt-workspace-actions, .gt-workspace-actions label, .gt-detail-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.gt-workspace-head { justify-content: space-between; flex-wrap: wrap; }
+.gt-workspace-head h1 { margin: 0; font-size: clamp(21px, 2vw, 26px); line-height: 1.4; color: #17263e; letter-spacing: -.025em; }
+.gt-workspace-actions { margin-left: auto; flex-wrap: wrap; justify-content: flex-end; }
+.gt-workspace-actions label { gap: 8px; font-size: 13px; color: #526177; }
+.gt-workspace-actions select { height: 34px; max-width: 100%; min-width: 150px; border: 1px solid #cdd7e3; border-radius: 7px; padding: 0 8px; color: #23354e; background: white; font: inherit; }
+.gt-summary { margin: 0; padding: 18px 0; display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); background: white; border: 1px solid #dce3ec; border-radius: 12px; }
+.gt-summary > div { padding: 0 clamp(14px, 2vw, 28px); }
+.gt-summary > div + div { border-left: 1px solid #e6ebf2; }
+.gt-summary dt { color: #53647a; font-size: 13px; }
+.gt-summary dd { margin: 4px 0 0; color: #20334f; font-size: 28px; font-weight: 650; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.gt-summary .gt-number-good { color: #087658; }
+.gt-summary .gt-number-warn { color: #a64b08; }
+.gt-page .gt-tabs { margin: 0; gap: 6px; overflow-x: auto; }
+.gt-page .gt-tabs .tab { white-space: nowrap; padding-inline: 15px; }
+.gt-page .box { box-shadow: none; }
+.gt-page .box-title { min-height: 54px; padding: 14px 20px; }
+.gt-page .box-title h2, .gt-page .gt-person-head strong, .gt-page .gt-stage-title strong { font-size: 15px; font-weight: 650; color: #182b43; }
+.gt-page .box-title .muted, .gt-page .gt-kicker { font-size: 12px; color: #56677d; }
+.gt-page .table-wrap table { font-size: 13px; }
+.gt-page .table-wrap th { white-space: nowrap; font-weight: 550; background: #f7f9fc; color: #52647b; }
+.gt-page .table-wrap td { padding-block: 13px; }
+.gt-page .table-wrap td small { display: block; margin-top: 3px; color: #5f7187; }
+.gt-page .table-end { display: none; }
+.gt-page .gt-batch-list { gap: 0; padding: 0; }
+.gt-page .gt-batch-card { padding: 18px 20px; }
+.gt-page .gt-batch-card + .gt-batch-card { border-top: 1px solid var(--border); }
+.gt-page .gt-batch-head h3 { margin: 0 0 3px; font-size: 15px; }
+.gt-page .gt-batch-head p { margin: 5px 0 0; }
+.gt-page .gt-batch-stats { margin-block: 9px 3px; }
+.gt-page .gt-batch-card > button { display: flex; margin-left: auto; }
+.gt-page .gt-person-card { background: #fbfcfe; }
+.gt-page .gt-person-head .avatar { background: #eaf1ff; color: #2355af; border-radius: 10px; }
+.gt-page .gt-detail:focus { outline: 2px solid #bfd6ff; outline-offset: 2px; }
+.gt-page .gt-detail-facts { gap: 1px; border-radius: 9px; overflow: hidden; background: #e1e8f0; border: 1px solid #e1e8f0; }
+.gt-page .gt-detail-facts > div { border-radius: 0; border: 0; background: #f7f9fc; padding: 11px 14px; }
+.gt-page .gt-detail-facts strong { overflow-wrap: anywhere; }
+.gt-page .gt-row-actions { justify-content: flex-end; white-space: nowrap; }
+.gt-page .gt-filter-group .search { display: flex; align-items: center; position: relative; }
+.gt-page .gt-filter-group .search > .ico { position: absolute; left: 10px; pointer-events: none; }
+.gt-page .gt-filter-group .search input { padding-left: 32px; }
+@media(max-width:680px) {
+  .gt-summary { grid-template-columns: repeat(2,minmax(0,1fr)); row-gap: 16px; padding: 14px 0; }
+  .gt-summary > div:nth-child(3) { border-left: 0; }
+  .gt-summary dd { font-size: 24px; }
+  .gt-workspace-actions { width: 100%; justify-content: space-between; }
+  .gt-page .gt-filter-group { gap: 8px; }
+  .gt-page .gt-detail-actions { flex-wrap: wrap; justify-content: flex-end; }
+}
+.gt-package { padding: 16px 20px; }
+.gt-package + .gt-package { border-top: 1px solid var(--border); }
+.gt-package-heading { display: flex; align-items: center; gap: 14px; justify-content: space-between; }
+.gt-package-heading strong { color: #162b43; font-size: 15px; }
+.gt-package-heading p { margin: 4px 0; color: #596a80; font-size: 12px; }
+.gt-package details { margin-top: 10px; }
+.gt-package summary { width: fit-content; cursor: pointer; color: #32558a; font-size: 13px; }
+.gt-package details[open] summary { margin-bottom: 12px; }
+
+.gt-page .gt-camera-task {
+  display:grid;grid-template-columns:minmax(205px,1fr) minmax(345px,1.6fr) auto;
+  align-items:center;gap:18px 32px;padding:20px 22px 13px;
+  border-top:1px solid #dfe6ef;
+}
+.gt-camera-identity{display:flex;align-items:center;gap:12px;min-width:0}
+.gt-camera-identity img{width:76px;height:58px;object-fit:cover;border-radius:6px}
+.gt-camera-identity h3{font-size:15px;line-height:1.5;margin:0;color:#192c45}
+.gt-camera-identity code{font-size:12px;color:#50627b;font-variant-numeric:tabular-nums}
+.gt-camera-identity p{margin:3px 0 0}
+.gt-camera-progress{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+.gt-camera-progress strong{font-size:13px;color:#273a52}
+.gt-camera-progress span,.gt-camera-origin{font-size:12px;color:#52647b}
+.gt-camera-controls{display:grid;justify-items:end;gap:5px}
+.gt-camera-controls .button{min-height:30px}
+.gt-camera-process .gt-operation-flow{justify-content:flex-start}
+.gt-camera-process .gt-operation-flow li:not(:last-child)::after{width:clamp(10px,1.4vw,25px);margin-inline:7px}
+.gt-camera-process li[data-state=todo] button:not([aria-disabled]) b{border-color:#93b5f7;background:#eff6ff;color:#1d4ed8}
+.gt-camera-origin{grid-column:1/-1;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;border-top:1px solid #edf1f6;padding-top:10px}
+.gt-camera-origin span{color:#68798e}.gt-camera-origin span:not(:first-child){margin-left:12px}
+.gt-page .gt-filter-group .search{position:relative}
+.gt-page .gt-filter-group .search input{padding-left:32px}
+@media(max-width:1150px){.gt-page .gt-camera-task{grid-template-columns:1fr auto}.gt-camera-process{grid-row:2;grid-column:1/-1}.gt-camera-controls{grid-row:1;grid-column:2}}
+@media(max-width:620px){.gt-page .gt-camera-task{grid-template-columns:minmax(0,1fr);gap:12px;padding:14px}.gt-camera-controls{grid-row:auto;grid-column:1;display:flex;justify-content:flex-end}.gt-camera-origin{grid-row:3}.gt-camera-process .gt-operation-flow{flex-wrap:wrap;gap:6px}}

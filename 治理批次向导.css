@@ -1,0 +1,48 @@
+/* Batch creation – keep selection, scope and publishing actions visible throughout. */
+.modal.gt-wizard { width:min(880px,calc(100vw - 40px)); max-height:min(860px,92dvh); display:flex; flex-direction:column; }
+.gt-wizard .modal-head, .gt-wizard .modal-footer, .gt-wizard .gt-wizard-steps { flex:none; }
+.gt-wizard .modal-head { padding:20px 24px 16px; border-bottom:0; }
+.gt-wizard .modal-head h2 { font-size:21px; }
+.gt-wizard .modal-body { padding:18px 24px; min-height:0; overflow:auto; overscroll-behavior:contain; }
+.gt-wizard .gt-wizard-steps { padding:10px 20px 15px; background:#fff; }
+.gt-wizard .modal-footer { display:flex; align-items:center; padding:14px 24px; background:#f8fafc; gap:8px; }
+.gt-wizard .modal-footer small { margin-right:auto; color:#53647b; font-size:13px; }
+.gt-wizard .gt-wizard-project { margin-bottom:14px; }
+.gt-wizard .gt-wizard-project label { display:grid; gap:6px; }
+.gt-wizard .gt-wizard-project select { width:min(360px,100%); }
+.gt-wizard .gt-main-filters { grid-template-columns:minmax(0,2fr) minmax(0,1fr); }
+.gt-wizard .gt-extra-filters { margin:4px 0 16px; border-bottom:1px solid #e2e8f0; padding-bottom:12px; }
+.gt-extra-filters summary { width:fit-content; cursor:pointer; color:#315780; font-size:13px; font-weight:600; padding:4px 0; }
+.gt-extra-filters[open] summary { margin-bottom:12px; }
+.gt-wizard .gt-select-tools { padding:0; margin:12px 0 8px; }
+.gt-wizard .gt-select-tools>span, .gt-wiz-section { font-size:14px; color:#26364c; font-weight:600; }
+.gt-wizard .gt-select-tools b { margin-left:4px; color:#617087; font-weight:500; }
+.gt-wizard .gt-camera-options { max-height:360px; }
+.gt-wizard .gt-camera-option { min-height:46px; padding:8px 12px; }
+.gt-wizard .gt-camera-option:hover, .gt-wizard .gt-stage-option:hover { background:#f5f9ff; }
+.gt-wizard .gt-camera-option:has(input:checked), .gt-wizard .gt-stage-option:has(input:checked) { background:#eff6ff; }
+.gt-wizard .gt-stage-option { padding:14px 16px; }
+.gt-wizard .gt-stage-option>b { padding:3px 8px; border-radius:5px; background:#f1f5f9; }
+.gt-wizard .gt-exclusion { background:#f8fafc; padding:14px 16px; }
+.gt-wizard .gt-exclusion:has(.gt-ack) { border-color:#f0d49d; background:#fffbf1; }
+.gt-wizard .gt-wizard-summary-stats { background:#f5f8fc; padding:12px 0; gap:0; border-radius:8px; }
+.gt-wizard .gt-wizard-summary-stats span { background:transparent; padding:0 16px; border-radius:0; }
+.gt-wizard .gt-wizard-summary-stats span+span { border-left:1px solid #dce4ee; }
+.gt-wizard .gt-wizard-summary-stats strong { line-height:1.25; font-size:22px; margin-bottom:3px; }
+.gt-wiz-section { margin:18px 0 8px; }
+.gt-wizard .gt-preview-head { align-items:flex-start; flex-wrap:wrap; }
+.gt-wizard .gt-people-picker { border:0; padding:0; }
+.gt-wizard .gt-people-picker legend { padding:0; margin-bottom:6px; }
+.gt-wizard .gt-people-picker label { border:1px solid #dce4ee; border-radius:6px; padding:6px 10px; cursor:pointer; }
+.gt-wizard .gt-people-picker label:has(input:checked) { border-color:#bfdbfe; background:#eff6ff; color:#1d4ed8; }
+.gt-wizard .gt-form-grid :is(input,select), .gt-wizard .gt-wizard-filters :is(input,select) { min-width:0; }
+@media(max-width:640px) {
+  .modal.gt-wizard { width:calc(100vw - 16px); max-height:96dvh; }
+  .gt-wizard .modal-head,.gt-wizard .modal-body,.gt-wizard .modal-footer { padding:12px 14px; }
+  .gt-wizard .gt-wizard-summary-stats { grid-template-columns:1fr 1fr; gap:10px 0; }
+  .gt-wizard .gt-wizard-summary-stats span:nth-child(3) { border:0; }
+  .gt-wizard .gt-preview-table-wrap { overflow:auto; }
+  .gt-wizard .gt-exclusion>div { flex-wrap:wrap; }
+  .gt-wizard .gt-select-tools>span { flex:1 1 auto; }
+  .gt-wizard .modal-footer small { max-width:10em; }
+}

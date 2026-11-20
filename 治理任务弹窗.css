@@ -1,0 +1,35 @@
+.gt-dialog-wrap { padding: 20px; background: rgb(15 23 42 / 30%); backdrop-filter: blur(2px); }
+.modal.gt-action-dialog { display:flex; flex-direction:column; width:min(540px,100%); max-height:min(85dvh,850px); border:1px solid #dce4ee; border-radius:14px; overflow:hidden; box-shadow:0 18px 65px rgb(15 23 42 / 18%); background:white; }
+.gt-dialog-head { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; padding:21px 24px 17px; border-bottom:1px solid #e5eaf1; }
+.gt-dialog-head h2 { margin:0; color:#17243a; font-size:20px; line-height:1.4; font-weight:650; }
+.gt-dialog-head h2:focus { outline:0; }
+.gt-dialog-head p,.gt-dialog-hint { margin:5px 0 0; font-size:13px; color:#52647a; line-height:1.55; }
+.gt-action-dialog form { display:flex; flex-direction:column; min-height:0; }
+.gt-dialog-body { min-height:0; display:grid; gap:19px; overflow:auto; padding:20px 24px; }
+.gt-dialog-body fieldset { min-inline-size:0; margin:0; border:0; padding:0; }
+.gt-dialog-body .gt-dialog-field,.gt-dialog-body legend,.gt-review-submission h3 { color:#263750; font-size:14px; font-weight:600; }
+.gt-dialog-field { display:grid; gap:7px; }
+.gt-dialog-field :is(textarea,select) { box-sizing:border-box; width:100%; min-width:0; padding:8px 11px; font:inherit; font-weight:400; font-size:14px; color:#24344a; border:1px solid #ccd6e3; border-radius:7px; background:white; }
+.gt-dialog-field select { height:38px; }
+.gt-dialog-field textarea { min-height:78px; resize:vertical; }
+.gt-action-dialog :is(textarea,select,button):focus-visible { outline:2px solid #2563eb; outline-offset:2px; }
+.gt-review-submission { overflow:hidden; border:1px solid #dde6ef; border-radius:9px; background:#f8fafc; }
+.gt-review-submission header { display:flex; align-items:center; gap:8px; padding:14px 16px 8px; }
+.gt-review-submission h3 { margin:0; }
+.gt-review-submission header span { padding:2px 6px; border-radius:4px; background:#e7edf5; color:#475569; font-size:11px; }
+.gt-review-facts { margin:0; display:grid; gap:9px; padding:13px 16px; background:#f8fafc; border-radius:7px; }
+.gt-review-submission .gt-review-facts { padding-top:4px; }
+.gt-review-facts div { display:grid; grid-template-columns:72px 1fr; gap:12px; font-size:13px; line-height:1.55; }
+.gt-review-facts dt { color:#52647a; }
+.gt-review-facts dd { margin:0; color:#17243a; overflow-wrap:anywhere; }
+.gt-review-submission >p { margin:0; padding:8px 16px; border-top:1px solid #e2e8f0; color:#57677b; font-size:12px; }
+.gt-verdict legend { margin-bottom:8px; }
+.gt-verdict >div { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.gt-verdict label { display:flex; align-items:center; gap:9px; padding:12px; border:1px solid #cdd7e3; border-radius:7px; font-size:14px; color:#334155; cursor:pointer; }
+.gt-verdict label:has(:checked) { color:#1d4ed8; border-color:#84affd; background:#eff6ff; }
+.gt-verdict input { accent-color:#2563eb; width:15px; height:15px; margin:0; }
+.gt-verdict label:has(:focus-visible) { outline:2px solid #2563eb; outline-offset:2px; }
+.gt-return-fields:not([hidden]) { display:grid; gap:14px; }
+.gt-return-fields[hidden] { display:none; }
+.gt-dialog-footer { display:flex; justify-content:flex-end; gap:8px; padding:14px 24px; border-top:1px solid #e5eaf1; }
+@media(max-width:580px) { .gt-dialog-wrap{padding:10px}.gt-dialog-body,.gt-dialog-head,.gt-dialog-footer{padding-inline:16px}.gt-verdict label{padding:10px 7px} }
