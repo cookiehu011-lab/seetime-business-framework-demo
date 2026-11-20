@@ -231,7 +231,7 @@
         state.cameraTaskContext = null;
         state.detail = null;
         navigate('cameraTasks');
-        notify(`${STAGES[item.stage].label}已保存，任務回執已記錄`);
+        notify(`${STAGES[item.stage].label}已保存，任务回执已记录`);
       }, 0);
       return result;
     } catch (error) {
@@ -281,20 +281,17 @@
     const all = items.length;
     const complete = items.filter(item => item.statusCode === 'complete').length;
     const working = items.filter(item => ['active', 'reworking'].includes(item.statusCode)).length;
-    const blocked = items.filter(item => ['blocked', 'rework'].includes(item.statusCode)).length;
+    const blocked = items.filter(item => ['blocked', 'rework', 'reworking'].includes(item.statusCode)).length;
     return `<div class="metrics gt-metrics"><div class="metric"><div class="metric-label">治理任务</div><div class="metric-value">${all}<small>项</small></div><div class="metric-note">所选项目范围内生成</div></div><div class="metric"><div class="metric-label">已完成</div><div class="metric-value gt-good">${complete}<small>项</small></div><div class="metric-note">成果已写入业务资料</div></div><div class="metric"><div class="metric-label">处理中</div><div class="metric-value">${working}<small>项</small></div><div class="metric-note">执行人正在处理</div></div><div class="metric"><div class="metric-label">问题 / 整改</div><div class="metric-value gt-warn">${blocked}<small>项</small></div><div class="metric-note">仅影响对应相机阶段</div></div></div>`;
   }
   function stageProgress(items) {
     return `<div class="gt-stage-grid">${Object.entries(STAGES).map(([stage, info]) => {
       const list = items.filter(item => item.stage === stage), done = list.filter(item => item.statusCode === 'complete').length;
-      return `<article class="box gt-stage-card"><div class="gt-stage-title"><strong>${info.label}</strong><span>${done} / ${list.length}</span></div><div class="gt-progress"><i style="width:${list.length ? done / list.length * 100 : 0}%"></i></div><small>${list.filter(item => ['active', 'reworking'].includes(item.statusCode)).length} 处理中 · ${list.filter(item => ['blocked', 'rework'].includes(item.statusCode)).length} 问题或整改</small></article>`;
+      return `<article class="box gt-stage-card"><div class="gt-stage-title"><strong>${info.label}</strong><span>${done} / ${list.length}</span></div><div class="gt-progress"><i style="width:${list.length ? done / list.length * 100 : 0}%"></i></div><small>${list.filter(item => ['active', 'reworking'].includes(item.statusCode)).length} 处理中 · ${list.filter(item => ['blocked', 'rework', 'reworking'].includes(item.statusCode)).length} 问题或整改</small></article>`;
     }).join('')}</div>`;
   }
-  function statusTag(item) { return `<span class="status ${['blocked', 'rework'].includes(item.statusCode) ? 'warn' : item.statusCode === 'complete' ? 'success' : item.statusCode === 'team' ? 'neutral' : ''}">${esc(taskStageStatus(item))}</span>`; }
-  function filteredItems() {
-    let items = scopedItems();
-    if (taskRoleKind() === 'worker') items = items.filter(item => item.assigneeId === personIdForRole());
-    if (taskRoleKind() === 'lead') items = items.filter(item => item.assigneeId === 'team' || item.issue?.resolved === false);
+  function statusTag(item) { return `<span class="status ${['blocked', 'rework', 'reworking'].includes(item.statusCode) ? 'warn' : item.statusCode === 'complete' ? 'success' : item.statusCode === 'team' ? 'neutral' : ''}">${esc(taskStageStatus(item))}</span>`; }
+  function filteredItems(items) {
     if (taskState.stage !== 'all') items = items.filter(item => item.stage === taskState.stage);
     if (taskState.filter !== 'all') items = items.filter(item => item.statusCode === taskState.filter);
     if (taskState.search) items = items.filter(item => `${item.cameraName} ${item.cameraId} ${item.batchName} ${item.assignee}`.toLowerCase().includes(taskState.search.toLowerCase()));
@@ -335,7 +332,7 @@
     const names = [...new Set([...PEOPLE.map(person => person.name), '外包团队待分派'])];
     return `<div class="gt-people-grid">${names.map(name => {
       const assigned = items.filter(item => item.assignee === name || (name === '外包团队待分派' && item.assigneeId === 'team'));
-      return `<article class="box gt-person-card"><div class="gt-person-head"><span class="avatar">${esc(name.slice(0, 1))}</span><div><strong>${esc(name)}</strong><small>${assigned.length} 项分配任务</small></div></div><div class="gt-person-stats"><span>完成 <b>${assigned.filter(item => item.statusCode === 'complete').length}</b></span><span>问题 <b>${assigned.filter(item => ['blocked', 'rework'].includes(item.statusCode)).length}</b></span><span>待办 <b>${assigned.filter(item => ['pending', 'active', 'team', 'rework', 'reworking'].includes(item.statusCode)).length}</b></span></div></article>`;
+      return `<article class="box gt-person-card"><div class="gt-person-head"><span class="avatar">${esc(name.slice(0, 1))}</span><div><strong>${esc(name)}</strong><small>${assigned.length} 项分配任务</small></div></div><div class="gt-person-stats"><span>完成 <b>${assigned.filter(item => item.statusCode === 'complete').length}</b></span><span>问题 <b>${assigned.filter(item => ['blocked', 'rework', 'reworking'].includes(item.statusCode)).length}</b></span><span>待办 <b>${assigned.filter(item => ['pending', 'active', 'team', 'rework', 'reworking'].includes(item.statusCode)).length}</b></span></div></article>`;
     }).join('')}</div>`;
   }
   function qualityPanel(items) {
@@ -348,8 +345,8 @@
     return table(['相机 / 阶段', '执行人', '提交版本', '抽查人', '结论', '问题 / 时间'], audits.map(audit => [`<strong>${esc(audit.cameraName)}</strong><small>${esc(audit.stageName)}</small>`, esc(audit.executor), `v${audit.submissionVersion}`, esc(audit.auditor), badge(audit.result), `<span>${esc(audit.issue || '—')}</span><small>${esc(audit.time)}</small>`]), '尚无抽查记录。');
   }
   function issuePanel(items) {
-    const blocked = items.filter(item => ['blocked', 'rework'].includes(item.statusCode));
-    return `<section class="box"><div class="box-title"><div><h2>${taskRoleKind() === 'worker' ? '我提交的问题' : '问题跟进'}</h2><p>问题只暂停当前相机当前阶段；其他任务可继续处理。</p></div><span class="status ${blocked.length ? 'warn' : 'neutral'}">${blocked.length} 项待跟进</span></div>${blocked.length ? taskTable(blocked, 'issues') : '<div class="empty">当前没有待跟进问题。</div>'}</section>`;
+    const blocked = items.filter(item => ['blocked', 'rework', 'reworking'].includes(item.statusCode));
+    return `<section class="box"><div class="box-title"><div><h2>${taskRoleKind() === 'worker' ? '我的问题与整改' : '问题跟进'}</h2><p>问题只暂停当前相机当前阶段；其他任务可继续处理。</p></div><span class="status ${blocked.length ? 'warn' : 'neutral'}">${blocked.length} 项待跟进</span></div>${blocked.length ? taskTable(blocked, 'issues') : '<div class="empty">当前没有待跟进问题。</div>'}</section>`;
   }
   function detailPanel() {
     const item = scopedItems().find(entry => entry.id === taskState.selectedId);
@@ -365,7 +362,7 @@
       const canWork = taskRoleKind() === 'worker' && sibling.assigneeId === personIdForRole() && ['pending', 'active', 'rework', 'reworking'].includes(sibling.statusCode);
       return `<article class="gt-flow-stage ${sibling.id === item.id ? 'current' : ''}"><strong>${STAGES[stage].label}</strong>${statusTag(sibling)}<small>${esc(sibling.assignee || '待分派')}${sibling.currentSubmission ? ` · v${sibling.currentSubmission.version}` : ''}</small>${canWork ? `<button class="button small ${sibling.id === item.id ? 'primary' : 'ghost'}" data-task-action="open" data-id="${esc(sibling.id)}">${sibling.statusCode === 'pending' ? '开始处理' : sibling.statusCode === 'rework' ? '开始整改' : '继续处理'}</button>` : ''}</article>`;
     }).join('');
-    return `<section class="box gt-detail"><div class="box-title"><div><h2>${esc(item.cameraName)} · ${esc(item.stageName)}</h2><p>${esc(item.batchName)} · ${esc(item.cameraId)}</p></div>${statusTag(item)}</div><div class="detail-content"><div class="gt-detail-facts"><div><span>执行人</span><strong>${esc(item.assignee || '待分派')}</strong></div><div><span>最近提交</span><strong>${esc(item.currentSubmission?.time || '—')}</strong></div><div><span>提交版本</span><strong>${item.currentSubmission ? `v${item.currentSubmission.version}` : '—'}</strong></div><div><span>抽查状态</span><strong>${esc(item.audits.at(-1)?.result || '待抽查')}</strong></div></div><div class="gt-task-flow"><h3 class="gt-subtitle">本批次任务阶段</h3><div class="gt-flow-grid">${stages}</div></div><div class="note">${esc(summary)}</div>${item.issue ? `<div class="note ${item.statusCode === 'blocked' ? 'warn' : ''}"><strong>${esc(item.issue.title || '质量问题')}</strong><p>${esc(item.issue.description || '')}</p><small>${esc(item.issue.reporter || '')} · ${esc(item.issue.time || '')}</small></div>` : ''}<h3 class="gt-subtitle">操作记录</h3><div class="timeline">${logs.length ? logs.slice(0, 8).map(entry => `<div class="timeline-item"><strong>${esc(entry.action)}</strong><span> · ${esc(entry.actor)}</span><small>${esc(entry.time)}${entry.detail ? ` · ${esc(entry.detail)}` : ''}</small></div>`).join('') : '<p class="muted">暂无操作记录。</p>'}</div></div></section>`;
+    return `<section class="box gt-detail"><div class="box-title"><div><h2>${esc(item.cameraName)} · ${esc(item.stageName)}</h2><p>${esc(item.batchName)} · ${esc(item.cameraId)}</p></div>${statusTag(item)}</div><div class="detail-content"><div class="gt-detail-facts"><div><span>执行人</span><strong>${esc(item.assignee || '待分派')}</strong></div><div><span>最近提交</span><strong>${esc(item.currentSubmission?.time || '—')}</strong></div><div><span>提交版本</span><strong>${item.currentSubmission ? `v${item.currentSubmission.version}` : '—'}</strong></div><div><span>抽查状态</span><strong>${esc(!item.currentSubmission ? '尚未提交' : item.lastAuditedVersion === item.currentSubmission.version ? item.audits.at(-1)?.result || '已抽查' : '待抽查')}</strong></div></div><div class="gt-task-flow"><h3 class="gt-subtitle">本批次任务阶段</h3><div class="gt-flow-grid">${stages}</div></div><div class="note">${esc(summary)}</div>${item.issue ? `<div class="note ${item.statusCode === 'blocked' ? 'warn' : ''}"><strong>${esc(item.issue.title || '质量问题')}</strong><p>${esc(item.issue.description || '')}</p><small>${esc(item.issue.reporter || '')} · ${esc(item.issue.time || '')}</small></div>` : ''}<h3 class="gt-subtitle">操作记录</h3><div class="timeline">${logs.length ? logs.slice(0, 8).map(entry => `<div class="timeline-item"><strong>${esc(entry.action)}</strong><span> · ${esc(entry.actor)}</span><small>${esc(entry.time)}${entry.detail ? ` · ${esc(entry.detail)}` : ''}</small></div>`).join('') : '<p class="muted">暂无操作记录。</p>'}</div></div></section>`;
   }
   function managerContent(items) {
     if (taskState.tab === 'batches') return `<section class="box"><div class="box-title"><div><h2>治理批次</h2><p>按项目创建和追踪；单个批次只包含一个项目。</p></div></div>${batchList()}</section><section class="box"><div class="box-title"><h2>阶段任务</h2><span class="muted">${items.length} 项</span></div>${taskTable(items)}</section>`;
@@ -377,31 +374,40 @@
   }
   function renderContent() {
     if (taskState.projectId !== 'all' && !taskProjects().some(project => project.id === taskState.projectId)) taskState.projectId = 'all';
-    const kind = taskRoleKind(), items = scopedItems();
+    const kind = taskRoleKind();
+    const items = scopedItems().filter(item => kind !== 'worker' || item.assigneeId === personIdForRole());
     const allowedTabs = kind === 'manager' ? ['overview', 'batches', 'people', 'quality', 'issues'] : kind === 'lead' ? ['team', 'issues'] : kind === 'auditor' ? ['quality', 'auditLog'] : ['mine', 'rework', 'issues'];
     if (!allowedTabs.includes(taskState.tab)) taskState.tab = allowedTabs[0];
     const description = kind === 'manager' ? '按项目组织基础信息、POI 挂载和事件配置任务，跟踪成果与质量。' : kind === 'lead' ? '将团队待分派任务交给执行人，并跟进受阻问题。' : kind === 'auditor' ? '抽查已提交成果；不合格时记录问题并派回原执行人整改。' : '从相机任务进入对应业务工作区，成果保存成功后自动记录提交回执。';
     let content = header('', description, kind === 'manager' ? `<button class="button primary gt-global-create-batch" data-task-action="new-batch">${icon('plus')} 新建治理批次</button>` : '');
     content += `<div class="gt-global-filter"><label>项目范围<select data-task-project><option value="all" ${taskState.projectId === 'all' ? 'selected' : ''}>全部授权项目</option>${taskProjects().map(project => `<option value="${esc(project.id)}" ${taskState.projectId === project.id ? 'selected' : ''}>${esc(project.name)}</option>`).join('')}</select></label><span>${taskState.projectId === 'all' ? `覆盖 ${taskProjects().length} 个授权项目` : '仅展示所选项目任务'}</span></div>`;
-    content += taskMetrics(kind === 'manager' || kind === 'auditor' ? items : filteredItems());
+    content += taskMetrics(items);
     content += tabsForRole(kind);
     if (kind === 'manager') content += managerContent(items);
-    else if (kind === 'lead') content += taskState.tab === 'issues' ? issuePanel(items) : `<section class="box"><div class="box-title"><div><h2>组长待分派池</h2><p>团队承接的治理任务需分配给一位执行人。</p></div><span class="status neutral">${items.filter(item => item.assigneeId === 'team').length} 项待分派</span></div>${taskTable(items.filter(item => item.assigneeId === 'team' || item.statusCode === 'blocked'), 'team')}</section>`;
+    else if (kind === 'lead') content += taskState.tab === 'issues' ? issuePanel(items) : `<section class="box"><div class="box-title"><div><h2>组长待分派池</h2><p>团队承接的治理任务需分配给一位执行人。</p></div><span class="status neutral">${items.filter(item => item.assigneeId === 'team').length} 项待分派</span></div>${taskTable(items.filter(item => item.assigneeId === 'team'), 'team')}</section>`;
     else if (kind === 'auditor') content += taskState.tab === 'auditLog' ? auditTable(scopedAudits()) : qualityPanel(items);
     else if (taskState.tab === 'issues') content += issuePanel(items);
     else {
-      const target = taskState.tab === 'rework' ? items.filter(item => ['rework', 'reworking'].includes(item.statusCode)) : items.filter(item => item.assigneeId === personIdForRole() && !['blocked'].includes(item.statusCode));
+      const target = filteredItems(items).filter(item => taskState.tab !== 'rework' || ['rework', 'reworking'].includes(item.statusCode));
       content += `<section class="box"><div class="toolbar"><div class="gt-filter-group"><label>阶段<select data-task-stage><option value="all">全部阶段</option>${Object.entries(STAGES).map(([id, stage]) => `<option value="${id}" ${taskState.stage === id ? 'selected' : ''}>${stage.label}</option>`).join('')}</select></label><label>状态<select data-task-filter><option value="all">全部状态</option>${Object.entries(labels).map(([id, label]) => `<option value="${id}" ${taskState.filter === id ? 'selected' : ''}>${label}</option>`).join('')}</select></label><form class="search" data-task-search>${icon('search')}<input name="q" value="${esc(taskState.search)}" placeholder="搜索相机、编号或批次"><button class="visually-hidden" type="submit">搜索</button></form></div><span class="muted">${target.length} 项任务</span></div>${taskTable(target, 'worker')}</section>`;
       content += `<p class="local-note">正常提交直接更新业务资料；质量抽查在提交后进行，不影响继续处理其他相机。</p>`;
     }
     content += detailPanel();
-    if (taskRoleKind() === 'worker') content += issuePanel(items.filter(item => item.assigneeId === personIdForRole()));
     return content;
   }
   function renderTaskCenter() {
     document.getElementById('app').innerHTML = shell(`<div class="gt-page">${renderContent()}</div>`);
     document.title = `${MODULES.cameraTasks.name} · SeeTime`;
   }
+  const previousSignIn = signIn;
+  signIn = function (id) {
+    if (id !== store.session.role && ROLES[id]) {
+      Object.assign(taskState, { tab: 'overview', selectedId: '', stage: 'all', filter: 'all', search: '', projectId: 'all', wizard: null });
+      state.cameraTaskContext = null;
+      state.detail = null;
+    }
+    previousSignIn(id);
+  };
   const previousRender = render;
   render = function () {
     if (state.route === 'cameraTasks') { renderTaskCenter(); return; }
