@@ -584,7 +584,7 @@ function render({keepFocus=false}={}) {
   const library=state.page==='tags'||state.page==='positions';
   const title=state.page==='tags'?'个人版标签库':state.page==='positions'?'个人版空间位置库':'分析配置';
   document.body.classList.toggle('tag-library',library);
-  byId('library-switch').hidden=!library;
+  byId('library-switch').hidden=embedded||!library;
   byId('library-switch').querySelectorAll('button').forEach(button=>{
     if(button.dataset.value===state.page)button.setAttribute('aria-current','page');
     else button.removeAttribute('aria-current');

@@ -9,7 +9,11 @@
  navigate=function(route,tab=''){
   return previousNavigate(route==='personalAnalysisConfig'?'analysisConfig':route,route==='personalAnalysisConfig'?'tags':tab);
  };
- const configSections=()=>{const current=state.tab==='tags'||state.tab==='positions'?'tags':'prompts';return [['prompts','提示词管理'],...(can('personalAnalysisConfig')?[['tags','个人版标签库']]:[])].map(([id,label])=>`<button type="button" class="module-section-button ${current===id?'active':''}" data-route="analysisConfig" data-route-tab="${id}" ${current===id?'aria-current="page"':''}>${label}</button>`).join('')};
+ const sections={prompts:'提示词管理',tags:'个人版标签库',positions:'空间位置库'};
+ const currentSection=()=>Object.hasOwn(sections,state.tab)?state.tab:'prompts';
+ const configSections=()=>Object.entries(sections)
+  .filter(([id])=>id==='prompts'||can('personalAnalysisConfig'))
+  .map(([id,label])=>`<button type="button" class="module-section-button ${currentSection()===id?'active':''}" data-route="analysisConfig" data-route-tab="${id}" ${currentSection()===id?'aria-current="page"':''}>${label}</button>`).join('');
  const previousNavItem=frameworkNavItem;
  frameworkNavItem=function(id,...args){
   if(id==='personalAnalysisConfig')return '';
@@ -24,11 +28,11 @@
  render=function(){
   if(!['analysisConfig','personalAnalysisConfig'].includes(state.route))return previousRender();
   if(state.route==='personalAnalysisConfig'){state.route='analysisConfig';state.tab='tags'}
-  const page=state.tab==='tags'||state.tab==='positions'?'tags':'prompts';
-  const label=page==='tags'?'个人版标签库':'提示词管理';
+  const page=currentSection();
+  const label=sections[page];
   const allowed=can('analysisConfig')&&(page==='prompts'||can('personalAnalysisConfig'));
   destroyCameraMap();
-  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+label+'" src="分析配置.html?embed=1&page='+page+'&v=library-inline-20261118" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
+  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+label+'" src="分析配置.html?embed=1&page='+page+'&v=libraries-20261124" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
   document.querySelector('.crumb').insertAdjacentHTML('beforeend',icon('chevron')+'<strong aria-current="page">'+label+'</strong>');
   document.title=label+' · 分析配置 · SeeTime';
  };
