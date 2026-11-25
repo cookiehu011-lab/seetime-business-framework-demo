@@ -46,6 +46,9 @@
   dialog form { display: grid; gap: 12px; padding: 18px; }
   dialog h2 { margin: 0; font-size: 16px; }
   dialog .note { margin: 0; color: #64748b; font-size: 13px; }
+  #type-name { width: 100%; box-sizing: border-box; height: 36px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font: inherit; }
+  #type-name:focus { outline: 2px solid #2563eb; outline-offset: 1px; }
+  #type-error { margin: 0; color: #b42318; font-size: 13px; }
   dialog .choices { display: flex; flex-wrap: wrap; gap: 8px; }
   dialog .choices label { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
   dialog footer { display: flex; justify-content: flex-end; gap: 8px; }
@@ -83,6 +86,19 @@
     </section>
   </section>
 </main>
+<dialog id="new-type" aria-labelledby="type-title">
+  <form novalidate>
+    <h2 id="type-title">新增类型</h2>
+    <p class="note" id="type-parent"></p>
+    <label for="type-name">中类名称</label>
+    <input id="type-name" required autofocus autocomplete="off" aria-describedby="type-error">
+    <p id="type-error" role="alert" hidden></p>
+    <footer>
+      <button class="ghost" type="button" id="cancel-type">取消</button>
+      <button class="primary" type="submit">保存</button>
+    </footer>
+  </form>
+</dialog>
 <dialog id="editor">
   <form method="dialog">
     <h2 id="editor-title">编辑空间位置</h2>
@@ -216,14 +232,37 @@ groupList.addEventListener('click', event => {
 queryInput.form.addEventListener('submit', event => event.preventDefault());
 queryInput.addEventListener('input', () => { query = queryInput.value; render(); });
 levelInput.addEventListener('change', () => { level = levelInput.value; render(); });
+const typeDialog = document.getElementById('new-type');
+const typeName = document.getElementById('type-name');
+const typeError = document.getElementById('type-error');
+function clearTypeError() {
+  typeError.hidden = true;
+  typeName.removeAttribute('aria-invalid');
+}
 document.getElementById('create').addEventListener('click', () => {
-  const name = window.prompt('新的中类名称');
-  if (!name || !name.trim()) return;
+  document.getElementById('type-parent').textContent = '所属大类：' + groups[selected].name;
+  typeName.value = '';
+  clearTypeError();
+  typeDialog.showModal();
+});
+document.getElementById('cancel-type').onclick = () => typeDialog.close();
+typeName.addEventListener('input', clearTypeError);
+typeDialog.querySelector('form').addEventListener('submit', event => {
+  event.preventDefault();
+  const name = typeName.value.trim();
+  if (!name || groups[selected].children.some(child => child.name === name)) {
+    typeError.hidden = false;
+    typeError.textContent = name ? '当前大类中已有同名类型' : '请输入中类名称';
+    typeName.setAttribute('aria-invalid', 'true');
+    typeName.focus();
+    return;
+  }
   const used = new Set(groups.flatMap(group => group.children.map(child => child.code)));
   let number = 1;
   while (used.has('自定义' + number)) number++;
-  groups[selected].children.push({ code: '自定义' + number, name: name.trim() });
+  groups[selected].children.push({ code: '自定义' + number, name });
   saveGroups();
+  typeDialog.close();
   render();
 });
 rows.addEventListener('click', event => {
