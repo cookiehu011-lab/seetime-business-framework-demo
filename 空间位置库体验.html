@@ -13,6 +13,8 @@
   header strong { font-size: 15px; }
   header span { color: #64748b; font-size: 13px; }
   main { height: calc(100% - 56px); padding: 20px; display: grid; grid-template-rows: auto minmax(0, 1fr); gap: 14px; }
+  body.embedded > header { display: none; }
+  body.embedded main { height: 100%; padding: 0; }
   h1 { margin: 0; font-size: 20px; font-weight: 600; }
   .lead { margin: 4px 0 0; color: #64748b; font-size: 13px; }
   .workspace { min-height: 0; display: grid; grid-template-columns: 240px minmax(0, 1fr); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
@@ -43,6 +45,7 @@
   dialog::backdrop { background: rgba(15, 23, 42, .28); }
   dialog form { display: grid; gap: 12px; padding: 18px; }
   dialog h2 { margin: 0; font-size: 16px; }
+  dialog .note { margin: 0; color: #64748b; font-size: 13px; }
   dialog .choices { display: flex; flex-wrap: wrap; gap: 8px; }
   dialog .choices label { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
   dialog footer { display: flex; justify-content: flex-end; gap: 8px; }
@@ -61,7 +64,7 @@
 <main>
   <div>
     <h1>个人版空间位置库</h1>
-    <p class="lead">一次只看一个大类。中类没单独设置时，沿用大类。要找某一个类型，直接搜索。</p>
+    <p class="lead">一次只看一个大类。中类没有自己的位置时，跟着大类。要找某一个类型，直接搜索。</p>
   </div>
   <section class="workspace">
     <nav class="groups" id="groups" aria-label="高德大类"></nav>
@@ -83,9 +86,10 @@
 <dialog id="editor">
   <form method="dialog">
     <h2 id="editor-title">编辑空间位置</h2>
+    <p class="note" id="editor-note" hidden></p>
     <div class="choices" id="choices"></div>
     <footer>
-      <button class="ghost" id="restore" type="button">恢复沿用大类</button>
+      <button class="ghost" id="restore" type="button">改回跟着大类</button>
       <button class="ghost" value="cancel" type="submit">取消</button>
       <button class="primary" value="save" type="submit">保存</button>
     </footer>
@@ -93,7 +97,7 @@
 </dialog>
 <script>
 const vocabulary = ['出入口', '加油或充电工位', '维修工位', '洗车工位', '排队等候区', '停车区', '用餐区', '售卖区', '步行区', '观景区', '候车区'];
-const groups = [
+let groups = [
   { code: '010000', name: '汽车服务', positions: ['出入口', '加油或充电工位', '维修工位', '排队等候区', '停车区'], children: [
     { code: '010100', name: '加油站' },
     { code: '010200', name: '其它能源站' },
@@ -125,6 +129,18 @@ const groups = [
     { code: '150900', name: '停车场' }
   ]}
 ];
+document.body.classList.toggle('embedded', new URLSearchParams(location.search).has('embed'));
+const storageKey = 'seetime-position-library-v1';
+try {
+  const saved = JSON.parse(localStorage.getItem(storageKey));
+  if (Array.isArray(saved) && saved.length) groups = saved;
+} catch {}
+function saveGroups() {
+  localStorage.setItem(storageKey, JSON.stringify(groups));
+}
+function escapeHtml(value) {
+  return String(value).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+}
 let selected = 0;
 let query = '';
 let level = 'all';
@@ -142,7 +158,7 @@ function positionsOf(group, child) {
   return child && child.positions ? child.positions : group.positions;
 }
 function chips(list) {
-  return `<span class="pos">${list.map(item => `<i>${item}</i>`).join('')}</span>`;
+  return `<span class="pos">${list.map(item => `<i>${escapeHtml(item)}</i>`).join('')}</span>`;
 }
 function rowMatches(group, child) {
   const keyword = query.trim();
@@ -155,7 +171,7 @@ function rowMatches(group, child) {
 }
 function render() {
   const keyword = query.trim();
-  groupList.innerHTML = `<h2>大类</h2>` + groups.map((group, index) => `<button type="button" data-group="${index}" ${index === selected && !keyword ? 'aria-current="true"' : ''}>${group.name}<small>${group.children.length}</small></button>`).join('');
+  groupList.innerHTML = `<h2>大类</h2>` + groups.map((group, index) => `<button type="button" data-group="${index}" ${index === selected && !keyword ? 'aria-current="true"' : ''}>${escapeHtml(group.name)}<small>${group.children.length}</small></button>`).join('');
   const source = keyword ? groups.map((group, index) => ({ group, index })) : [{ group: groups[selected], index: selected }];
   const lines = [];
   source.forEach(({ group, index }) => {
@@ -169,21 +185,24 @@ function render() {
   rows.innerHTML = lines.map(line => {
     const item = line.child || line.group;
     const own = line.child && line.child.positions;
-    const place = own || !line.child ? chips(positionsOf(line.group, line.child)) : `<span class="inherit">沿用「${line.group.name}」</span>`;
-    const action = line.child && !own
-      ? `<button class="act" type="button" data-customize="${line.index}-${line.childIndex}">单独设置</button>`
-      : `<button class="act" type="button" data-edit="${line.child ? line.index + '-' + line.childIndex : line.index}">编辑</button>`;
-    return `<article class="row"><div><b>${item.name}</b><span class="code">${line.child ? '中类' : '大类'} · ${item.code}${keyword && line.child ? ' · ' + line.group.name : ''}</span></div><div>${place}</div><div>${action}</div></article>`;
+    const place = own || !line.child ? chips(positionsOf(line.group, line.child)) : `<span class="inherit">跟着「${escapeHtml(line.group.name)}」</span>`;
+    const action = `<button class="act" type="button" data-edit="${line.child ? line.index + '-' + line.childIndex : line.index}">编辑</button>`;
+    return `<article class="row"><div><b>${escapeHtml(item.name)}</b><span class="code">${line.child ? '中类' : '大类'} · ${escapeHtml(item.code)}${keyword && line.child ? ' · ' + escapeHtml(line.group.name) : ''}</span></div><div>${place}</div><div>${action}</div></article>`;
   }).join('');
 }
 function openEditor(groupIndex, childIndex) {
   const group = groups[groupIndex];
   const child = childIndex == null ? null : group.children[childIndex];
   editing = { groupIndex, childIndex };
+  const inherited = Boolean(child && !child.positions);
   document.getElementById('editor-title').textContent = `编辑「${child ? child.name : group.name}」的空间位置`;
+  const note = document.getElementById('editor-note');
+  note.hidden = !inherited;
+  note.textContent = inherited ? `现在跟着「${group.name}」。保存后，只这一条用新的位置。` : '';
   const current = child ? (child.positions || group.positions) : group.positions;
-  choices.innerHTML = vocabulary.map(name => `<label><input type="checkbox" value="${name}" ${current.includes(name) ? 'checked' : ''}>${name}</label>`).join('');
+  choices.innerHTML = [...new Set([...vocabulary, ...current])].map(name => `<label><input type="checkbox" value="${escapeHtml(name)}" ${current.includes(name) ? 'checked' : ''}>${escapeHtml(name)}</label>`).join('');
   restore.hidden = !child || !child.positions;
+  editor.returnValue = '';
   editor.showModal();
 }
 groupList.addEventListener('click', event => {
@@ -194,18 +213,22 @@ groupList.addEventListener('click', event => {
   queryInput.value = '';
   render();
 });
+queryInput.form.addEventListener('submit', event => event.preventDefault());
 queryInput.addEventListener('input', () => { query = queryInput.value; render(); });
 levelInput.addEventListener('change', () => { level = levelInput.value; render(); });
 document.getElementById('create').addEventListener('click', () => {
   const name = window.prompt('新的中类名称');
   if (!name || !name.trim()) return;
-  groups[selected].children.push({ code: '自定义', name: name.trim() });
+  const used = new Set(groups.flatMap(group => group.children.map(child => child.code)));
+  let number = 1;
+  while (used.has('自定义' + number)) number++;
+  groups[selected].children.push({ code: '自定义' + number, name: name.trim() });
+  saveGroups();
   render();
 });
 rows.addEventListener('click', event => {
   const edit = event.target.closest('[data-edit]');
-  const customize = event.target.closest('[data-customize]');
-  const key = (edit || customize)?.dataset.edit || (edit || customize)?.dataset.customize;
+  const key = edit?.dataset.edit;
   if (!key) return;
   const [groupIndex, childIndex] = key.split('-').map(Number);
   openEditor(groupIndex, Number.isInteger(childIndex) ? childIndex : null);
@@ -213,7 +236,8 @@ rows.addEventListener('click', event => {
 restore.addEventListener('click', () => {
   if (!editing || editing.childIndex == null) return;
   delete groups[editing.groupIndex].children[editing.childIndex].positions;
-  editor.close();
+  saveGroups();
+  editor.close('restore');
   render();
 });
 editor.addEventListener('close', () => {
@@ -221,6 +245,7 @@ editor.addEventListener('close', () => {
   const picked = [...choices.querySelectorAll('input:checked')].map(input => input.value);
   if (editing.childIndex == null) groups[editing.groupIndex].positions = picked;
   else groups[editing.groupIndex].children[editing.childIndex].positions = picked;
+  saveGroups();
   render();
 });
 render();

@@ -30,9 +30,10 @@
   if(state.route==='personalAnalysisConfig'){state.route='analysisConfig';state.tab='tags'}
   const page=currentSection();
   const label=sections[page];
+  const source=page==='positions'?'空间位置库体验.html?embed=1&v=20261125':'分析配置.html?embed=1&page='+page+'&v=libraries-20261124';
   const allowed=can('analysisConfig')&&(page==='prompts'||can('personalAnalysisConfig'));
   destroyCameraMap();
-  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+label+'" src="分析配置.html?embed=1&page='+page+'&v=libraries-20261124" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
+  document.getElementById('app').innerHTML=shell(allowed?'<nav class="module-secondary-mobile config-secondary" aria-label="分析配置二级功能">'+configSections()+'</nav><iframe id="analysis-config-frame" title="'+label+'" src="'+source+'" style="display:block;width:100%;height:calc(100dvh - 160px);min-height:560px;border:0" ></iframe>':noPermission());
   document.querySelector('.crumb').insertAdjacentHTML('beforeend',icon('chevron')+'<strong aria-current="page">'+label+'</strong>');
   document.title=label+' · 分析配置 · SeeTime';
  };
