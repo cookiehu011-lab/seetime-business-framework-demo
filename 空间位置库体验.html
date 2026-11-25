@@ -20,11 +20,14 @@
   .workspace { min-height: 0; display: grid; grid-template-columns: 240px minmax(0, 1fr); background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
   .groups { min-height: 0; overflow: auto; border-right: 1px solid #e5e7eb; padding: 12px; display: grid; align-content: start; gap: 4px; }
   .groups h2 { margin: 4px 8px 8px; font-size: 12px; font-weight: 500; color: #64748b; }
-  .groups button { display: flex; justify-content: space-between; gap: 8px; width: 100%; min-height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #0f172a; font: inherit; text-align: left; cursor: pointer; }
+  .groups button { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 36px; padding: 0 10px; border: 0; border-radius: 8px; background: transparent; color: #0f172a; font: inherit; text-align: left; cursor: pointer; }
+  .groups button:hover { background: #f5f7fa; }
+  .groups button:focus-visible { outline: 2px solid #2563eb; outline-offset: -2px; }
   .groups button small { color: #64748b; font-size: 12px; }
-  .groups button[aria-current="true"] { background: #eff6ff; color: #1d4ed8; box-shadow: inset 3px 0 0 #2563eb; }
-  .groups button[aria-current="true"] small { color: #1d4ed8; }
-  .content { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto auto minmax(0, 1fr); }
+  .groups button[aria-current="true"] { background: #eff6ff; color: #1d4ed8; font-weight: 600; }
+  .groups button[aria-current="true"] small { color: #365d98; }
+  .content { min-width: 0; min-height: 0; display: grid; grid-template-rows: auto minmax(0, 1fr); }
+  .content:has(.summary:not([hidden])) { grid-template-rows: auto auto minmax(0, 1fr); }
   .toolbar { display: flex; gap: 8px; align-items: center; padding: 14px 16px; border-bottom: 1px solid #e5e7eb; }
   .toolbar input, .toolbar select { height: 36px; border: 1px solid #e5e7eb; border-radius: 8px; background: #fff; color: #0f172a; font: inherit; font-size: 13px; }
   .toolbar input { flex: 1; min-width: 0; padding: 0 12px; }
@@ -33,6 +36,12 @@
   .summary { padding: 12px 16px 0; color: #475569; font-size: 13px; }
   .rows { min-height: 0; overflow: auto; padding: 8px 16px 16px; }
   .row { display: grid; grid-template-columns: 180px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f5f9; }
+  .type-group + .type-group { margin-top: 18px; }
+  .parent { border-radius: 8px; background: #f4f7fb; padding: 12px; }
+  .parent h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .children { margin: 0 0 0 19px; padding: 0 0 0 18px; border-left: 1px solid #dbe3ed; list-style: none; }
+  .children .row { position: relative; }
+  .children .row::before { content: ""; position: absolute; top: 50%; left: -18px; width: 10px; border-top: 1px solid #dbe3ed; }
   .row b { display: block; font-size: 14px; }
   .row .code { color: #64748b; font-size: 12px; }
   .inherit { color: #64748b; }
@@ -189,22 +198,26 @@ function render() {
   const keyword = query.trim();
   groupList.innerHTML = `<h2>大类</h2>` + groups.map((group, index) => `<button type="button" data-group="${index}" ${index === selected && !keyword ? 'aria-current="true"' : ''}>${escapeHtml(group.name)}<small>${group.children.length}</small></button>`).join('');
   const source = keyword ? groups.map((group, index) => ({ group, index })) : [{ group: groups[selected], index: selected }];
-  const lines = [];
-  source.forEach(({ group, index }) => {
-    if (rowMatches(group, null)) lines.push({ group, index, child: null });
-    group.children.forEach((child, childIndex) => {
-      if (rowMatches(group, child)) lines.push({ group, index, child, childIndex });
-    });
-  });
-  summary.textContent = keyword ? `找到 ${lines.length} 个「${keyword}」` : `${groups[selected].name} · 1 个大类 · ${groups[selected].children.length} 个中类`;
-  if (!lines.length) { rows.innerHTML = '<div class="empty">没有找到这个类型。</div>'; return; }
-  rows.innerHTML = lines.map(line => {
-    const item = line.child || line.group;
-    const own = line.child && line.child.positions;
-    const place = own || !line.child ? chips(positionsOf(line.group, line.child)) : `<span class="inherit">跟着「${escapeHtml(line.group.name)}」</span>`;
-    const action = `<button class="act" type="button" data-edit="${line.child ? line.index + '-' + line.childIndex : line.index}">编辑</button>`;
-    return `<article class="row"><div><b>${escapeHtml(item.name)}</b><span class="code">${line.child ? '中类' : '大类'} · ${escapeHtml(item.code)}${keyword && line.child ? ' · ' + escapeHtml(line.group.name) : ''}</span></div><div>${place}</div><div>${action}</div></article>`;
+  let matches = 0;
+  const sections = source.map(({ group, index }) => {
+    const parentMatches = rowMatches(group, null);
+    const children = group.children.map((child, childIndex) => {
+      if (!rowMatches(group, child)) return '';
+      matches++;
+      const place = child.positions ? chips(child.positions) : '<span class="inherit">沿用大类位置</span>';
+      return `<li class="row"><div><b>${escapeHtml(child.name)}</b><span class="code">中类 · ${escapeHtml(child.code)}</span></div><div>${place}</div><button class="act" type="button" data-edit="${index}-${childIndex}">编辑</button></li>`;
+    }).join('');
+    if (!parentMatches && !children) return '';
+    if (parentMatches) matches++;
+    const heading = `<h2 id="group-${index}">${escapeHtml(group.name)}</h2>`;
+    const parent = parentMatches
+      ? `<div class="parent row"><div>${heading}<span class="code">大类 · ${escapeHtml(group.code)}</span></div><div>${chips(group.positions)}</div><button class="act" type="button" data-edit="${index}">编辑</button></div>`
+      : `<div class="parent">${heading}</div>`;
+    return `<section class="type-group" aria-labelledby="group-${index}">${parent}${children ? '<ul class="children">' + children + '</ul>' : ''}</section>`;
   }).join('');
+  summary.hidden = !keyword;
+  summary.textContent = keyword ? `找到 ${matches} 个匹配类型` : '';
+  rows.innerHTML = sections || '<div class="empty">没有找到这个类型。</div>';
 }
 function openEditor(groupIndex, childIndex) {
   const group = groups[groupIndex];
